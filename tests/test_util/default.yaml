@@ -1,0 +1,65 @@
+hub:
+  wamp_server: ws://localhost:8001/ws
+  wamp_http: http://localhost:8001/call
+  wamp_realm: test_realm
+  address_root: observatory
+
+hosts:
+    localhost: {
+      'wamp_server': 'ws://localhost:8001/ws',
+      'wamp_http': 'http://localhost:8001/call',
+      'agent-instances': [
+          {'agent-class': 'FakeDataAgent',
+           'instance-id': 'faker2',
+           'arguments': [['--mode', 'acq'],
+                         ['--num-channels', 2],
+                         ['--sample-rate', 10]]},
+          {'agent-class': 'ACUAgent',
+           'instance-id': 'acu1',
+           'arguments': [['--acu_config', 'guess']]},
+      ]
+    }
+
+    ocs-docker: {
+      'wamp_server': 'ws://crossbar:8001/ws',
+      'wamp_http': 'http://crossbar:8001/call',
+      'agent-instances': [
+          ###################################################
+          # Core OCS Agents
+          ###################################################
+          {'agent-class': 'RegistryAgent',
+              'instance-id': 'registry',
+              'arguments': []},
+
+          {'agent-class': 'AggregatorAgent',
+           'instance-id': 'aggregator',
+           'arguments': [['--initial-state', 'record'],
+                         ['--time-per-file', '30'],
+                         ['--data-dir', '/data/hk']]},
+
+          {'agent-class': 'FakeDataAgent',
+           'instance-id': 'faker',
+           'arguments': [['--mode', 'acq'],
+                         ['--num-channels', 2],
+                         ['--sample-rate', 10]]},
+
+          ###################################################
+          # Pysmurf Agents
+          ###################################################
+          {'agent-class': 'PysmurfController',
+           'instance-id': 'pysmurf-controller',
+           'arguments': [['--monitor-id', 'pysmurf-monitor']]},
+
+          {'agent-class': 'PysmurfMonitor',
+           'instance-id': 'pysmurf-monitor',
+           'arguments': [['--udp-port', 8200],
+                         ['--create-table', True]]},
+
+          {'agent-class': 'PysmurfArchiverAgent',
+           'instance-id': 'pysmurf-archiver',
+           'arguments': [['--data-dir', '/data/pysmurf'],
+                         ['--target', 'pysmurf-monitor']]},
+      ]
+    }
+ 
+
