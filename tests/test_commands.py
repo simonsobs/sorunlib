@@ -1,5 +1,7 @@
 import os
 os.environ["OCS_CONFIG_DIR"] = "./test_util/"
+import pytest
+import datetime as dt
 
 from unittest.mock import MagicMock, patch
 
@@ -45,6 +47,16 @@ def test_iv_curve():
 
 
 @patch('sorunlib.commands.create_clients', mocked_clients)
+def test_wait_in_past():
+    run = ObservationRunner()
+    with pytest.raises(AssertionError):
+        run.wait("2020-01-01T00:00:00")
+
+
+# patch out time.sleep so we don't actually wait during testing
+@patch('sorunlib.commands.time.sleep', MagicMock())
+@patch('sorunlib.commands.create_clients', mocked_clients)
 def test_wait():
     run = ObservationRunner()
-    run.wait()
+    target = dt.datetime.now() + dt.timedelta(seconds=1)
+    run.wait(target.isoformat())
