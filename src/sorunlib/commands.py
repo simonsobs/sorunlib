@@ -32,22 +32,6 @@ class ObservationRunner:
     def start_scan(self):
         pass
 
-    def bias_step(self):
-        """Perform a bias step on all SMuRF Controllers"""
-        for smurf in self.clients['smurf']:
-            smurf.run.start('bias_step.sh')
-
-        for smurf in self.clients['smurf']:
-            smurf.run.wait()
-
-    def iv_curve(self):
-        """Perform a bias step on all SMuRF Controllers"""
-        for smurf in self.clients['smurf']:
-            smurf.run.start('iv_curve.sh')
-
-        for smurf in self.clients['smurf']:
-            smurf.run.wait()
-
     @staticmethod
     def wait(target_time):
         """Wait until a specified time.

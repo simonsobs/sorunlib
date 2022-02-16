@@ -30,18 +30,6 @@ class TestObservationRunner:
     def test_start_scan(self, run):
         run.start_scan()
 
-    def test_bias_step(self, run):
-        run.bias_step()
-        for client in run.clients['smurf']:
-            client.run.start.assert_called_with('bias_step.sh')
-            client.run.start.assert_called_once()
-
-    def test_iv_curve(self, run):
-        run.iv_curve()
-        for client in run.clients['smurf']:
-            client.run.start.assert_called_with('iv_curve.sh')
-            client.run.start.assert_called_once()
-
     def test_wait_in_past(self, run):
         with pytest.raises(AssertionError):
             run.wait("2020-01-01T00:00:00")
