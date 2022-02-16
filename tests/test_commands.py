@@ -23,9 +23,6 @@ class TestObservationRunner:
         run = ObservationRunner()
         return run
 
-    def test_start_scan(self, run):
-        run.start_scan()
-
     def test_wait_in_past(self, run):
         with pytest.raises(AssertionError):
             run.wait("2020-01-01T00:00:00")

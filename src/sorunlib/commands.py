@@ -18,9 +18,6 @@ class ObservationRunner:
     def __init__(self):
         self.clients = create_clients()
 
-    def start_scan(self):
-        pass
-
     @staticmethod
     def wait(target_time):
         """Wait until a specified time.
