@@ -25,7 +25,7 @@ class TestObservationRunner:
 
     def test_move_to(self, run):
         run.move_to(180, 60)
-        run.clients['acu'].go_to.assert_called_with(180, 60)
+        run.clients['acu'].go_to.assert_called_with(180, 60, None)
 
     def test_start_scan(self, run):
         run.start_scan()
