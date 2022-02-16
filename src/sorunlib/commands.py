@@ -18,17 +18,6 @@ class ObservationRunner:
     def __init__(self):
         self.clients = create_clients()
 
-    def move_to(self, az, el, wait=None):
-        """Move telescope to specified coordinates.
-
-        Args:
-            az (float): destination angle for the azimuthal axis
-            el (float): destination angle for the elevation axis
-            wait (float): amount of time to wait for motion to end
-
-        """
-        self.clients['acu'].go_to(az, el, wait)
-
     def start_scan(self):
         pass
 
