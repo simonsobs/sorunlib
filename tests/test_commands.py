@@ -5,30 +5,16 @@ import datetime as dt
 
 from unittest.mock import MagicMock, patch
 
-from sorunlib.commands import ObservationRunner
+from sorunlib.commands import wait
 
 
-def mocked_clients():
-    clients = {'acu': MagicMock(),
-               'smurf': [MagicMock(), MagicMock(), MagicMock()]}
-
-    return clients
+def test_wait_in_past():
+    with pytest.raises(AssertionError):
+        wait("2020-01-01T00:00:00")
 
 
-class TestObservationRunner:
-    @pytest.fixture
-    @patch('sorunlib.commands.create_clients', mocked_clients)
-    def run(self):
-        """Setup an ObservationRunner with mocked Clients."""
-        run = ObservationRunner()
-        return run
-
-    def test_wait_in_past(self, run):
-        with pytest.raises(AssertionError):
-            run.wait("2020-01-01T00:00:00")
-
-    # patch out time.sleep so we don't actually wait during testing
-    @patch('sorunlib.commands.time.sleep', MagicMock())
-    def test_wait(self, run):
-        target = dt.datetime.now() + dt.timedelta(seconds=1)
-        run.wait(target.isoformat())
+# patch out time.sleep so we don't actually wait during testing
+@patch('sorunlib.commands.time.sleep', MagicMock())
+def test_wait():
+    target = dt.datetime.now() + dt.timedelta(seconds=1)
+    wait(target.isoformat())
