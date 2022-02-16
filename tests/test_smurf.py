@@ -15,7 +15,7 @@ def mocked_clients():
 
 @patch('sorunlib.create_clients', mocked_clients)
 def test_bias_step():
-    smurf.run.init_clients()
+    smurf.run.initialize()
     smurf.bias_step()
     for client in smurf.run.CLIENTS['smurf']:
         client.run.start.assert_called_with('bias_step.sh')
@@ -24,7 +24,7 @@ def test_bias_step():
 
 @patch('sorunlib.create_clients', mocked_clients)
 def test_iv_curve():
-    smurf.run.init_clients()
+    smurf.run.initialize()
     smurf.iv_curve()
     for client in smurf.run.CLIENTS['smurf']:
         client.run.start.assert_called_with('iv_curve.sh')

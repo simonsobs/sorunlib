@@ -1,9 +1,14 @@
-from .util import create_clients
+from . import acu, seq, smurf
 
-__all__ = ["acu", "seq", "smurf"]
+from .commands import wait
+from .util import create_clients
 
 CLIENTS = None
 
-def init_clients():
+
+def initialize():
     global CLIENTS
     CLIENTS = create_clients()
+
+
+__all__ = ["acu", "seq", "smurf", "wait", "initialize"]
