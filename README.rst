@@ -58,6 +58,12 @@ directory::
     $ cd tests/
     $ python3 -m pytest
 
+Contributing
+------------
+For guidelines on how to contribute to sorunlib see `CONTRIBUTING.rst`_.
+
+.. _CONTRIBUTING.rst: https://github.com/simonsobs/sorunlib/blob/main/CONTRIBUTING.rst
+
 License
 -------
 
