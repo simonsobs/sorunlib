@@ -17,8 +17,8 @@ Overview
 --------
 
 A high level library for running observatory operations. `sorunlib` handles
-connecting to running OCS Agents and sending the appropriate commands for
-running commands for a single telescope platform.
+connecting to and controlling multiple OCS Agents, sending the appropriate
+commands for orchestrating observations for a single telescope platform.
 
 Installation
 ------------

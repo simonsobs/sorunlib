@@ -11,7 +11,7 @@ Guide`_. A brief summary is:
 - Follow PEP08
 - Use "Google Style" docstrings
 
-.. _SO Developer Guide: https://simons1.princeton.edu/docs/so_dev_guide/html/
+.. _SO Developer Guide: https://simons1.princeton.edu/docs/so_dev_guide/
 
 Branches + PRs
 --------------
