@@ -12,3 +12,6 @@ def initialize():
 
 
 __all__ = ["acu", "seq", "smurf", "wait", "initialize"]
+
+from . import _version
+__version__ = _version.get_versions()['version']
