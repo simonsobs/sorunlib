@@ -16,10 +16,12 @@ def mocked_clients(test_mode):
 @patch('sorunlib.create_clients', mocked_clients)
 def test_script():
     initialize()
-    wait((dt.datetime.now() + dt.timedelta(seconds=1)).isoformat())  # wait until 1 second in future
+    # wait until 1 second in future
+    wait((dt.datetime.now() + dt.timedelta(seconds=1)).isoformat())
     acu.move_to(39.39, 64.27)
     smurf.iv_curve()
     smurf.bias_step()
-    wait((dt.datetime.now() + dt.timedelta(seconds=1)).isoformat())  # wait until 1 second in future
+    # wait until 1 second in future
+    wait((dt.datetime.now() + dt.timedelta(seconds=1)).isoformat())
     seq.scan()
     smurf.bias_step()

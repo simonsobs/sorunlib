@@ -15,6 +15,6 @@ def wait(target_time):
 
     assert t1 > t0, f"time {t1} is in the past"
 
-    diff = t1-t0
+    diff = t1 - t0
     print(f"Waiting for {diff.total_seconds()} seconds")
     time.sleep(diff.total_seconds())
