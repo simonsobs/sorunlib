@@ -6,6 +6,7 @@ on:
   push:
     tags:
       - 'v*.*.*rc*'  # for testing releases
+      - 'v*.*.*dev*'  # for testing releases
 
 jobs:
   test:  # Copied from pytest.yml
@@ -75,9 +76,15 @@ jobs:
       run: |
         python3 -m build
 
+    - name: find wheel
+      id: find
+      run: |
+        WHEEL_FILE=$(ls dist/*.whl)
+        echo "::set-output name=wheel::${WHEEL_FILE}"
+
     - name: install wheel
       run: |
-        python3 -m pip install dist/sorunlib*.whl
+        python3 -m pip install ${{ steps.find.outputs.wheel }}[tests]
 
     - name: Run unit tests
       working-directory: ./tests
