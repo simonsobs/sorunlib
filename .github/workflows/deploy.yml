@@ -77,7 +77,7 @@ jobs:
 
     - name: install wheel
       run: |
-        python3 -m pip install dist/sorunlib*.whl[tests]
+        python3 -m pip install dist/sorunlib*.whl
 
     - name: Run unit tests
       working-directory: ./tests
