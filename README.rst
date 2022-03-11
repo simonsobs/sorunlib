@@ -13,6 +13,10 @@ sorunlib
 .. image:: https://coveralls.io/repos/github/simonsobs/sorunlib/badge.svg?branch=main
     :target: https://coveralls.io/github/simonsobs/sorunlib?branch=main
 
+.. image:: https://img.shields.io/pypi/v/sorunlib
+   :target: https://pypi.org/project/sorunlib/
+   :alt: PyPI Package
+
 Overview
 --------
 
