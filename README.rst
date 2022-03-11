@@ -27,17 +27,15 @@ commands for orchestrating observations for a single telescope platform.
 Installation
 ------------
 
-Clone this repository and install using pip::
+Install and update using pip::
 
-    $ git clone https://github.com/simonsobs/sorunlib.git
-    $ cd sorunlib
-    $ pip install .
+    $ pip install -U sorunlib
 
 Install optional dependencies with::
 
-    $ pip install .[tests]
-    $ pip install .[docs]
-    $ pip install .[tests,docs]
+    $ pip install -U sorunlib[tests]
+    $ pip install -U sorunlib[docs]
+    $ pip install -U sorunlib[tests,docs]
 
 Documentation
 -------------
@@ -64,6 +62,7 @@ directory::
 
 Contributing
 ------------
+
 For guidelines on how to contribute to sorunlib see `CONTRIBUTING.rst`_.
 
 .. _CONTRIBUTING.rst: https://github.com/simonsobs/sorunlib/blob/main/CONTRIBUTING.rst
