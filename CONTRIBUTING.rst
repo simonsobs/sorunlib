@@ -2,6 +2,19 @@
 Contributing to sorunlib
 ========================
 
+Development
+-----------
+
+For development you should install sorunlib from source (choice of environment
+is left to the reader)::
+
+    $ git clone https://github.com/simonsobs/sorunlib.git
+    $ cd sorunlib
+    $ pip install -e .[tests,docs]
+
+This will install an editable version with the optional dependencies for
+testing and building the docs.
+
 Style Guide
 -----------
 
