@@ -33,10 +33,10 @@ setup(
     ],
     python_requires=">=3.7",
     install_requires=[
-        'ocs>=0.9.1',
+        'ocs==0.9.1',
     ],
     extras_require={
-        "tests": ["pytest>=7.0.1", "pytest-cov>=3.0.0"],
+        "tests": ["pytest>=7.0.0", "pytest-cov>=3.0.0"],
         "docs": ["sphinx==4.2.0", "sphinx_rtd_theme==1.0.0"],
     },
 )
