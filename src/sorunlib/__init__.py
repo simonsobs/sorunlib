@@ -6,9 +6,16 @@ from .util import create_clients
 CLIENTS = None
 
 
-def initialize():
+def initialize(test_mode=False):
+    """Initialize global clients list.
+
+    Args:
+        test_mode (bool): Operate in 'test mode'. Use this to find Agents that
+            are meant to stand in for real agents while testing, i.e.
+            SmurfFileEmulators instead of PysmurfControllers.
+    """
     global CLIENTS
-    CLIENTS = create_clients()
+    CLIENTS = create_clients(test_mode=test_mode)
 
 
 __all__ = ["acu", "seq", "smurf", "wait", "initialize"]

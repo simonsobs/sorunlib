@@ -56,12 +56,15 @@ def _find_instances(agent_class, host=None, config=None):
     return instances
 
 
-def create_clients(config=None):
+def create_clients(config=None, test_mode=False):
     """Create all clients needed for commanding a single platform.
 
     Args:
         config (str): Path to the OCS Site Config File. If None the default
             file in OCS_CONFIG_DIR will be used.
+        test_mode (bool): Operate in 'test mode'. Use this to find Agents that
+            are meant to stand in for real agents while testing, i.e.
+            SmurfFileEmulators instead of PysmurfControllers.
 
     Returns:
         dict: Dictionary with the ACU and SMuRF clients needed for commanding
@@ -71,8 +74,13 @@ def create_clients(config=None):
                        'smurf': [smurf_client1, smurf_client2, smurf_client3]}
 
     """
+    if test_mode:
+        smurf_agent_class = 'SmurfFileEmulator'
+    else:
+        smurf_agent_class = 'PysmurfController'
+
     acu_id = _find_instances('ACUAgent', config)
-    smurf_ids = _find_instances('PysmurfController', config)
+    smurf_ids = _find_instances(smurf_agent_class, config)
 
     acu_client = OCSClient(acu_id[0])
     smurf_clients = [OCSClient(x) for x in smurf_ids]

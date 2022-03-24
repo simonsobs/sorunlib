@@ -59,6 +59,15 @@ hosts:
            'instance-id': 'pysmurf-archiver',
            'arguments': [['--data-dir', '/data/pysmurf'],
                          ['--target', 'pysmurf-monitor']]},
+
+          ###################################################
+          # Pysmurf Emulator Agents
+          ###################################################
+          {'agent-class': 'SmurfFileEmulator',
+           'instance-id': 'smurf-file-emulator',
+           'arguments': [['--stream-id', 'emulator',
+                          '--base-dir', '/data/pysmurf',
+                          '--file-duration', 60]]},
       ]
     }
  
