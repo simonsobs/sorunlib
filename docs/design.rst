@@ -45,12 +45,11 @@ An example script in sorunlib looks like:
     
     wait("2022-02-16 18:00:00")
     acu.move_to(39.39, 64.27)
-    smurf.bias_step()
     smurf.iv_curve()
     wait("2022-02-16 18:05:00")
+    smurf.bias_step()
     seq.scan("field")
     smurf.bias_step()
-    smurf.iv_curve()
 
 
 For comparison a similar ACT schedule looks like:
