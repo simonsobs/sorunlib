@@ -18,9 +18,8 @@ def test_script():
     initialize()
     wait((dt.datetime.now() + dt.timedelta(seconds=1)).isoformat())  # wait until 1 second in future
     acu.move_to(39.39, 64.27)
-    smurf.bias_step()
     smurf.iv_curve()
+    smurf.bias_step()
     wait((dt.datetime.now() + dt.timedelta(seconds=1)).isoformat())  # wait until 1 second in future
     seq.scan()
     smurf.bias_step()
-    smurf.iv_curve()
