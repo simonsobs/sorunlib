@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 from sorunlib import smurf
 
 
-def mocked_clients():
+def mocked_clients(test_mode):
     clients = {'acu': MagicMock(),
                'smurf': [MagicMock(), MagicMock(), MagicMock()]}
 

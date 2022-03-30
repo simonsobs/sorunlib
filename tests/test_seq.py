@@ -15,5 +15,5 @@ def mocked_clients():
 
 @patch('sorunlib.create_clients', mocked_clients)
 def test_scan():
-    seq.run.initialize()
+    # seq.run.initialize()
     seq.scan()

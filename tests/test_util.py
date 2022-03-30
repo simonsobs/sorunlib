@@ -29,3 +29,11 @@ def test_create_clients():
     assert 'acu' in clients
     assert 'smurf' in clients
     assert len(clients['smurf']) == 1
+
+
+@patch('sorunlib.util.OCSClient', MagicMock())
+def test_create_clients_test_mode():
+    clients = util.create_clients(test_mode=True)
+    assert 'acu' in clients
+    assert 'smurf' in clients
+    assert len(clients['smurf']) == 1

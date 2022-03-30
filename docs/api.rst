@@ -3,6 +3,14 @@ API
 
 This page contains the auto-generated documentation for the sorunlib package.
 
+sorunlib
+--------
+
+.. automodule:: sorunlib.__init__
+    :members: initialize
+    :undoc-members:
+    :show-inheritance:
+
 sorunlib.acu
 ------------
 
