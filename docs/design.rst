@@ -40,9 +40,9 @@ An example script in sorunlib looks like:
 .. code-block:: python
 
     from sorunlib import *
-    
+
     initialize()
-    
+
     wait("2022-02-16 18:00:00")
     acu.move_to(39.39, 64.27)
     smurf.iv_curve()

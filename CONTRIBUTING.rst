@@ -26,6 +26,18 @@ Guide`_. A brief summary is:
 
 .. _SO Developer Guide: https://simons1.princeton.edu/docs/so_dev_guide/
 
+pre-commit
+``````````
+
+To help with styling we use pre-commit. You can install the pre-commit hooks
+with::
+
+    $ pip install pre-commit
+    $ pre-commit install
+
+This will then run several hooks, including flake8 on edited files before
+committing.
+
 Branches + PRs
 --------------
 
