@@ -10,4 +10,4 @@ def move_to(az, el, wait=None):
         wait (float): amount of time to wait for motion to end
 
     """
-    run.CLIENTS['acu'].go_to(az, el, wait)
+    run.CLIENTS['acu'].go_to(az=az, el=el, wait=wait)
