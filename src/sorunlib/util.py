@@ -79,8 +79,8 @@ def create_clients(config=None, test_mode=False):
     else:
         smurf_agent_class = 'PysmurfController'
 
-    acu_id = _find_instances('ACUAgent', config)
-    smurf_ids = _find_instances(smurf_agent_class, config)
+    acu_id = _find_instances('ACUAgent', config=config)
+    smurf_ids = _find_instances(smurf_agent_class, config=config)
 
     acu_client = OCSClient(acu_id[0])
     smurf_clients = [OCSClient(x) for x in smurf_ids]
