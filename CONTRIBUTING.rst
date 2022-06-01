@@ -35,7 +35,8 @@ with::
     $ pip install pre-commit
     $ pre-commit install
 
-This will then run flake8 on editted files before committing.
+This will then run several hooks, including flake8 on edited files before
+committing.
 
 Branches + PRs
 --------------
