@@ -74,6 +74,8 @@ def create_clients(config=None, test_mode=False):
                        'smurf': [smurf_client1, smurf_client2, smurf_client3]}
 
     """
+    clients = {}
+
     if test_mode:
         smurf_agent_class = 'SmurfFileEmulator'
     else:
@@ -82,9 +84,11 @@ def create_clients(config=None, test_mode=False):
     acu_id = _find_instances('ACUAgent', config=config)
     smurf_ids = _find_instances(smurf_agent_class, config=config)
 
-    acu_client = OCSClient(acu_id[0])
-    smurf_clients = [OCSClient(x) for x in smurf_ids]
+    if acu_id:
+        acu_client = OCSClient(acu_id[0])
+        clients['acu'] = acu_client
+    if smurf_ids:
+        smurf_clients = [OCSClient(x) for x in smurf_ids]
+        clients['smurf'] = smurf_clients
 
-    clients = {'acu': acu_client,
-               'smurf': smurf_clients}
     return clients
