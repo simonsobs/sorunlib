@@ -4,6 +4,7 @@ from .commands import wait
 from .util import create_clients
 
 CLIENTS = None
+TEST_MODE = False
 
 
 def initialize(test_mode=False):
@@ -16,6 +17,9 @@ def initialize(test_mode=False):
     """
     global CLIENTS
     CLIENTS = create_clients(test_mode=test_mode)
+
+    global TEST_MODE
+    TEST_MODE = test_mode
 
 
 __all__ = ["acu", "seq", "smurf", "wait", "initialize"]
