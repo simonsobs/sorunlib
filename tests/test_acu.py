@@ -18,7 +18,7 @@ def mocked_clients(test_mode):
 
 @patch('sorunlib.create_clients', mocked_clients)
 def test_move_to():
-    acu.run.initialize()
+    acu.run.initialize(test_mode=True)
     acu.move_to(180, 60)
     acu.run.CLIENTS['acu'].go_to.assert_called_with(az=180, el=60, wait=None)
 
