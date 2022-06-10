@@ -1,6 +1,33 @@
 import sorunlib as run
 
 
+def tune_dets():
+    """Perform detector tuning on all SMuRF Controllers"""
+    for smurf in run.CLIENTS['smurf']:
+        smurf.tune_dets.start(test_mode=run.TEST_MODE)
+
+    for smurf in run.CLIENTS['smurf']:
+        smurf.tune_dets.wait()
+
+
+def iv_curve():
+    """Perform an iv curve on all SMuRF Controllers"""
+    for smurf in run.CLIENTS['smurf']:
+        smurf.take_iv.start()
+
+    for smurf in run.CLIENTS['smurf']:
+        smurf.take_iv.wait()
+
+
+def bias_dets():
+    """Bias the detectors on all SMuRF Controllers"""
+    for smurf in run.CLIENTS['smurf']:
+        smurf.bias_dets.start()
+
+    for smurf in run.CLIENTS['smurf']:
+        smurf.bias_dets.wait()
+
+
 def bias_step():
     """Perform a bias step on all SMuRF Controllers"""
     for smurf in run.CLIENTS['smurf']:
@@ -10,13 +37,10 @@ def bias_step():
         smurf.take_bias_steps.wait()
 
 
-def iv_curve():
-    """Perform a bias step on all SMuRF Controllers"""
+def stream():
+    """Stream data on all SMuRF Controllers"""
     for smurf in run.CLIENTS['smurf']:
-        smurf.take_iv.start()
+        smurf.stream.start()
 
     for smurf in run.CLIENTS['smurf']:
-        smurf.take_iv.wait()
-
-    for smurf in run.CLIENTS['smurf']:
-        smurf.run.wait()
+        print(smurf.stream.status())
