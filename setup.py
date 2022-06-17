@@ -37,6 +37,6 @@ setup(
     ],
     extras_require={
         "tests": ["pytest>=7.0.0", "pytest-cov>=3.0.0"],
-        "docs": ["sphinx==5.0.1", "sphinx_rtd_theme==1.0.0"],
+        "docs": ["sphinx==5.0.2", "sphinx_rtd_theme==1.0.0"],
     },
 )
