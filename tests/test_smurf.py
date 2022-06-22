@@ -48,6 +48,6 @@ def test_bias_dets():
 @patch('sorunlib.create_clients', mocked_clients)
 def test_stream():
     smurf.run.initialize(test_mode=True)
-    smurf.stream()
+    smurf.stream(state='on')
     for client in smurf.run.CLIENTS['smurf']:
         client.stream.start.assert_called_once()
