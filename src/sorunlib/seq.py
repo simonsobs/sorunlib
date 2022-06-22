@@ -1,6 +1,5 @@
-import time
-
 import sorunlib as run
+from sorunlib._internal import check_response
 
 
 def scan(description, stop_time, throw):
@@ -37,18 +36,8 @@ def scan(description, stop_time, throw):
 
     # Stop motion
     run.CLIENTS['acu'].generate_scan.stop()
-
-    # Confirm motion stopped
-    running = True
-    last_position = None
-    while running:
-        resp = run.CLIENTS['acu'].monitor.status()
-        az = resp.session['data']['Corrected Azimuth']
-        el = resp.session['data']['Corrected Elevation']
-        if (az, el) == last_position:
-            break
-        last_position = (az, el)
-        time.sleep(1)
+    resp = run.CLIENTS['acu'].generate_scan.wait()
+    check_response(resp)
 
     # Stop SMuRF streams
     run.smurf.stream('off')

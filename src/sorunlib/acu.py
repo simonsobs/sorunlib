@@ -1,4 +1,5 @@
 import sorunlib as run
+from sorunlib._internal import check_response
 
 
 def move_to(az, el, wait=None):
@@ -11,6 +12,4 @@ def move_to(az, el, wait=None):
 
     """
     resp = run.CLIENTS['acu'].go_to(az=az, el=el, wait=wait)
-    if not resp.session['success']:
-        error = 'Task failed to complete successfully.\n' + str(resp)
-        raise RuntimeError(error)
+    check_response(resp)

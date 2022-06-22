@@ -1,4 +1,5 @@
 import sorunlib as run
+from sorunlib._internal import check_response
 
 
 def bias_step():
@@ -7,7 +8,8 @@ def bias_step():
         smurf.take_bias_steps.start()
 
     for smurf in run.CLIENTS['smurf']:
-        smurf.take_bias_steps.wait()
+        resp = smurf.take_bias_steps.wait()
+        check_response(resp)
 
 
 def iv_curve():
@@ -16,7 +18,8 @@ def iv_curve():
         smurf.take_iv.start()
 
     for smurf in run.CLIENTS['smurf']:
-        smurf.take_iv.wait()
+        resp = smurf.take_iv.wait()
+        check_response(resp)
 
 
 def tune_dets(test_mode=False):
@@ -31,7 +34,8 @@ def tune_dets(test_mode=False):
         smurf.tune_dets.start(test_mode=test_mode)
 
     for smurf in run.CLIENTS['smurf']:
-        smurf.tune_dets.wait()
+        resp = smurf.tune_dets.wait()
+        check_response(resp)
 
 
 def bias_dets():
@@ -40,7 +44,8 @@ def bias_dets():
         smurf.bias_dets.start()
 
     for smurf in run.CLIENTS['smurf']:
-        smurf.bias_dets.wait()
+        resp = smurf.bias_dets.wait()
+        check_response(resp)
 
 
 def stream(state):
@@ -59,6 +64,6 @@ def stream(state):
     else:
         for smurf in run.CLIENTS['smurf']:
             smurf.stream.stop()
-
-        for smurf in run.CLIENTS['smurf']:
-            print(smurf.stream.status())
+            resp = smurf.stream.wait()
+            check_response(resp)
+            print(resp)
