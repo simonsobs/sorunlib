@@ -43,10 +43,22 @@ def bias_dets():
         smurf.bias_dets.wait()
 
 
-def stream():
-    """Stream data on all SMuRF Controllers"""
-    for smurf in run.CLIENTS['smurf']:
-        smurf.stream.start()
+def stream(state):
+    """Stream data on all SMuRF Controllers.
 
-    for smurf in run.CLIENTS['smurf']:
-        print(smurf.stream.status())
+    Args:
+        state (str): Streaming state, either 'on' or 'off'.
+
+    """
+    if state.lower() == 'on':
+        for smurf in run.CLIENTS['smurf']:
+            smurf.stream.start()
+
+        for smurf in run.CLIENTS['smurf']:
+            print(smurf.stream.status())
+    else:
+        for smurf in run.CLIENTS['smurf']:
+            smurf.stream.stop()
+
+        for smurf in run.CLIENTS['smurf']:
+            print(smurf.stream.status())
