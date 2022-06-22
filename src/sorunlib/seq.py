@@ -2,6 +2,9 @@ import sorunlib as run
 from sorunlib._internal import check_response
 
 
+OP_TIMEOUT = 60
+
+
 def scan(description, stop_time, throw):
     """Run a constant elevation scan, collecting detector data.
 
@@ -36,7 +39,7 @@ def scan(description, stop_time, throw):
 
     # Stop motion
     run.CLIENTS['acu'].generate_scan.stop()
-    resp = run.CLIENTS['acu'].generate_scan.wait()
+    resp = run.CLIENTS['acu'].generate_scan.wait(timeout=OP_TIMEOUT)
     check_response(resp)
 
     # Stop SMuRF streams

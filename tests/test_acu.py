@@ -26,7 +26,8 @@ def test_move_to():
 @patch('sorunlib.create_clients', mocked_clients)
 def test_move_to_failed():
     acu.run.initialize()
-    mocked_response = OCSReply(0, 'msg', {'success': False})
+    mocked_response = OCSReply(
+        0, 'msg', {'success': False, 'op_name': 'go_to'})
     acu.run.CLIENTS['acu'].go_to.side_effect = [mocked_response]
     with pytest.raises(RuntimeError):
         acu.move_to(180, 90)
