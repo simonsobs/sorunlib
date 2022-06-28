@@ -5,16 +5,15 @@ from sorunlib._internal import check_response
 OP_TIMEOUT = 60
 
 
-def scan(description, stop_time, throw):
+def scan(description, stop_time, width):
     """Run a constant elevation scan, collecting detector data.
 
     Args:
         description (str): Description of the field/object being scanned.
         stop_time (str): Time in ISO format to scan until, i.e.
             "2022-06-21T15:58:00"
-        throw (float): Half the scan width in azimuth. The scan will be twice
-            the throw in width, centered on the current position at the start
-            of the scan.
+        width (float): Scan width in azimuth. The scan will start at the
+            current position and move in the positive azimuth direction.
 
     """
     # Enable SMuRF streams
@@ -26,8 +25,8 @@ def scan(description, stop_time, throw):
     el = resp.session['data']['Corrected Elevation']
 
     # Start telescope motion
-    resp = run.CLIENTS['acu'].generate_scan.start(az_endpoint1=az - throw,
-                                                  az_endpoint2=az + throw,
+    resp = run.CLIENTS['acu'].generate_scan.start(az_endpoint1=az,
+                                                  az_endpoint2=az + width,
                                                   az_speed=2,
                                                   acc=2.0,
                                                   el_endpoint1=el,
