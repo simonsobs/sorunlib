@@ -24,5 +24,5 @@ def test_script():
     # wait until 1 second in future
     wait((dt.datetime.now() + dt.timedelta(seconds=1)).isoformat())
     seq.scan(description='test', stop_time=(dt.datetime.now()
-             + dt.timedelta(seconds=1)).isoformat(), throw=10.)
+             + dt.timedelta(seconds=1)).isoformat(), width=20.)
     smurf.bias_step()

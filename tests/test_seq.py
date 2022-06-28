@@ -19,4 +19,4 @@ def mocked_clients(test_mode):
 def test_scan():
     seq.run.initialize(test_mode=True)
     target = dt.datetime.now() + dt.timedelta(seconds=1)
-    seq.scan(description='test', stop_time=target.isoformat(), throw=10.)
+    seq.scan(description='test', stop_time=target.isoformat(), width=20.)
