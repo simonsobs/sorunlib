@@ -3,7 +3,7 @@ from sorunlib._internal import check_response
 
 
 def bias_step():
-    """Perform a bias step on all SMuRF Controllers"""
+    """Perform a bias step on all SMuRF Controllers."""
     for smurf in run.CLIENTS['smurf']:
         smurf.take_bias_steps.start()
 
@@ -13,7 +13,7 @@ def bias_step():
 
 
 def iv_curve():
-    """Perform an iv curve on all SMuRF Controllers"""
+    """Perform an iv curve on all SMuRF Controllers."""
     for smurf in run.CLIENTS['smurf']:
         smurf.take_iv.start()
 
@@ -22,29 +22,65 @@ def iv_curve():
         check_response(resp)
 
 
-def tune_dets(test_mode=False):
-    """Perform detector tuning on all SMuRF Controllers.
+def uxm_setup(test_mode=False):
+    """Perform first-time setup procedure for a UXM.
 
     Args:
-        test_mode (bool): Run tune_dets() task in test_mode, removing emulated
+        test_mode (bool): Run uxm_setup() task in test_mode, removing emulated
             wait times.
 
     """
     for smurf in run.CLIENTS['smurf']:
-        smurf.tune_dets.start(test_mode=test_mode)
+        smurf.uxm_setup.start(test_mode=test_mode)
 
     for smurf in run.CLIENTS['smurf']:
-        resp = smurf.tune_dets.wait()
+        resp = smurf.uxm_setup.wait()
+        check_response(resp)
+
+
+def uxm_relock(test_mode=False):
+    """Relocks detectors to existing tune if setup has already been run.
+
+    Args:
+        test_mode (bool): Run uxm_setup() task in test_mode, removing emulated
+            wait times.
+
+    """
+    for smurf in run.CLIENTS['smurf']:
+        smurf.uxm_relock.start(test_mode=test_mode)
+
+    for smurf in run.CLIENTS['smurf']:
+        resp = smurf.uxm_relock.wait()
         check_response(resp)
 
 
 def bias_dets():
-    """Bias the detectors on all SMuRF Controllers"""
+    """Bias the detectors on all SMuRF Controllers."""
     for smurf in run.CLIENTS['smurf']:
         smurf.bias_dets.start()
 
     for smurf in run.CLIENTS['smurf']:
         resp = smurf.bias_dets.wait()
+        check_response(resp)
+
+
+def take_bgmap():
+    """Take a bgmap on all SMuRF Controllers."""
+    for smurf in run.CLIENTS['smurf']:
+        smurf.take_bgmap.start()
+
+    for smurf in run.CLIENTS['smurf']:
+        resp = smurf.take_bgmap.wait()
+        check_response(resp)
+
+
+def take_noise():
+    """Measure noise statistics from a short, 30 second, timestream."""
+    for smurf in run.CLIENTS['smurf']:
+        smurf.take_noise.start()
+
+    for smurf in run.CLIENTS['smurf']:
+        resp = smurf.take_noise.wait()
         check_response(resp)
 
 
