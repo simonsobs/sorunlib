@@ -1,4 +1,5 @@
 import sorunlib as run
+from sorunlib._internal import check_response
 
 
 def move_to(az, el, wait=None):
@@ -10,4 +11,5 @@ def move_to(az, el, wait=None):
         wait (float): amount of time to wait for motion to end
 
     """
-    run.CLIENTS['acu'].go_to(az, el, wait)
+    resp = run.CLIENTS['acu'].go_to(az=az, el=el, wait=wait)
+    check_response(resp)
