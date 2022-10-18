@@ -33,7 +33,7 @@ setup(
     ],
     python_requires=">=3.7",
     install_requires=[
-        'ocs==0.9.3',
+        'ocs==0.10.0',
     ],
     extras_require={
         "tests": ["pytest>=7.0.0", "pytest-cov>=3.0.0"],
