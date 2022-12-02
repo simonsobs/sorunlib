@@ -50,7 +50,22 @@ def mock_registry_client(*args, **kwargs):
                                 'take_noise': 1,
                                 'stream': 1},
                             'agent_class': 'SmurfFileEmulator',
-                            'agent_address': 'observatory.smurf-file-emulator-7'}}}
+                            'agent_address': 'observatory.smurf-file-emulator-7'},
+                        'observatory.acu-sat1': {
+                            'expired': False,
+                            'time_expired': None,
+                            'last_updated': 1669997169.469505,
+                            'op_codes': {
+                                'monitor': 3,
+                                'broadcast': 3,
+                                'generate_scan': 1,
+                                'go_to': 1,
+                                'constant_velocity_scan': 1,
+                                'fromfile_scan': 1,
+                                'set_boresight': 1,
+                                'stop_and_clear': 1},
+                            'agent_class': 'ACUAgent',
+                            'agent_address': 'observatory.acu-sat1'}}}
     client.main.status = MagicMock(return_value=(None, None, session_dict))
     return client
 
@@ -79,17 +94,16 @@ def test_find_active_instances():
     assert 'smurf-file-emulator-7' in instances
 
 
-@patch('sorunlib.util.OCSClient', MagicMock())
+@patch('sorunlib.util.OCSClient', mock_registry_client)
 def test_create_clients():
     clients = util.create_clients()
     assert 'acu' in clients
-    assert 'smurf' in clients
-    assert len(clients['smurf']) == 1
+    assert 'smurf' not in clients  # since we're not in test_mode
 
 
-@patch('sorunlib.util.OCSClient', MagicMock())
+@patch('sorunlib.util.OCSClient', mock_registry_client)
 def test_create_clients_test_mode():
     clients = util.create_clients(test_mode=True)
     assert 'acu' in clients
     assert 'smurf' in clients
-    assert len(clients['smurf']) == 1
+    assert len(clients['smurf']) == 2
