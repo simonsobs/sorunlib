@@ -1,8 +1,13 @@
 name: Run Tests
 
 on:
-  push:
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**.rst'
+      - '**.md'
+      - '.flake8'
+      - '.pre-commit-config.yaml'
 
 jobs:
   test:
