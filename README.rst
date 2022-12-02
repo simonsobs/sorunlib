@@ -17,6 +17,10 @@ sorunlib
    :target: https://pypi.org/project/sorunlib/
    :alt: PyPI Package
 
+.. image:: https://results.pre-commit.ci/badge/github/simonsobs/sorunlib/main.svg
+   :target: https://results.pre-commit.ci/latest/github/simonsobs/sorunlib/main
+   :alt: pre-commit.ci status
+
 Overview
 --------
 
