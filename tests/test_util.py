@@ -7,10 +7,59 @@ from sorunlib import util
 os.environ["OCS_CONFIG_DIR"] = "./test_util/"
 
 
+def mock_registry_client(*args, **kwargs):
+    """Mock out the client connection to the registry. Returning an example of
+    the session object that is inspected to find agent instances on the network.
+
+    """
+    client = MagicMock()
+    session_dict = {'session_id': 0,
+                    'op_name': 'main',
+                    'op_code': 3,
+                    'status': 'running',
+                    'success': None,
+                    'start_time': 1669919099.7585046,
+                    'end_time': None,
+                    'data': {
+                        'observatory.smurf-file-emulator-5': {
+                            'expired': False,
+                            'time_expired': None,
+                            'last_updated': 1669935108.8366735,
+                            'op_codes': {
+                                'uxm_setup': 1,
+                                'uxm_relock': 1,
+                                'take_iv': 1,
+                                'take_bias_steps': 1,
+                                'take_bgmap': 1,
+                                'bias_dets': 1,
+                                'take_noise': 1,
+                                'stream': 1},
+                            'agent_class': 'SmurfFileEmulator',
+                            'agent_address': 'observatory.smurf-file-emulator-5'},
+                        'observatory.smurf-file-emulator-7': {
+                            'expired': False,
+                            'time_expired': None,
+                            'last_updated': 1669935108.989246,
+                            'op_codes': {
+                                'uxm_setup': 1,
+                                'uxm_relock': 1,
+                                'take_iv': 1,
+                                'take_bias_steps': 1,
+                                'take_bgmap': 1,
+                                'bias_dets': 1,
+                                'take_noise': 1,
+                                'stream': 1},
+                            'agent_class': 'SmurfFileEmulator',
+                            'agent_address': 'observatory.smurf-file-emulator-7'}}}
+    client.main.status = MagicMock(return_value=(None, None, session_dict))
+    return client
+
+
 def test_load_site_config():
     cfg = util._load_site_config()
     assert 'localhost' in cfg.hosts
     assert 'ocs-docker' in cfg.hosts
+    assert 'registry_address' in cfg.hub.data
 
 
 def test_find_instances():
@@ -21,6 +70,13 @@ def test_find_instances():
 def test_find_instances_host():
     instances = util._find_instances('PysmurfController', host='localhost')
     assert instances == []
+
+
+@patch('sorunlib.util.OCSClient', mock_registry_client)
+def test_find_active_instances():
+    instances = util._find_active_instances('SmurfFileEmulator')
+    assert 'smurf-file-emulator-5' in instances
+    assert 'smurf-file-emulator-7' in instances
 
 
 @patch('sorunlib.util.OCSClient', MagicMock())
