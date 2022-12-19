@@ -2,7 +2,7 @@
 sorunlib
 ========
 
-.. image:: https://img.shields.io/github/workflow/status/simonsobs/sorunlib/Run%20Tests
+.. image:: https://img.shields.io/github/actions/workflow/status/simonsobs/sorunlib/pytest.yml?branch=main
     :target: https://github.com/simonsobs/sorunlib/actions?query=workflow%3A%22Run+Tests%22
     :alt: GitHub Workflow Status
 
