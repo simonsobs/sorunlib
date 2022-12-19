@@ -8,6 +8,9 @@ on:
       - '**.md'
       - '.flake8'
       - '.pre-commit-config.yaml'
+  push:
+    branches:
+      - main
 
 jobs:
   test:
