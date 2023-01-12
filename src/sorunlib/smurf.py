@@ -2,6 +2,26 @@ import sorunlib as run
 from sorunlib._internal import check_response
 
 
+def set_targets(targets):
+    """Set the target pysmurf-controller Agents that sorunlib will command.
+
+    Args:
+        targets (list): List of pysmurf-controller instance-ids to send future
+            commands to. This must be a subset of the currently active clients
+            list.
+
+    Notes:
+        This modifies the global ``sorunlib.CLIENTS`` list.
+
+    """
+    _smurf_clients = []
+    for smurf in run.CLIENTS['smurf']:
+        if smurf.instance_id in targets:
+            _smurf_clients.append(smurf)
+
+    run.CLIENTS['smurf'] = _smurf_clients
+
+
 def bias_step():
     """Perform a bias step on all SMuRF Controllers."""
     for smurf in run.CLIENTS['smurf']:

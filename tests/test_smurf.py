@@ -6,11 +6,29 @@ from unittest.mock import MagicMock, patch
 from sorunlib import smurf
 
 
+def _mock_smurf_client(instance_id):
+    smurf = MagicMock()
+    smurf.instance_id = instance_id
+
+    return smurf
+
+
 def mocked_clients(test_mode):
+    smurf_ids = ['smurf1', 'smurf2', 'smurf3']
+    smurfs = [_mock_smurf_client(id_) for id_ in smurf_ids]
+
     clients = {'acu': MagicMock(),
-               'smurf': [MagicMock(), MagicMock(), MagicMock()]}
+               'smurf': smurfs}
 
     return clients
+
+
+@patch('sorunlib.create_clients', mocked_clients)
+def test_set_targets():
+    smurf.run.initialize(test_mode=True)
+    smurf.set_targets(['smurf1'])
+    assert len(smurf.run.CLIENTS['smurf']) == 1
+    assert smurf.run.CLIENTS['smurf'][0].instance_id == 'smurf1'
 
 
 @patch('sorunlib.create_clients', mocked_clients)

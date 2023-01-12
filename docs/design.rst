@@ -42,6 +42,7 @@ An example script in sorunlib looks like:
     from sorunlib import *
 
     initialize()
+    smurf.set_targets(['smurf1'])
 
     wait("2022-02-16 18:00:00")
     acu.move_to(39.39, 64.27)
@@ -55,6 +56,10 @@ An example script in sorunlib looks like:
 For comparison a similar ACT schedule looks like:
 
 .. code-block::
+
+    enable_mces
+    disable_mce2
+    disable_mce3
 
     {soft_wait,{until,{2022,03,10},{20,00,00},utc}}
     {move_to,39.39,64.27}
