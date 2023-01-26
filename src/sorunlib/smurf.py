@@ -50,8 +50,12 @@ def uxm_setup(test_mode=False):
             wait times.
 
     """
+    kwargs = {}
+    if test_mode:
+        kwargs['test_mode'] = test_mode
+
     for smurf in run.CLIENTS['smurf']:
-        smurf.uxm_setup.start(test_mode=test_mode)
+        smurf.uxm_setup.start(**kwargs)
 
     for smurf in run.CLIENTS['smurf']:
         resp = smurf.uxm_setup.wait()
@@ -66,8 +70,12 @@ def uxm_relock(test_mode=False):
             wait times.
 
     """
+    kwargs = {}
+    if test_mode:
+        kwargs['test_mode'] = test_mode
+
     for smurf in run.CLIENTS['smurf']:
-        smurf.uxm_relock.start(test_mode=test_mode)
+        smurf.uxm_relock.start(**kwargs)
 
     for smurf in run.CLIENTS['smurf']:
         resp = smurf.uxm_relock.wait()
