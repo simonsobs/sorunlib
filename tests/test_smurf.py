@@ -50,7 +50,7 @@ def test_iv_curve():
 @patch('sorunlib.create_clients', mocked_clients)
 def test_uxm_setup():
     smurf.run.initialize(test_mode=True)
-    smurf.uxm_setup(test_mode=True)
+    smurf.uxm_setup()
     for client in smurf.run.CLIENTS['smurf']:
         client.uxm_setup.start.assert_called_once()
 
@@ -58,7 +58,7 @@ def test_uxm_setup():
 @patch('sorunlib.create_clients', mocked_clients)
 def test_uxm_relock():
     smurf.run.initialize(test_mode=True)
-    smurf.uxm_relock(test_mode=True)
+    smurf.uxm_relock()
     for client in smurf.run.CLIENTS['smurf']:
         client.uxm_relock.start.assert_called_once()
 
