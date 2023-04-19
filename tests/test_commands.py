@@ -8,9 +8,17 @@ from unittest.mock import MagicMock, patch
 from sorunlib.commands import wait
 
 
-def test_wait_in_past():
+@pytest.mark.parametrize("target_time", ["2020-01-01T00:00:00", "2020-01-01T00:00:00+00:00"])
+def test_wait_in_past(target_time):
     with pytest.raises(AssertionError):
-        wait("2020-01-01T00:00:00")
+        wait(target_time)
+
+
+def test_wait_unsupported_tz():
+    with pytest.raises(ValueError):
+        tz = dt.timezone(offset=dt.timedelta(hours=5))
+        t = dt.datetime.now(tz).isoformat()  # i.e. '2023-04-22T00:59:56.264293+05:00'
+        wait(t)
 
 
 # patch out time.sleep so we don't actually wait during testing
