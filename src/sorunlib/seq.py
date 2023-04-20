@@ -33,6 +33,9 @@ def scan(description, stop_time, width):
                                                   el_endpoint2=el,
                                                   el_speed=0)
 
+    if not resp.session:
+        raise Exception(f"Generate Scan failed to start:\n  {resp}")
+
     # Wait until stop time
     run.commands.wait(stop_time)
 
