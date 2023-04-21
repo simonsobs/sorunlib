@@ -109,11 +109,8 @@ def stream(state):
         for smurf in run.CLIENTS['smurf']:
             smurf.stream.start()
 
-        for smurf in run.CLIENTS['smurf']:
-            print(smurf.stream.status())
     else:
         for smurf in run.CLIENTS['smurf']:
             smurf.stream.stop()
             resp = smurf.stream.wait()
             check_response(resp)
-            print(resp)
