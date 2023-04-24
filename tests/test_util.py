@@ -51,6 +51,17 @@ def mock_registry_client(*args, **kwargs):
                                 'stream': 1},
                             'agent_class': 'SmurfFileEmulator',
                             'agent_address': 'observatory.smurf-file-emulator-7'},
+                        'observatory.fake-data-1': {
+                            'expired': True,
+                            'time_expired': None,
+                            'last_updated': 1669935108.989246,
+                            'op_codes': {
+                                'acq': 3,
+                                'count': 3,
+                                'set_heartbeat': 1,
+                                'delay_task': 1},
+                            'agent_class': 'FakeDataAgent',
+                            'agent_address': 'observatory.fake-data-1'},
                         'observatory.acu-sat1': {
                             'expired': False,
                             'time_expired': None,
@@ -92,6 +103,12 @@ def test_find_active_instances():
     instances = util._find_active_instances('SmurfFileEmulator')
     assert 'smurf-file-emulator-5' in instances
     assert 'smurf-file-emulator-7' in instances
+
+
+@patch('sorunlib.util.OCSClient', mock_registry_client)
+def test_find_active_instances_expired():
+    instances = util._find_active_instances('FakeDataAgent')
+    assert 'fake-data-1' not in instances
 
 
 @patch('sorunlib.util.OCSClient', mock_registry_client)

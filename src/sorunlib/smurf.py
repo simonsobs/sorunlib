@@ -42,16 +42,10 @@ def iv_curve():
         check_response(resp)
 
 
-def uxm_setup(test_mode=False):
-    """Perform first-time setup procedure for a UXM.
-
-    Args:
-        test_mode (bool): Run uxm_setup() task in test_mode, removing emulated
-            wait times.
-
-    """
+def uxm_setup():
+    """Perform first-time setup procedure for a UXM."""
     for smurf in run.CLIENTS['smurf']:
-        smurf.uxm_setup.start(test_mode=test_mode)
+        smurf.uxm_setup.start()
 
     for smurf in run.CLIENTS['smurf']:
         resp = smurf.uxm_setup.wait()
@@ -115,11 +109,8 @@ def stream(state):
         for smurf in run.CLIENTS['smurf']:
             smurf.stream.start()
 
-        for smurf in run.CLIENTS['smurf']:
-            print(smurf.stream.status())
     else:
         for smurf in run.CLIENTS['smurf']:
             smurf.stream.stop()
             resp = smurf.stream.wait()
             check_response(resp)
-            print(resp)

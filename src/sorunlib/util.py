@@ -77,6 +77,9 @@ def _find_active_instances(agent_class, config=None):
 
     instances = []
     for entry in session['data'].values():
+        if entry['expired']:
+            continue
+
         if entry['agent_class'] == agent_class:
             instance_id = entry['agent_address'].split('.')[-1]
             instances.append(instance_id)

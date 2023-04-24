@@ -19,27 +19,31 @@ def scan(description, stop_time, width):
     # Enable SMuRF streams
     run.smurf.stream('on')
 
-    # Grab current telescope position
-    resp = run.CLIENTS['acu'].monitor.status()
-    az = resp.session['data']['Corrected Azimuth']
-    el = resp.session['data']['Corrected Elevation']
+    try:
+        # Grab current telescope position
+        resp = run.CLIENTS['acu'].monitor.status()
+        az = resp.session['data']['StatusDetailed']['Corrected Azimuth']
+        el = resp.session['data']['StatusDetailed']['Corrected Elevation']
 
-    # Start telescope motion
-    resp = run.CLIENTS['acu'].generate_scan.start(az_endpoint1=az,
-                                                  az_endpoint2=az + width,
-                                                  az_speed=2,
-                                                  acc=2.0,
-                                                  el_endpoint1=el,
-                                                  el_endpoint2=el,
-                                                  el_speed=0)
+        # Start telescope motion
+        resp = run.CLIENTS['acu'].generate_scan.start(az_endpoint1=az,
+                                                      az_endpoint2=az + width,
+                                                      az_speed=2,
+                                                      az_accel=2.0,
+                                                      el_endpoint1=el,
+                                                      el_endpoint2=el,
+                                                      el_speed=0)
 
-    # Wait until stop time
-    run.commands.wait(stop_time)
+        if not resp.session:
+            raise Exception(f"Generate Scan failed to start:\n  {resp}")
 
-    # Stop motion
-    run.CLIENTS['acu'].generate_scan.stop()
-    resp = run.CLIENTS['acu'].generate_scan.wait(timeout=OP_TIMEOUT)
-    check_response(resp)
+        # Wait until stop time
+        run.commands.wait(stop_time)
 
-    # Stop SMuRF streams
-    run.smurf.stream('off')
+        # Stop motion
+        run.CLIENTS['acu'].generate_scan.stop()
+        resp = run.CLIENTS['acu'].generate_scan.wait(timeout=OP_TIMEOUT)
+        check_response(resp)
+    finally:
+        # Stop SMuRF streams
+        run.smurf.stream('off')
