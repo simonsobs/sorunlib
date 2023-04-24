@@ -1,6 +1,6 @@
 from . import acu, seq, smurf
 
-from .commands import wait
+from .commands import wait_until
 from .util import create_clients
 
 CLIENTS = None
@@ -18,7 +18,7 @@ def initialize(test_mode=False):
     CLIENTS = create_clients(test_mode=test_mode)
 
 
-__all__ = ["acu", "seq", "smurf", "wait", "initialize"]
+__all__ = ["acu", "seq", "smurf", "wait_until", "initialize"]
 
 from . import _version
 __version__ = _version.get_versions()['version']

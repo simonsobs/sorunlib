@@ -38,7 +38,7 @@ def scan(description, stop_time, width):
             raise Exception(f"Generate Scan failed to start:\n  {resp}")
 
         # Wait until stop time
-        run.commands.wait(stop_time)
+        run.commands.wait_until(stop_time)
 
         # Stop motion
         run.CLIENTS['acu'].generate_scan.stop()

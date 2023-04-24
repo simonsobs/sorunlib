@@ -17,12 +17,12 @@ def mocked_clients(test_mode):
 def test_script():
     initialize()
     # wait until 1 second in future
-    wait((dt.datetime.now() + dt.timedelta(seconds=1)).isoformat())
+    wait_until((dt.datetime.now() + dt.timedelta(seconds=1)).isoformat())
     acu.move_to(39.39, 64.27)
     smurf.iv_curve()
     smurf.bias_step()
     # wait until 1 second in future
-    wait((dt.datetime.now() + dt.timedelta(seconds=1)).isoformat())
+    wait_until((dt.datetime.now() + dt.timedelta(seconds=1)).isoformat())
     seq.scan(description='test', stop_time=(dt.datetime.now()
              + dt.timedelta(seconds=1)).isoformat(), width=20.)
     smurf.bias_step()
