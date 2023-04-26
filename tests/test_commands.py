@@ -66,6 +66,9 @@ def test_wait_until_unsupported_tz():
     (mkts(-1), None),
     (mkts(-1), 5),
     (mkts(-1), mkts(10)),
+    # test mix of tz aware timestamp, naive tolerance timestamp
+    (mkts(0), mkts(10)[:-6]),
+    (mkts(0)[:-6], mkts(10)),
     # testing TZ detection w/past timestamps, no tolerance
     ("2020-01-01T00:00:00", None),
     ("2020-01-01T00:00:00+00:00", None)])
