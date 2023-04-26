@@ -8,14 +8,15 @@ def wait_until(timestamp, tolerance=None):
     Args:
         timestamp (str): Time in ISO format and in UTC timezone to wait
             until, i.e. "2015-10-21T07:28:00", "2023-01-01T0:00:00+00:00"
-        tolerance (int or str): Tolerance on the difference between the time
-            when the function is evaluated and `timestamp`. Can be specified as
-            a ISO formatted timestamp (str) or in number of seconds (int).
+        tolerance (int, float, or str): Tolerance on the difference between the
+            time when the function is evaluated and `timestamp`. Can be
+            specified as a ISO formatted timestamp (str) or in number of
+            seconds (int, float).
 
             When evaluated, if `tolerance` (str) is in the past or if the
             difference between the current time and `timestamp` is greater than
-            this `tolerance` (int), then an error is raised. If `None`, an
-            error will not be raised. Default is `None`.
+            this `tolerance` (int, float), then an error is raised. If `None`,
+            an error will not be raised. Default is `None`.
 
     Raises:
         ValueError: If `timestamp` has an unsupported timezone, `tolerance`
@@ -38,7 +39,7 @@ def wait_until(timestamp, tolerance=None):
     # Determine "deadline" from tolerance
     if tolerance is None:
         deadline = None
-    elif isinstance(tolerance, int):
+    elif isinstance(tolerance, (int, float)):
         deadline = target + dt.timedelta(seconds=tolerance)
     elif isinstance(tolerance, str):
         deadline = dt.datetime.fromisoformat(tolerance)
