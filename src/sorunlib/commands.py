@@ -56,7 +56,8 @@ def wait_until(timestamp, tolerance=None):
     # Wait until timestamp
     if target > now:
         duration = (target - now).total_seconds()
+        print(f"Waiting for {duration} seconds")
+        time.sleep(duration)
     else:
-        duration = 0
-    print(f"Waiting for {duration} seconds")
-    time.sleep(duration)
+        diff = (now - target).total_seconds()
+        print(f"No wait, as target is {diff} seconds in the past")
