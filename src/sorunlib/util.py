@@ -118,8 +118,9 @@ def create_clients(config=None, test_mode=False):
     if acu_id:
         acu_client = OCSClient(acu_id[0])
         clients['acu'] = acu_client
-    if smurf_ids:
-        smurf_clients = [OCSClient(x) for x in smurf_ids]
-        clients['smurf'] = smurf_clients
+
+    # Always create smurf client list, even if empty
+    smurf_clients = [OCSClient(x) for x in smurf_ids]
+    clients['smurf'] = smurf_clients
 
     return clients
