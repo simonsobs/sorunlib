@@ -22,20 +22,32 @@ def set_targets(targets):
     run.CLIENTS['smurf'] = _smurf_clients
 
 
-def bias_step():
-    """Perform a bias step on all SMuRF Controllers."""
+def bias_step(tag=None):
+    """Perform a bias step on all SMuRF Controllers.
+
+    Args:
+        tag (str, optional): Tag or comma-separated listed of tags to attach to
+            the operation.
+
+    """
     for smurf in run.CLIENTS['smurf']:
-        smurf.take_bias_steps.start()
+        smurf.take_bias_steps.start(tag=tag)
 
     for smurf in run.CLIENTS['smurf']:
         resp = smurf.take_bias_steps.wait()
         check_response(resp)
 
 
-def iv_curve():
-    """Perform an iv curve on all SMuRF Controllers."""
+def iv_curve(tag=None):
+    """Perform an iv curve on all SMuRF Controllers.
+
+    Args:
+        tag (str, optional): Tag or comma-separated listed of tags to attach to
+            the operation.
+
+    """
     for smurf in run.CLIENTS['smurf']:
-        smurf.take_iv.start()
+        smurf.take_iv.start(tag=tag)
 
     for smurf in run.CLIENTS['smurf']:
         resp = smurf.take_iv.wait()
@@ -78,36 +90,50 @@ def bias_dets():
         check_response(resp)
 
 
-def take_bgmap():
-    """Take a bgmap on all SMuRF Controllers."""
+def take_bgmap(tag=None):
+    """Take a bgmap on all SMuRF Controllers.
+
+    Args:
+        tag (str, optional): Tag or comma-separated listed of tags to attach to
+            the operation.
+
+    """
     for smurf in run.CLIENTS['smurf']:
-        smurf.take_bgmap.start()
+        smurf.take_bgmap.start(tag=tag)
 
     for smurf in run.CLIENTS['smurf']:
         resp = smurf.take_bgmap.wait()
         check_response(resp)
 
 
-def take_noise():
-    """Measure noise statistics from a short, 30 second, timestream."""
+def take_noise(tag=None):
+    """Measure noise statistics from a short, 30 second, timestream.
+
+    Args:
+        tag (str, optional): Tag or comma-separated listed of tags to attach to
+            the operation.
+
+    """
     for smurf in run.CLIENTS['smurf']:
-        smurf.take_noise.start()
+        smurf.take_noise.start(tag=tag)
 
     for smurf in run.CLIENTS['smurf']:
         resp = smurf.take_noise.wait()
         check_response(resp)
 
 
-def stream(state):
+def stream(state, tag=None):
     """Stream data on all SMuRF Controllers.
 
     Args:
         state (str): Streaming state, either 'on' or 'off'.
+        tag (str, optional): Tag or comma-separated listed of tags to attach to
+            the operation.
 
     """
     if state.lower() == 'on':
         for smurf in run.CLIENTS['smurf']:
-            smurf.stream.start()
+            smurf.stream.start(tag=tag)
 
     else:
         for smurf in run.CLIENTS['smurf']:
