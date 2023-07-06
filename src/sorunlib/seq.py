@@ -5,7 +5,7 @@ from sorunlib._internal import check_response
 OP_TIMEOUT = 60
 
 
-def scan(description, stop_time, width):
+def scan(description, stop_time, width, tag=None):
     """Run a constant elevation scan, collecting detector data.
 
     Args:
@@ -14,10 +14,12 @@ def scan(description, stop_time, width):
             "2022-06-21T15:58:00"
         width (float): Scan width in azimuth. The scan will start at the
             current position and move in the positive azimuth direction.
+        tag (str, optional): Tag or comma-separated listed of tags to attach to
+            the operation. Passed through to the smurf stream command.
 
     """
     # Enable SMuRF streams
-    run.smurf.stream('on')
+    run.smurf.stream('on', tag=tag)
 
     try:
         # Grab current telescope position
