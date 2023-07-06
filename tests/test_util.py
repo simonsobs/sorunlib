@@ -115,7 +115,8 @@ def test_find_active_instances_expired():
 def test_create_clients():
     clients = util.create_clients()
     assert 'acu' in clients
-    assert 'smurf' not in clients  # since we're not in test_mode
+    assert 'smurf' in clients
+    assert len(clients['smurf']) == 0  # since we're not in test_mode
 
 
 @patch('sorunlib.util.OCSClient', mock_registry_client)
