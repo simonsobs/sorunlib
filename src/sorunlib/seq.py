@@ -24,8 +24,8 @@ def scan(description, stop_time, width, tag=None):
     try:
         # Grab current telescope position
         resp = run.CLIENTS['acu'].monitor.status()
-        az = resp.session['data']['StatusDetailed']['Corrected Azimuth']
-        el = resp.session['data']['StatusDetailed']['Corrected Elevation']
+        az = resp.session['data']['StatusDetailed']['Azimuth current position']
+        el = resp.session['data']['StatusDetailed']['Elevation current position']
 
         # Start telescope motion
         resp = run.CLIENTS['acu'].generate_scan.start(az_endpoint1=az,
