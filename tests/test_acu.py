@@ -43,20 +43,19 @@ def test_move_to():
 
 
 @patch('sorunlib.create_clients', mocked_clients)
-def test_move_to_boresight():
+def test_set_boresight():
     acu.run.initialize(test_mode=True)
     acu.run.CLIENTS['acu'] = create_acu_client('satp')
-    acu.move_to(180, 60, 20)
-    acu.run.CLIENTS['acu'].go_to.assert_called_with(az=180, el=60)
+    acu.set_boresight(20)
     acu.run.CLIENTS['acu'].set_boresight.assert_called_with(target=20)
 
 
 @patch('sorunlib.create_clients', mocked_clients)
-def test_move_to_boresight_lat():
+def test_set_boresight_lat():
     acu.run.initialize(test_mode=True)
     acu.run.CLIENTS['acu'] = create_acu_client('ccat')
     with pytest.raises(RuntimeError):
-        acu.move_to(180, 60, 20)
+        acu.set_boresight(20)
 
 
 @patch('sorunlib.create_clients', mocked_clients)
