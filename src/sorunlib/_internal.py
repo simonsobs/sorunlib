@@ -33,3 +33,35 @@ def check_response(response):
     if not response.session['success']:
         error = 'Task failed to complete successfully.\n' + str(response)
         raise RuntimeError(error)
+
+
+def check_start(response):
+    """Check that a response from OCS indicates successful task/process
+    startup.
+
+    Args:
+        response (ocs.ocs_client.OCSReply): Response from an OCS operation
+            call.
+
+    Raises:
+        RuntimeError: When Operation has not started successfully or the
+            response has timed out.
+
+    """
+    op = response.session['op_name']
+
+    # Do we ever get these from a .start() call?
+    if response.status == ocs.ERROR:
+        error = f"Request for Operation {op} failed.\n" + str(response)
+        raise RuntimeError(error)
+    elif response.status == ocs.TIMEOUT:
+        error = f"Timeout reached waiting for {op} to complete." + str(
+            response)
+        raise RuntimeError(error)
+
+    # STARTING, RUNNNING, SUCCEEDED
+    if response.session['op_code'] not in [2, 3, 5]:
+        error = 'Task failed to start successfully.\n' + str(response)
+        raise RuntimeError(error)
+
+    print(response.session['op_code'])
