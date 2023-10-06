@@ -1,5 +1,13 @@
+import time
+
 import sorunlib as run
 from sorunlib._internal import check_response
+
+# Timing between commanding separate SMuRF Controllers
+BIAS_STEP_WAIT = 60
+IV_CURVE_WAIT = 60
+UXM_SETUP_WAIT = 60
+UXM_RELOCK_WAIT = 60
 
 
 def set_targets(targets):
@@ -32,10 +40,11 @@ def bias_step(tag=None):
     """
     for smurf in run.CLIENTS['smurf']:
         smurf.take_bias_steps.start(tag=tag)
-
-    for smurf in run.CLIENTS['smurf']:
         resp = smurf.take_bias_steps.wait()
         check_response(resp)
+
+        # Allow cryo to settle
+        time.sleep(BIAS_STEP_WAIT)
 
 
 def iv_curve(tag=None):
@@ -48,20 +57,22 @@ def iv_curve(tag=None):
     """
     for smurf in run.CLIENTS['smurf']:
         smurf.take_iv.start(tag=tag)
-
-    for smurf in run.CLIENTS['smurf']:
         resp = smurf.take_iv.wait()
         check_response(resp)
+
+        # Allow cryo to settle
+        time.sleep(IV_CURVE_WAIT)
 
 
 def uxm_setup():
     """Perform first-time setup procedure for a UXM."""
     for smurf in run.CLIENTS['smurf']:
         smurf.uxm_setup.start()
-
-    for smurf in run.CLIENTS['smurf']:
         resp = smurf.uxm_setup.wait()
         check_response(resp)
+
+        # Allow cryo to settle
+        time.sleep(UXM_SETUP_WAIT)
 
 
 def uxm_relock(test_mode=False):
@@ -74,10 +85,11 @@ def uxm_relock(test_mode=False):
     """
     for smurf in run.CLIENTS['smurf']:
         smurf.uxm_relock.start(test_mode=test_mode)
-
-    for smurf in run.CLIENTS['smurf']:
         resp = smurf.uxm_relock.wait()
         check_response(resp)
+
+        # Allow cryo to settle
+        time.sleep(UXM_RELOCK_WAIT)
 
 
 def bias_dets():
