@@ -31,6 +31,7 @@ def test_set_targets():
     assert smurf.run.CLIENTS['smurf'][0].instance_id == 'smurf1'
 
 
+@patch('sorunlib.smurf.time.sleep', MagicMock())
 @patch('sorunlib.create_clients', mocked_clients)
 def test_bias_step():
     smurf.run.initialize(test_mode=True)
@@ -39,6 +40,7 @@ def test_bias_step():
         client.take_bias_steps.start.assert_called_once()
 
 
+@patch('sorunlib.smurf.time.sleep', MagicMock())
 @patch('sorunlib.create_clients', mocked_clients)
 def test_iv_curve():
     smurf.run.initialize(test_mode=True)
@@ -47,6 +49,7 @@ def test_iv_curve():
         client.take_iv.start.assert_called_once()
 
 
+@patch('sorunlib.smurf.time.sleep', MagicMock())
 @patch('sorunlib.create_clients', mocked_clients)
 def test_uxm_setup():
     smurf.run.initialize(test_mode=True)
@@ -55,6 +58,7 @@ def test_uxm_setup():
         client.uxm_setup.start.assert_called_once()
 
 
+@patch('sorunlib.smurf.time.sleep', MagicMock())
 @patch('sorunlib.create_clients', mocked_clients)
 def test_uxm_relock():
     smurf.run.initialize(test_mode=True)
