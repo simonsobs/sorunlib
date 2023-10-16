@@ -4,10 +4,11 @@ import sorunlib as run
 from sorunlib._internal import check_response
 
 # Timing between commanding separate SMuRF Controllers
-BIAS_STEP_WAIT = 60
-IV_CURVE_WAIT = 60
-UXM_SETUP_WAIT = 60
-UXM_RELOCK_WAIT = 60
+# Yet to be determined in the field.
+BIAS_STEP_WAIT = 0
+IV_CURVE_WAIT = 0
+UXM_SETUP_WAIT = 0
+UXM_RELOCK_WAIT = 0
 
 
 def set_targets(targets):
