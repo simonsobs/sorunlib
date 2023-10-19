@@ -4,11 +4,9 @@ import sorunlib as run
 from sorunlib._internal import check_response
 
 # Timing between commanding separate SMuRF Controllers
-# Yet to be determined in the field.
-BIAS_STEP_WAIT = 0
-IV_CURVE_WAIT = 0
-UXM_SETUP_WAIT = 0
-UXM_RELOCK_WAIT = 0
+# Yet to be determined in the field. Eventually might need this to be unique
+# per operation. Also, move to configuration file once sorunlib has one.
+CRYO_WAIT = 120
 
 
 def set_targets(targets):
@@ -31,7 +29,7 @@ def set_targets(targets):
     run.CLIENTS['smurf'] = _smurf_clients
 
 
-def bias_step(tag=None, concurrent=True):
+def bias_step(tag=None, concurrent=True, settling_time=None):
     """Perform a bias step on all SMuRF Controllers.
 
     Args:
@@ -40,6 +38,11 @@ def bias_step(tag=None, concurrent=True):
         concurrent (bool, optional): A bool which determines how the operation
             is run across the active SMuRF controllers. It runs in parallel if
             True, and in series if False.
+        settling_time (float, optional):
+            Time in seconds to wait between operation runs across the active
+            SMuRF controlls if *not* running concurrently. If running
+            concurrently this is ignored. If None, defaults to a fixed wait
+            time of 120 seconds.
 
     """
     for smurf in run.CLIENTS['smurf']:
@@ -49,7 +52,8 @@ def bias_step(tag=None, concurrent=True):
             check_response(resp)
 
             # Allow cryo to settle
-            time.sleep(BIAS_STEP_WAIT)
+            wait = settling_time if settling_time else CRYO_WAIT
+            time.sleep(wait)
 
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
@@ -57,7 +61,7 @@ def bias_step(tag=None, concurrent=True):
             check_response(resp)
 
 
-def iv_curve(tag=None, concurrent=True):
+def iv_curve(tag=None, concurrent=True, settling_time=None):
     """Perform an iv curve on all SMuRF Controllers.
 
     Args:
@@ -66,6 +70,11 @@ def iv_curve(tag=None, concurrent=True):
         concurrent (bool, optional): A bool which determines how the operation
             is run across the active SMuRF controllers. It runs in parallel if
             True, and in series if False.
+        settling_time (float, optional):
+            Time in seconds to wait between operation runs across the active
+            SMuRF controlls if *not* running concurrently. If running
+            concurrently this is ignored. If None, defaults to a fixed wait
+            time of 120 seconds.
 
     """
     for smurf in run.CLIENTS['smurf']:
@@ -75,7 +84,8 @@ def iv_curve(tag=None, concurrent=True):
             check_response(resp)
 
             # Allow cryo to settle
-            time.sleep(IV_CURVE_WAIT)
+            wait = settling_time if settling_time else CRYO_WAIT
+            time.sleep(wait)
 
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
@@ -83,13 +93,18 @@ def iv_curve(tag=None, concurrent=True):
             check_response(resp)
 
 
-def uxm_setup(concurrent=True):
+def uxm_setup(concurrent=True, settling_time=None):
     """Perform first-time setup procedure for a UXM.
 
     Args:
         concurrent (bool, optional): A bool which determines how the operation
             is run across the active SMuRF controllers. It runs in parallel if
             True, and in series if False.
+        settling_time (float, optional):
+            Time in seconds to wait between operation runs across the active
+            SMuRF controlls if *not* running concurrently. If running
+            concurrently this is ignored. If None, defaults to a fixed wait
+            time of 120 seconds.
 
     """
     for smurf in run.CLIENTS['smurf']:
@@ -99,7 +114,8 @@ def uxm_setup(concurrent=True):
             check_response(resp)
 
             # Allow cryo to settle
-            time.sleep(UXM_SETUP_WAIT)
+            wait = settling_time if settling_time else CRYO_WAIT
+            time.sleep(wait)
 
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
@@ -107,7 +123,7 @@ def uxm_setup(concurrent=True):
             check_response(resp)
 
 
-def uxm_relock(test_mode=False, concurrent=True):
+def uxm_relock(test_mode=False, concurrent=True, settling_time=None):
     """Relocks detectors to existing tune if setup has already been run.
 
     Args:
@@ -116,6 +132,11 @@ def uxm_relock(test_mode=False, concurrent=True):
         concurrent (bool, optional): A bool which determines how the operation
             is run across the active SMuRF controllers. It runs in parallel if
             True, and in series if False.
+        settling_time (float, optional):
+            Time in seconds to wait between operation runs across the active
+            SMuRF controlls if *not* running concurrently. If running
+            concurrently this is ignored. If None, defaults to a fixed wait
+            time of 120 seconds.
 
     """
     for smurf in run.CLIENTS['smurf']:
@@ -125,7 +146,8 @@ def uxm_relock(test_mode=False, concurrent=True):
             check_response(resp)
 
             # Allow cryo to settle
-            time.sleep(UXM_RELOCK_WAIT)
+            wait = settling_time if settling_time else CRYO_WAIT
+            time.sleep(wait)
 
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
@@ -133,13 +155,18 @@ def uxm_relock(test_mode=False, concurrent=True):
             check_response(resp)
 
 
-def bias_dets(concurrent=True):
+def bias_dets(concurrent=True, settling_time=None):
     """Bias the detectors on all SMuRF Controllers.
 
     Args:
         concurrent (bool, optional): A bool which determines how the operation
             is run across the active SMuRF controllers. It runs in parallel if
             True, and in series if False.
+        settling_time (float, optional):
+            Time in seconds to wait between operation runs across the active
+            SMuRF controlls if *not* running concurrently. If running
+            concurrently this is ignored. If None, defaults to a fixed wait
+            time of 120 seconds.
 
     """
     for smurf in run.CLIENTS['smurf']:
@@ -148,13 +175,17 @@ def bias_dets(concurrent=True):
             resp = smurf.bias_dets.wait()
             check_response(resp)
 
+            # Allow cryo to settle
+            wait = settling_time if settling_time else CRYO_WAIT
+            time.sleep(wait)
+
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.bias_dets.wait()
             check_response(resp)
 
 
-def take_bgmap(tag=None, concurrent=True):
+def take_bgmap(tag=None, concurrent=True, settling_time=None):
     """Take a bgmap on all SMuRF Controllers.
 
     Args:
@@ -163,6 +194,11 @@ def take_bgmap(tag=None, concurrent=True):
         concurrent (bool, optional): A bool which determines how the operation
             is run across the active SMuRF controllers. It runs in parallel if
             True, and in series if False.
+        settling_time (float, optional):
+            Time in seconds to wait between operation runs across the active
+            SMuRF controlls if *not* running concurrently. If running
+            concurrently this is ignored. If None, defaults to a fixed wait
+            time of 120 seconds.
 
     """
     for smurf in run.CLIENTS['smurf']:
@@ -171,13 +207,17 @@ def take_bgmap(tag=None, concurrent=True):
             resp = smurf.take_bgmap.wait()
             check_response(resp)
 
+            # Allow cryo to settle
+            wait = settling_time if settling_time else CRYO_WAIT
+            time.sleep(wait)
+
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.take_bgmap.wait()
             check_response(resp)
 
 
-def take_noise(tag=None, concurrent=True):
+def take_noise(tag=None, concurrent=True, settling_time=None):
     """Measure noise statistics from a short, 30 second, timestream.
 
     Args:
@@ -186,6 +226,11 @@ def take_noise(tag=None, concurrent=True):
         concurrent (bool, optional): A bool which determines how the operation
             is run across the active SMuRF controllers. It runs in parallel if
             True, and in series if False.
+        settling_time (float, optional):
+            Time in seconds to wait between operation runs across the active
+            SMuRF controlls if *not* running concurrently. If running
+            concurrently this is ignored. If None, defaults to a fixed wait
+            time of 120 seconds.
 
     """
     for smurf in run.CLIENTS['smurf']:
@@ -193,6 +238,10 @@ def take_noise(tag=None, concurrent=True):
         if not concurrent:
             resp = smurf.take_noise.wait()
             check_response(resp)
+
+            # Allow cryo to settle
+            wait = settling_time if settling_time else CRYO_WAIT
+            time.sleep(wait)
 
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
