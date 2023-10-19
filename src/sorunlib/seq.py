@@ -5,7 +5,7 @@ from sorunlib._internal import check_response
 OP_TIMEOUT = 60
 
 
-def scan(description, stop_time, width, tag=None):
+def scan(description, stop_time, width, az_drift=0, tag=None):
     """Run a constant elevation scan, collecting detector data.
 
     Args:
@@ -14,6 +14,8 @@ def scan(description, stop_time, width, tag=None):
             "2022-06-21T15:58:00"
         width (float): Scan width in azimuth. The scan will start at the
             current position and move in the positive azimuth direction.
+        az_drift (float): Drift velocity in deg/s, causing scan extrema to move
+            accordingly.
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation. Passed through to the smurf stream command.
 
@@ -34,7 +36,8 @@ def scan(description, stop_time, width, tag=None):
                                                       az_accel=2.0,
                                                       el_endpoint1=el,
                                                       el_endpoint2=el,
-                                                      el_speed=0)
+                                                      el_speed=0,
+                                                      az_drift=az_drift)
 
         if not resp.session:
             raise Exception(f"Generate Scan failed to start:\n  {resp}")
