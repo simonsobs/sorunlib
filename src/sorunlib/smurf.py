@@ -122,18 +122,19 @@ def take_noise(tag=None):
         check_response(resp)
 
 
-def stream(state, tag=None):
+def stream(state, tag=None, subtype=None):
     """Stream data on all SMuRF Controllers.
 
     Args:
         state (str): Streaming state, either 'on' or 'off'.
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation.
+        subtype (str, optional): Operation subtype used to tag the stream.
 
     """
     if state.lower() == 'on':
         for smurf in run.CLIENTS['smurf']:
-            smurf.stream.start(tag=tag)
+            smurf.stream.start(subtype=subtype, tag=tag)
 
     else:
         for smurf in run.CLIENTS['smurf']:
