@@ -66,3 +66,13 @@ def test_move_to_failed():
     acu.run.CLIENTS['acu'].go_to.side_effect = [mocked_response]
     with pytest.raises(RuntimeError):
         acu.move_to(180, 90)
+
+
+@patch('sorunlib.create_clients', mocked_clients)
+def test_set_scan_params():
+    acu.run.initialize(test_mode=True)
+    acu.set_scan_params(az_speed=2, az_accel=2, reset=True)
+    acu.run.CLIENTS['acu'].set_scan_params.assert_called_with(
+        az_speed=2,
+        az_accel=2,
+        reset=True)
