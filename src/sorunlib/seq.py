@@ -31,10 +31,10 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None):
         el = resp.session['data']['StatusDetailed']['Elevation current position']
 
         # Start telescope motion
+        # az_speed and az_accel assumed from ACU defaults
+        # Can be modified by acu.set_scan_params()
         resp = run.CLIENTS['acu'].generate_scan.start(az_endpoint1=az,
                                                       az_endpoint2=az + width,
-                                                      az_speed=2,
-                                                      az_accel=2.0,
                                                       el_endpoint1=el,
                                                       el_endpoint2=el,
                                                       el_speed=0,
