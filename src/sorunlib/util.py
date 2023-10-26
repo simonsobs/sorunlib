@@ -67,7 +67,8 @@ def _find_active_instances(agent_class):
             Class defined by an OCS Agent (and thus also defined in the SCF.)
 
     Returns:
-        list: List of instance-id's matching the given agent_class.
+        str or list: List of instance-id's matching the given agent_class. If
+            the list is of length 1, just return the only instance-id.
 
     """
     cfg = load_config()
@@ -83,6 +84,9 @@ def _find_active_instances(agent_class):
         if entry['agent_class'] == agent_class:
             instance_id = entry['agent_address'].split('.')[-1]
             instances.append(instance_id)
+
+    if len(instances) == 1:
+        return instances[0]
 
     return instances
 
@@ -116,7 +120,7 @@ def create_clients(config=None, test_mode=False):
     smurf_ids = _find_active_instances(smurf_agent_class)
 
     if acu_id:
-        acu_client = OCSClient(acu_id[0])
+        acu_client = OCSClient(acu_id)
         clients['acu'] = acu_client
 
     # Always create smurf client list, even if empty
