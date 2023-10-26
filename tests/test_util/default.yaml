@@ -3,7 +3,7 @@ hub:
   wamp_http: http://localhost:8001/call
   wamp_realm: test_realm
   address_root: observatory
-  registry_address: observatory.registry
+  registry_address: registry
 
 hosts:
     localhost: {
