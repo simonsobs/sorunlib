@@ -1,8 +1,11 @@
 import os
+import pytest
 
+from ocs.client_http import ControlClientError
 from unittest.mock import MagicMock, patch
 
 from sorunlib import util
+from sorunlib.util import CrossbarConnectionError
 
 os.environ["OCS_CONFIG_DIR"] = "./test_util/"
 
@@ -88,6 +91,16 @@ reg_session = {'session_id': 0,
 mock_registry_client = create_mock_ocsclient(reg_session)
 
 
+class NoAgentClient:
+    def __init__(self, *args, **kwargs):
+        raise ControlClientError("no callee registered for procedure fake.agent.op")
+
+
+class UnexpectedErrorClient:
+    def __init__(self, *args, **kwargs):
+        raise ControlClientError("Server replied with code 500")
+
+
 def test_load_site_config():
     cfg = util._load_site_config()
     assert 'localhost' in cfg.hosts
@@ -116,6 +129,27 @@ def test_find_active_instances():
 def test_find_active_instances_expired():
     instances = util._find_active_instances('FakeDataAgent')
     assert 'fake-data-1' not in instances
+
+
+def test__try_client_no_crossbar_connection():
+    """This test assumes a crossbar server isn't running at
+    http://localhost:8001. It tests that we raise an error when trying to
+    connect to the registry to scan for agents if crossbar is unavailable."""
+    with pytest.raises(CrossbarConnectionError):
+        util._try_client('test-agent')
+
+
+@patch('sorunlib.util.OCSClient', NoAgentClient)
+def test__try_client_no_agent_connection():
+    """This tests that we get None back when the agent is offline."""
+    client = util._try_client('test-agent')
+    assert client is None
+
+
+@patch('sorunlib.util.OCSClient', UnexpectedErrorClient)
+def test__try_client_other_error():
+    with pytest.raises(ControlClientError):
+        util._try_client('test-agent')
 
 
 @patch('sorunlib.util.OCSClient', mock_registry_client)
