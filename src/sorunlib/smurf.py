@@ -49,7 +49,7 @@ def bias_step(tag=None, concurrent=True, settling_time=None):
         smurf.take_bias_steps.start(tag=tag)
         if not concurrent:
             resp = smurf.take_bias_steps.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
             # Allow cryo to settle
             wait = settling_time if settling_time else CRYO_WAIT
@@ -58,7 +58,7 @@ def bias_step(tag=None, concurrent=True, settling_time=None):
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.take_bias_steps.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
 
 def iv_curve(tag=None, concurrent=True, settling_time=None):
@@ -81,7 +81,7 @@ def iv_curve(tag=None, concurrent=True, settling_time=None):
         smurf.take_iv.start(tag=tag)
         if not concurrent:
             resp = smurf.take_iv.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
             # Allow cryo to settle
             wait = settling_time if settling_time else CRYO_WAIT
@@ -90,7 +90,7 @@ def iv_curve(tag=None, concurrent=True, settling_time=None):
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.take_iv.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
 
 def uxm_setup(concurrent=True, settling_time=0):
@@ -110,7 +110,7 @@ def uxm_setup(concurrent=True, settling_time=0):
         smurf.uxm_setup.start()
         if not concurrent:
             resp = smurf.uxm_setup.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
             # Allow cryo to settle
             time.sleep(settling_time)
@@ -118,7 +118,7 @@ def uxm_setup(concurrent=True, settling_time=0):
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.uxm_setup.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
 
 def uxm_relock(test_mode=False, concurrent=True, settling_time=0):
@@ -140,7 +140,7 @@ def uxm_relock(test_mode=False, concurrent=True, settling_time=0):
         smurf.uxm_relock.start(test_mode=test_mode)
         if not concurrent:
             resp = smurf.uxm_relock.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
             # Allow cryo to settle
             time.sleep(settling_time)
@@ -148,7 +148,7 @@ def uxm_relock(test_mode=False, concurrent=True, settling_time=0):
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.uxm_relock.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
 
 def bias_dets(concurrent=True, settling_time=0):
@@ -168,7 +168,7 @@ def bias_dets(concurrent=True, settling_time=0):
         smurf.bias_dets.start()
         if not concurrent:
             resp = smurf.bias_dets.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
             # Allow cryo to settle
             time.sleep(settling_time)
@@ -176,7 +176,7 @@ def bias_dets(concurrent=True, settling_time=0):
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.bias_dets.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
 
 def take_bgmap(tag=None, concurrent=True, settling_time=0):
@@ -198,7 +198,7 @@ def take_bgmap(tag=None, concurrent=True, settling_time=0):
         smurf.take_bgmap.start(tag=tag)
         if not concurrent:
             resp = smurf.take_bgmap.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
             # Allow cryo to settle
             time.sleep(settling_time)
@@ -206,7 +206,7 @@ def take_bgmap(tag=None, concurrent=True, settling_time=0):
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.take_bgmap.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
 
 def take_noise(tag=None, concurrent=True, settling_time=0):
@@ -228,7 +228,7 @@ def take_noise(tag=None, concurrent=True, settling_time=0):
         smurf.take_noise.start(tag=tag)
         if not concurrent:
             resp = smurf.take_noise.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
             # Allow cryo to settle
             time.sleep(settling_time)
@@ -236,7 +236,7 @@ def take_noise(tag=None, concurrent=True, settling_time=0):
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.take_noise.wait()
-            check_response(resp)
+            check_response(smurf, resp)
 
 
 def stream(state, tag=None, subtype=None):
@@ -257,4 +257,4 @@ def stream(state, tag=None, subtype=None):
         for smurf in run.CLIENTS['smurf']:
             smurf.stream.stop()
             resp = smurf.stream.wait()
-            check_response(resp)
+            check_response(smurf, resp)

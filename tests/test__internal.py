@@ -21,23 +21,29 @@ def create_session(op_name, success=None):
     return session.encoded()
 
 
-invalid_responses = [(OCSReply(ocs.TIMEOUT,
-                               'msg',
-                               create_session('test', success=True))),
-                     (OCSReply(ocs.ERROR,
-                               'msg',
-                               create_session('test')))]
+# Very partial mock as we only need the instance_id to exist.
+class MockClient:
+    def __init__(self):
+        self.instance_id = 'test-id'
+
+
+invalid_responses = [(MockClient(), OCSReply(ocs.TIMEOUT,
+                                             'msg',
+                                             create_session('test', success=True))),
+                     (MockClient(), OCSReply(ocs.ERROR,
+                                             'msg',
+                                             create_session('test')))]
 
 valid_responses = [
-    (OCSReply(ocs.OK, 'msg', create_session('test', success=True)))]
+    (MockClient(), OCSReply(ocs.OK, 'msg', create_session('test', success=True)))]
 
 
-@pytest.mark.parametrize("response", invalid_responses)
-def test_check_response_raises(response):
+@pytest.mark.parametrize("client,response", invalid_responses)
+def test_check_response_raises(client, response):
     with pytest.raises(RuntimeError):
-        check_response(response)
+        check_response(client, response)
 
 
-@pytest.mark.parametrize("response", valid_responses)
-def test_check_response(response):
-    check_response(response)
+@pytest.mark.parametrize("client,response", valid_responses)
+def test_check_response(client, response):
+    check_response(client, response)
