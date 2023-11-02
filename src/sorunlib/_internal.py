@@ -31,7 +31,7 @@ def check_response(client, response):
         raise RuntimeError(error)
     elif response.status == ocs.TIMEOUT:
         error = f"Timeout reached waiting for {op} in Agent {instance} to " + \
-            "complete." + str(response)
+            "complete.\n" + str(response)
         raise RuntimeError(error)
 
     if not response.session['success']:
