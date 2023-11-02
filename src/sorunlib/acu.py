@@ -10,9 +10,9 @@ def move_to(az, el):
         el (float): destination angle for the elevation axis
 
     """
-    # Az/El motion
-    resp = run.CLIENTS['acu'].go_to(az=az, el=el)
-    check_response(resp)
+    acu = run.CLIENTS['acu']
+    resp = acu.go_to(az=az, el=el)
+    check_response(acu, resp)
 
 
 def set_boresight(target):
@@ -25,12 +25,14 @@ def set_boresight(target):
         RuntimeError: If boresight is passed to a non-satp platform.
 
     """
+    acu = run.CLIENTS['acu']
+
     # Check platform type
-    resp = run.CLIENTS['acu'].monitor.status()
+    resp = acu.monitor.status()
     platform = resp.session['data']['PlatformType']
     if platform == "satp":
-        resp = run.CLIENTS['acu'].set_boresight(target=target)
-        check_response(resp)
+        resp = acu.set_boresight(target=target)
+        check_response(acu, resp)
     else:
         raise RuntimeError(f"Platform type {platform} does not support boresight motion")
 
@@ -46,7 +48,8 @@ def set_scan_params(az_speed, az_accel, reset=False):
             before applying any updates passed explicitly here.
 
     """
-    resp = run.CLIENTS['acu'].set_scan_params(az_speed=az_speed,
-                                              az_accel=az_accel,
-                                              reset=reset)
-    check_response(resp)
+    acu = run.CLIENTS['acu']
+    resp = acu.set_scan_params(az_speed=az_speed,
+                               az_accel=az_accel,
+                               reset=reset)
+    check_response(acu, resp)
