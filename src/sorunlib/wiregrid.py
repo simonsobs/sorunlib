@@ -8,8 +8,6 @@ BORESIGHT_DIFF_THRESHOLD = 0.5  # deg
 AGENT_TIMEDIFF_THRESHOLD = 5  # sec
 OP_TIMEOUT = 60
 
-CONTINUOUS_ROTATION_TIME = 30  # sec
-
 
 # Internal Helper Functions
 def _check_process_data(process, last_timestamp):
@@ -207,6 +205,39 @@ def eject():
         raise RuntimeError(error)
 
 
+def rotate(continuous, duration=30, num_laps=1, stopped_time=10.):
+    """Rotate the wiregrid.
+
+    Rotation is either continuously for ``duration`` seconds or stepwise for
+    ``num_laps``, stopping every 22.5 degrees for ``stopped_time`` seconds.
+
+    This function sets the Kikusui power settings appropriately based on the
+    rotation type.
+
+    Args:
+        continuous (bool): Rotate the grid continuously if True or not if
+            False.
+        duration (int, float): Amount of time in seconds to rotate if rotating
+            continuously. Defaults to 30 seconds.
+        num_laps (int): Number of revolutions if rotating stepwise (i.e.
+            ``continuous = False``). Defaults to 1.
+        stopped_time (float): Duration of each 22.5 deg step in seconds if
+            rotating stepwise. Defaults to 10 seconds.
+
+    """
+    kikusui = run.CLIENTS['wiregrid']['kikusui']
+
+    # Configure power settings based on rotation type
+    _configure_power(continuous)
+
+    if continuous:
+        _rotate_continuously(duration)
+    else:
+        resp = kikusui.stepwise_rotation(num_laps=num_laps,
+                                         stopped_time=stopped_time)
+        check_response(kikusui, resp)
+
+
 def calibrate(continuous=False):
     """Run a wiregrid calibration.
 
@@ -215,9 +246,6 @@ def calibrate(continuous=False):
             Default is False, in which the wiregrid rotates step-wisely.
 
     """
-    # Organize wiregrid clients
-    kikusui = run.CLIENTS['wiregrid']['kikusui']
-
     try:
         _check_telescope_position()
         _check_agents_online()
@@ -225,11 +253,7 @@ def calibrate(continuous=False):
         _check_motor_on()
 
         # Rotate for reference before insertion
-        _configure_power(continuous=True)
-        _rotate_continuously(5)
-
-        # Configure power
-        _configure_power(continuous)
+        rotate(continuous=True, duration=5)
 
         # Enable SMuRF streams
         if continuous:
@@ -242,11 +266,7 @@ def calibrate(continuous=False):
         insert()
 
         # Rotate the wiregrid
-        if continuous:
-            _rotate_continuously(CONTINUOUS_ROTATION_TIME)
-        else:
-            resp = kikusui.stepwise_rotation(num_laps=1, stopped_time=10.0)
-            check_response(kikusui, resp)
+        rotate(continuous)
 
         # Eject the wiregrid
         eject()
