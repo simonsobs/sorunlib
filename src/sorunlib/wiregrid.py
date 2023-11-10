@@ -183,6 +183,30 @@ def _check_temperature_sensors():
 
 
 # Public API
+def insert():
+    """Insert the wiregrid."""
+    actuator = run.CLIENTS['wiregrid']['actuator']
+    resp = actuator.insert()
+    try:
+        check_response(actuator, resp)
+    except RuntimeError as e:
+        error = "Wiregrid insertion failed. Please inspect wiregrid before " + \
+                "continuing observations.\n" + str(e)
+        raise RuntimeError(error)
+
+
+def eject():
+    """Eject the wiregrid."""
+    actuator = run.CLIENTS['wiregrid']['actuator']
+    resp = actuator.eject()
+    try:
+        check_response(actuator, resp)
+    except RuntimeError as e:
+        error = "Wiregrid eject failed. Please inspect wiregrid before " + \
+                "continuing observations.\n" + str(e)
+        raise RuntimeError(error)
+
+
 def calibrate(continuous=False):
     """Run a wiregrid calibration.
 
@@ -192,7 +216,6 @@ def calibrate(continuous=False):
 
     """
     # Organize wiregrid clients
-    actuator = run.CLIENTS['wiregrid']['actuator']
     kikusui = run.CLIENTS['wiregrid']['kikusui']
 
     try:
@@ -216,13 +239,7 @@ def calibrate(continuous=False):
         run.smurf.stream('on', tag=f'wiregrid, {rotation}', subtype='cal')
 
         # Insert the wiregrid
-        resp = actuator.insert()
-        try:
-            check_response(actuator, resp)
-        except RuntimeError as e:
-            error = "Wiregrid insertion failed. Please inspect wiregrid before " + \
-                    "continuing observations.\n" + str(e)
-            raise RuntimeError(error)
+        insert()
 
         # Rotate the wiregrid
         if continuous:
@@ -232,13 +249,7 @@ def calibrate(continuous=False):
             check_response(kikusui, resp)
 
         # Eject the wiregrid
-        resp = actuator.eject()
-        try:
-            check_response(actuator, resp)
-        except RuntimeError as e:
-            error = "Wiregrid eject failed. Please inspect wiregrid before " + \
-                    "continuing observations.\n" + str(e)
-            raise RuntimeError(error)
+        eject()
     finally:
         # Stop SMuRF streams
         run.smurf.stream('off')
