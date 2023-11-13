@@ -73,6 +73,19 @@ def test_uxm_relock(concurrent):
         client.uxm_relock.start.assert_called_once()
 
 
+@patch('sorunlib.smurf.time.sleep', MagicMock())
+@patch('sorunlib.create_clients', mocked_clients)
+@pytest.mark.parametrize("test_mode", [(True), (False)])
+def test_uxm_relock_test_mode(test_mode):
+    smurf.run.initialize(test_mode=True)  # always True
+    smurf.uxm_relock(test_mode=test_mode)
+    for client in smurf.run.CLIENTS['smurf']:
+        if test_mode:
+            client.uxm_relock.start.assert_called_with(test_mode=test_mode)
+        else:
+            client.uxm_relock.start.assert_called_with()
+
+
 @patch('sorunlib.create_clients', mocked_clients)
 @pytest.mark.parametrize("concurrent", [(True), (False)])
 def test_bias_dets(concurrent):

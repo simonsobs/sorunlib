@@ -137,7 +137,11 @@ def uxm_relock(test_mode=False, concurrent=True, settling_time=0):
 
     """
     for smurf in run.CLIENTS['smurf']:
-        smurf.uxm_relock.start(test_mode=test_mode)
+        if test_mode:
+            smurf.uxm_relock.start(test_mode=test_mode)
+        else:
+            smurf.uxm_relock.start()
+
         if not concurrent:
             resp = smurf.uxm_relock.wait()
             check_response(smurf, resp)
