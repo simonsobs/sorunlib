@@ -11,6 +11,7 @@ platform.
    :caption: Documentation
 
    design
+   configuration
 
 .. toctree::
    :maxdepth: 2
