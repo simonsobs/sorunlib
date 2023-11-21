@@ -1,5 +1,7 @@
 import os
 
+from sorunlib.config import load_config
+
 from ocs import site_config
 from ocs.ocs_client import OCSClient
 
@@ -56,23 +58,21 @@ def _find_instances(agent_class, host=None, config=None):
     return instances
 
 
-def _find_active_instances(agent_class, config=None):
+def _find_active_instances(agent_class):
     """Find all instances of an Agent Class currently online, based on the
     Agents known by the registry.
 
     Args:
         agent_class (str): Agent Class name to search for, must match Agent
             Class defined by an OCS Agent (and thus also defined in the SCF.)
-        config (str): Path to the OCS Site Config File. If None the default
-            file in OCS_CONFIG_DIR will be used.
 
     Returns:
         list: List of instance-id's matching the given agent_class.
 
     """
-    cfg = _load_site_config(config)
+    cfg = load_config()
 
-    reg_client = OCSClient(cfg.hub.data['registry_address'])
+    reg_client = OCSClient(cfg['registry'])
     _, _, session = reg_client.main.status()
 
     instances = []
@@ -112,8 +112,8 @@ def create_clients(config=None, test_mode=False):
     else:
         smurf_agent_class = 'PysmurfController'
 
-    acu_id = _find_active_instances('ACUAgent', config=config)
-    smurf_ids = _find_active_instances(smurf_agent_class, config=config)
+    acu_id = _find_active_instances('ACUAgent')
+    smurf_ids = _find_active_instances(smurf_agent_class)
 
     if acu_id:
         acu_client = OCSClient(acu_id[0])
