@@ -1,2 +1,4 @@
 ---
 registry: 'registry'
+wiregrid:
+  labjack: 'wg-labjack'

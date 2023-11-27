@@ -26,6 +26,10 @@ A full configuration file example with comments is shown here:
     # ocs registry agent
     registry: 'registry'
 
+    # wiregrid agents
+    wiregrid:
+      labjack: 'wg-labjack'
+
 Configuration Selection
 -----------------------
 
