@@ -50,3 +50,12 @@ sorunlib.util
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+sorunlib.wiregrid
+-----------------
+
+.. automodule:: sorunlib.wiregrid
+    :members:
+    :undoc-members:
+    :show-inheritance:
