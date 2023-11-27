@@ -9,6 +9,14 @@ from sorunlib._internal import check_response
 CRYO_WAIT = 120
 
 
+def _wait_for_cryo(time_):
+    if time_ is None:
+        wait = CRYO_WAIT
+    else:
+        wait = time_
+    time.sleep(wait)
+
+
 def set_targets(targets):
     """Set the target pysmurf-controller Agents that sorunlib will command.
 
@@ -52,8 +60,7 @@ def bias_step(tag=None, concurrent=True, settling_time=None):
             check_response(smurf, resp)
 
             # Allow cryo to settle
-            wait = settling_time if settling_time else CRYO_WAIT
-            time.sleep(wait)
+            _wait_for_cryo(settling_time)
 
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
@@ -84,8 +91,7 @@ def iv_curve(tag=None, concurrent=True, settling_time=None):
             check_response(smurf, resp)
 
             # Allow cryo to settle
-            wait = settling_time if settling_time else CRYO_WAIT
-            time.sleep(wait)
+            _wait_for_cryo(settling_time)
 
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
