@@ -1,9 +1,15 @@
 import os
+import re
 
 from sorunlib.config import load_config
 
 from ocs import site_config
 from ocs.ocs_client import OCSClient
+from ocs.client_http import ControlClientError
+
+
+class CrossbarConnectionError(Exception):
+    pass
 
 
 def _load_site_config(filename=None):
@@ -67,12 +73,13 @@ def _find_active_instances(agent_class):
             Class defined by an OCS Agent (and thus also defined in the SCF.)
 
     Returns:
-        list: List of instance-id's matching the given agent_class.
+        str or list: List of instance-id's matching the given agent_class. If
+            the list is of length 1, just return the only instance-id.
 
     """
     cfg = load_config()
 
-    reg_client = OCSClient(cfg['registry'])
+    reg_client = _try_client(cfg['registry'])
     _, _, session = reg_client.main.status()
 
     instances = []
@@ -84,7 +91,32 @@ def _find_active_instances(agent_class):
             instance_id = entry['agent_address'].split('.')[-1]
             instances.append(instance_id)
 
+    if len(instances) == 1:
+        return instances[0]
+
     return instances
+
+
+def _try_client(instanceid):
+    """User in place of OCSClient to handle common exceptions."""
+    try:
+        client = OCSClient(instanceid)
+    except ControlClientError as e:
+        # crossbar connection error
+        if "Failed to connect" in str(e):
+            result = re.search(r"(http://[^ ]+)'", str(e))
+            crossbar_url = result.group(1)
+            error = f"Cannot connect to crossbar server {crossbar_url}. Check your connection."
+            raise CrossbarConnectionError(error)
+        # likely an agent connection error
+        if "no callee registered" in str(e):
+            print(f"Could not instantiate OCSClient for '{instanceid}'.")
+            return None
+        # other errors, i.e. non-200 error codes
+        print(f"Unexpected error trying to instantiate OCSClient for '{instanceid}'.")
+        raise ControlClientError(e)
+
+    return client
 
 
 def create_clients(config=None, test_mode=False):
@@ -116,11 +148,11 @@ def create_clients(config=None, test_mode=False):
     smurf_ids = _find_active_instances(smurf_agent_class)
 
     if acu_id:
-        acu_client = OCSClient(acu_id[0])
+        acu_client = _try_client(acu_id)
         clients['acu'] = acu_client
 
     # Always create smurf client list, even if empty
-    smurf_clients = [OCSClient(x) for x in smurf_ids]
+    smurf_clients = [_try_client(x) for x in smurf_ids]
     clients['smurf'] = smurf_clients
 
     return clients
