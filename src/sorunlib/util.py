@@ -119,6 +119,35 @@ def _try_client(instanceid):
     return client
 
 
+def _create_wiregrid_clients(config=None, sorunlib_config=None):
+    """Create all wiregrid related clients for a single platform.
+
+    Args:
+        config (str): Path to the OCS Site Config File. If None the default
+            file in OCS_CONFIG_DIR will be used.
+        sorunlib_config (str): Path to sorunlib config file. If None the path
+            from environment variable SORUNLIB_CONFIG is used.
+
+    Returns:
+        dict: Dictionary with the keys, 'acutator', 'encoder', 'kikusui', and
+            'labjack' with each value being the corresponding OCSClient.
+
+    """
+    actuator = _find_active_instances('WiregridActuatorAgent')
+    encoder = _find_active_instances('WiregridEncoderAgent')
+    kikusui = _find_active_instances('WiregridKikusuiAgent')
+
+    cfg = load_config(filename=sorunlib_config)
+    labjack = cfg['wiregrid']['labjack']
+
+    clients = {'actuator': _try_client(actuator),
+               'encoder': _try_client(encoder),
+               'kikusui': _try_client(kikusui),
+               'labjack': _try_client(labjack)}
+
+    return clients
+
+
 def create_clients(config=None, test_mode=False):
     """Create all clients needed for commanding a single platform.
 
@@ -134,7 +163,11 @@ def create_clients(config=None, test_mode=False):
         in the format::
 
             clients = {'acu': acu_client,
-                       'smurf': [smurf_client1, smurf_client2, smurf_client3]}
+                       'smurf': [smurf_client1, smurf_client2, smurf_client3],
+                       'wiregrid': {'actuator': actuator_client,
+                                    'encoder': encoder_client,
+                                    'kikusui': kikusui_client,
+                                    'labjack': labjack_client}}
 
     """
     clients = {}
@@ -154,5 +187,7 @@ def create_clients(config=None, test_mode=False):
     # Always create smurf client list, even if empty
     smurf_clients = [_try_client(x) for x in smurf_ids]
     clients['smurf'] = smurf_clients
+
+    clients['wiregrid'] = _create_wiregrid_clients(config=config)
 
     return clients
