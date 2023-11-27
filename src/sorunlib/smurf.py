@@ -48,7 +48,7 @@ def bias_step(tag=None, concurrent=True, settling_time=None):
             True, and in series if False.
         settling_time (float, optional):
             Time in seconds to wait between operation runs across the active
-            SMuRF controlls if *not* running concurrently. If running
+            SMuRF controllers if *not* running concurrently. If running
             concurrently this is ignored. If None, defaults to a fixed wait
             time of 120 seconds.
 
@@ -79,7 +79,7 @@ def iv_curve(tag=None, concurrent=True, settling_time=None):
             True, and in series if False.
         settling_time (float, optional):
             Time in seconds to wait between operation runs across the active
-            SMuRF controlls if *not* running concurrently. If running
+            SMuRF controllers if *not* running concurrently. If running
             concurrently this is ignored. If None, defaults to a fixed wait
             time of 120 seconds.
 
@@ -108,7 +108,7 @@ def uxm_setup(concurrent=True, settling_time=0):
             True, and in series if False.
         settling_time (float, optional):
             Time in seconds to wait between operation runs across the active
-            SMuRF controlls if *not* running concurrently. If running
+            SMuRF controllers if *not* running concurrently. If running
             concurrently this is ignored. Defaults to 0 seconds.
 
     """
@@ -138,7 +138,7 @@ def uxm_relock(test_mode=False, concurrent=True, settling_time=0):
             True, and in series if False.
         settling_time (float, optional):
             Time in seconds to wait between operation runs across the active
-            SMuRF controlls if *not* running concurrently. If running
+            SMuRF controllers if *not* running concurrently. If running
             concurrently this is ignored. Defaults to 0 seconds.
 
     """
@@ -170,7 +170,7 @@ def bias_dets(concurrent=True, settling_time=0):
             True, and in series if False.
         settling_time (float, optional):
             Time in seconds to wait between operation runs across the active
-            SMuRF controlls if *not* running concurrently. If running
+            SMuRF controllers if *not* running concurrently. If running
             concurrently this is ignored. Defaults to 0 seconds.
 
     """
@@ -200,7 +200,7 @@ def take_bgmap(tag=None, concurrent=True, settling_time=0):
             True, and in series if False.
         settling_time (float, optional):
             Time in seconds to wait between operation runs across the active
-            SMuRF controlls if *not* running concurrently. If running
+            SMuRF controllers if *not* running concurrently. If running
             concurrently this is ignored. Defaults to 0 seconds.
 
     """
@@ -230,7 +230,7 @@ def take_noise(tag=None, concurrent=True, settling_time=0):
             True, and in series if False.
         settling_time (float, optional):
             Time in seconds to wait between operation runs across the active
-            SMuRF controlls if *not* running concurrently. If running
+            SMuRF controllers if *not* running concurrently. If running
             concurrently this is ignored. Defaults to 0 seconds.
 
     """
