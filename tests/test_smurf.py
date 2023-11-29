@@ -49,7 +49,7 @@ def test_bias_step(concurrent):
     smurf.run.initialize(test_mode=True)
     smurf.bias_step(concurrent=concurrent, settling_time=10)
     for client in smurf.run.CLIENTS['smurf']:
-        client.take_bias_steps.start.assert_called_once()
+        client.take_bias_steps.start.assert_called_with(tag=None)
 
 
 @patch('sorunlib.smurf.time.sleep', MagicMock())
@@ -59,7 +59,7 @@ def test_iv_curve(concurrent):
     smurf.run.initialize(test_mode=True)
     smurf.iv_curve(concurrent=concurrent)
     for client in smurf.run.CLIENTS['smurf']:
-        client.take_iv.start.assert_called_once()
+        client.take_iv.start.assert_called_with(tag=None)
 
 
 @patch('sorunlib.smurf.time.sleep', MagicMock())
@@ -110,7 +110,7 @@ def test_set_biases(concurrent):
     smurf.run.initialize(test_mode=True)
     smurf.set_biases(bias=1, bias_group=None, concurrent=concurrent)
     for client in smurf.run.CLIENTS['smurf']:
-        client.set_biases.start.assert_called_once()
+        client.set_biases.start.assert_called_with(bias=1, bg=None)
 
 
 @patch('sorunlib.create_clients', mocked_clients)
@@ -119,7 +119,7 @@ def test_zero_biases(concurrent):
     smurf.run.initialize(test_mode=True)
     smurf.zero_biases(bias_group=None, concurrent=concurrent)
     for client in smurf.run.CLIENTS['smurf']:
-        client.zero_biases.start.assert_called_once()
+        client.zero_biases.start.assert_called_with(bg=None)
 
 
 @patch('sorunlib.create_clients', mocked_clients)
@@ -128,7 +128,7 @@ def test_bgmap(concurrent):
     smurf.run.initialize(test_mode=True)
     smurf.take_bgmap(concurrent=concurrent)
     for client in smurf.run.CLIENTS['smurf']:
-        client.take_bgmap.start.assert_called_once()
+        client.take_bgmap.start.assert_called_with(tag=None)
 
 
 @patch('sorunlib.create_clients', mocked_clients)
@@ -137,7 +137,7 @@ def test_take_noise(concurrent):
     smurf.run.initialize(test_mode=True)
     smurf.take_noise(concurrent=concurrent)
     for client in smurf.run.CLIENTS['smurf']:
-        client.take_noise.start.assert_called_once()
+        client.take_noise.start.assert_called_with(tag=None)
 
 
 @patch('sorunlib.create_clients', mocked_clients)
