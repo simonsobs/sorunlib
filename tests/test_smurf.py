@@ -38,7 +38,7 @@ def test_set_targets():
 @pytest.mark.parametrize("concurrent", [(True), (False)])
 def test_bias_step(concurrent):
     smurf.run.initialize(test_mode=True)
-    smurf.bias_step(concurrent=concurrent)
+    smurf.bias_step(concurrent=concurrent, settling_time=10)
     for client in smurf.run.CLIENTS['smurf']:
         client.take_bias_steps.start.assert_called_once()
 
