@@ -5,9 +5,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from util import mocked_clients
+from ocs.ocs_client import OCSReply
 
 from sorunlib import smurf
+from util import mocked_clients
 
 
 # Use pytest-mock plugin to patch CLIENTS on all tests
@@ -29,6 +30,32 @@ def test_bias_step(concurrent):
     smurf.bias_step(concurrent=concurrent, settling_time=10)
     for client in smurf.run.CLIENTS['smurf']:
         client.take_bias_steps.start.assert_called_with(tag=None)
+
+
+@patch('sorunlib.smurf.time.sleep', MagicMock())
+@pytest.mark.parametrize("concurrent", [(True), (False)])
+def test_bias_step_single_failure(concurrent):
+    # Create failure on smurf1
+    mocked_response = OCSReply(
+        0, 'msg', {'success': False, 'op_name': 'bias_step'})
+    smurf.run.CLIENTS['smurf'][0].take_bias_steps.wait.side_effect = [mocked_response]
+
+    smurf.bias_step(concurrent=concurrent, settling_time=10)
+    for client in smurf.run.CLIENTS['smurf']:
+        client.take_bias_steps.start.assert_called_once()
+
+
+@patch('sorunlib.smurf.time.sleep', MagicMock())
+@pytest.mark.parametrize("concurrent", [(True), (False)])
+def test_bias_step_failure_threshold(concurrent):
+    # Create failure on smurf1 and smurf2
+    mocked_response = OCSReply(
+        0, 'msg', {'success': False, 'op_name': 'bias_step'})
+    smurf.run.CLIENTS['smurf'][0].take_bias_steps.wait.side_effect = [mocked_response]
+    smurf.run.CLIENTS['smurf'][1].take_bias_steps.wait.side_effect = [mocked_response]
+
+    with pytest.raises(RuntimeError):
+        smurf.bias_step(concurrent=concurrent, settling_time=10)
 
 
 @patch('sorunlib.smurf.time.sleep', MagicMock())

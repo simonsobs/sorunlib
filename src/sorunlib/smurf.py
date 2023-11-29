@@ -1,3 +1,16 @@
+"""This module is responsible for commanding all active pysmurf-controller
+agents.
+
+If a SMuRF fails to perform an operation it will be dropped from the global
+``CLIENTS`` list, removing it from further use during that schedule. If the
+number of active SMuRFs falls below the configured ``smurf_failure_threshold``
+an exception will be raised, halting observations.
+
+:func:`initialize() <sorunlib.__init__.initialize>` must be run to re-add
+previously failed SMuRFs to the ``CLIENTS`` list.
+
+"""
+
 import time
 
 import sorunlib as run
@@ -34,21 +47,49 @@ def _run_op(operation, concurrent, settling_time, **kwargs):
             time of 120 seconds.
 
     """
+    clients_to_remove = []
+
+    # Start operation
     for smurf in run.CLIENTS['smurf']:
         op = smurf.__getattribute__(operation)
         op.start(**kwargs)
+        # Run in series
         if not concurrent:
             resp = op.wait()
-            check_response(smurf, resp)
+            try:
+                check_response(smurf, resp)
+            except RuntimeError as e:
+                print(f"Failed to perform {operation} on {smurf}, removing from targets list.")
+                print(e)
+                clients_to_remove.append(smurf)
 
             # Allow cryo to settle
             _wait_for_cryo(settling_time)
 
+    # Run in parallel
     if concurrent:
         for smurf in run.CLIENTS['smurf']:
             op = smurf.__getattribute__(operation)
             resp = op.wait()
-            check_response(smurf, resp)
+            try:
+                check_response(smurf, resp)
+            except RuntimeError as e:
+                print(f"Failed to perform {operation} on {smurf}, removing from targets list.")
+                print(e)
+                clients_to_remove.append(smurf)
+
+    # Remove failed SMuRF clients
+    for client in clients_to_remove:
+        run.CLIENTS['smurf'].remove(client)
+
+    # Check if enough SMuRFs remain
+    cfg = run.config.load_config()
+    threshold = cfg['smurf_failure_threshold']
+    remaining = len(run.CLIENTS['smurf'])
+    if remaining < threshold:
+        error = 'Functional SMuRF count below failure threshold ' + \
+                f'({remaining} < {threshold}). Aborting.'
+        raise RuntimeError(error)
 
 
 def set_targets(targets):
