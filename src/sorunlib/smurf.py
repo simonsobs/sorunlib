@@ -189,6 +189,72 @@ def bias_dets(concurrent=True, settling_time=0):
             check_response(smurf, resp)
 
 
+def set_biases(bias, bias_group=None, concurrent=True, settling_time=0):
+    """Set the detector biases on all SMuRF Controllers.
+
+    Args:
+        bias: (int, float, list)
+            Biases to set. If a float is passed, this will be used for all
+            specified bias groups. If a list of floats is passed, it must be
+            the same size of the list of bias groups.
+        bias_group: (int, list, optional)
+            Bias group or list of bias groups to set. If None, will set all
+            bias groups. Defaults to None.
+        concurrent (bool, optional): A bool which determines how the operation
+            is run across the active SMuRF controllers. It runs in parallel if
+            True, and in series if False.
+        settling_time (float, optional):
+            Time in seconds to wait between operation runs across the active
+            SMuRF controlls if *not* running concurrently. If running
+            concurrently this is ignored. Defaults to 0 seconds.
+
+    """
+    for smurf in run.CLIENTS['smurf']:
+        smurf.set_biases.start(bias=bias, bg=bias_group)
+        if not concurrent:
+            resp = smurf.set_biases.wait()
+            check_response(smurf, resp)
+
+            # Allow cryo to settle
+            time.sleep(settling_time)
+
+    if concurrent:
+        for smurf in run.CLIENTS['smurf']:
+            resp = smurf.set_biases.wait()
+            check_response(smurf, resp)
+
+
+def zero_biases(bias_group=None, concurrent=True, settling_time=0):
+    """Set the detector biases on all SMuRF Controllers.
+
+    Args:
+        bias_group: (int, list, optional)
+            Bias group or list of bias groups to set. If None, will zero all
+            bias groups. Defaults to None.
+        concurrent (bool, optional): A bool which determines how the operation
+            is run across the active SMuRF controllers. It runs in parallel if
+            True, and in series if False.
+        settling_time (float, optional):
+            Time in seconds to wait between operation runs across the active
+            SMuRF controlls if *not* running concurrently. If running
+            concurrently this is ignored. Defaults to 0 seconds.
+
+    """
+    for smurf in run.CLIENTS['smurf']:
+        smurf.zero_biases.start(bg=bias_group)
+        if not concurrent:
+            resp = smurf.zero_biases.wait()
+            check_response(smurf, resp)
+
+            # Allow cryo to settle
+            time.sleep(settling_time)
+
+    if concurrent:
+        for smurf in run.CLIENTS['smurf']:
+            resp = smurf.zero_biases.wait()
+            check_response(smurf, resp)
+
+
 def take_bgmap(tag=None, concurrent=True, settling_time=0):
     """Take a bgmap on all SMuRF Controllers.
 
