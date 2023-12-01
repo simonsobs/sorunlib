@@ -5,33 +5,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from util import mocked_clients
+
 from sorunlib import smurf
-
-
-def _mock_smurf_client(instance_id):
-    smurf = MagicMock()
-    smurf.instance_id = instance_id
-    smurf.take_bias_steps = MagicMock()
-    smurf.take_iv = MagicMock()
-    smurf.uxm_setup = MagicMock()
-    smurf.uxm_relock = MagicMock()
-    smurf.bias_dets = MagicMock()
-    smurf.set_biases = MagicMock()
-    smurf.zero_biases = MagicMock()
-    smurf.take_bgmap = MagicMock()
-    smurf.take_noise = MagicMock()
-
-    return smurf
-
-
-def mocked_clients(test_mode):
-    smurf_ids = ['smurf1', 'smurf2', 'smurf3']
-    smurfs = [_mock_smurf_client(id_) for id_ in smurf_ids]
-
-    clients = {'acu': MagicMock(),
-               'smurf': smurfs}
-
-    return clients
 
 
 @patch('sorunlib.create_clients', mocked_clients)
