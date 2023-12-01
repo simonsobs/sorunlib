@@ -8,6 +8,7 @@ from sorunlib import util
 from sorunlib.util import CrossbarConnectionError
 
 os.environ["OCS_CONFIG_DIR"] = "./test_util/"
+os.environ["SORUNLIB_CONFIG"] = "./data/example_config.yaml"
 
 
 # I think this could be generalized with the Mock 'spec' argument, building an
@@ -158,6 +159,7 @@ def test_create_clients():
     assert 'acu' in clients
     assert 'smurf' in clients
     assert len(clients['smurf']) == 0  # since we're not in test_mode
+    assert 'wiregrid' in clients
 
 
 @patch('sorunlib.util.OCSClient', mock_registry_client)
@@ -166,3 +168,4 @@ def test_create_clients_test_mode():
     assert 'acu' in clients
     assert 'smurf' in clients
     assert len(clients['smurf']) == 2
+    assert 'wiregrid' in clients
