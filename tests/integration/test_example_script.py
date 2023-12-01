@@ -3,10 +3,23 @@ from unittest.mock import MagicMock, patch
 
 from sorunlib import *
 
+# should import from common place, duplicating construction in smurf testing module
+
+
+def _mock_smurf_client(instance_id):
+    smurf = MagicMock()
+    smurf.instance_id = instance_id
+    smurf.take_bias_steps = MagicMock()
+    smurf.take_iv = MagicMock()
+
+    return smurf
+
 
 def mocked_clients(test_mode):
+    smurf_ids = ['smurf1', 'smurf2', 'smurf3']
+    smurfs = [_mock_smurf_client(id_) for id_ in smurf_ids]
     clients = {'acu': MagicMock(),
-               'smurf': [MagicMock(), MagicMock(), MagicMock()]}
+               'smurf': smurfs}
 
     return clients
 
