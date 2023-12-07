@@ -1,14 +1,9 @@
 import datetime as dt
 from unittest.mock import MagicMock, patch
 
+from util import mocked_clients
+
 from sorunlib import *
-
-
-def mocked_clients(test_mode):
-    clients = {'acu': MagicMock(),
-               'smurf': [MagicMock(), MagicMock(), MagicMock()]}
-
-    return clients
 
 
 # patch out time.sleep so we don't actually wait during testing

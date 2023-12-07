@@ -17,6 +17,72 @@ def _wait_for_cryo(time_):
     time.sleep(wait)
 
 
+def _run_in_series(operation, settling_time, **kwargs):
+    """Run operation in series across all active SMuRF controllers.
+
+    Additional kwargs are passed directly to the ``.start()`` call.
+
+    Args:
+        operation (str): Operation name.
+        settling_time (float):
+            Time in seconds to wait between operation runs across the active
+            SMuRF controllers. If None will wait for ``CRYO_WAIT`` seconds.
+
+    """
+    for smurf in run.CLIENTS['smurf']:
+        op = smurf.__getattribute__(operation)
+        op.start(**kwargs)
+        resp = op.wait()
+        check_response(smurf, resp)
+
+        # Allow cryo to settle
+        _wait_for_cryo(settling_time)
+
+
+def _run_in_parallel(operation, **kwargs):
+    """Run operation in parallel across all active SMuRF controllers.
+
+    Additional kwargs are passed directly to the ``.start()`` call.
+
+    Args:
+        operation (str): Operation name.
+
+    """
+    for smurf in run.CLIENTS['smurf']:
+        op = smurf.__getattribute__(operation)
+        op.start(**kwargs)
+
+    for smurf in run.CLIENTS['smurf']:
+        op = smurf.__getattribute__(operation)
+        resp = op.wait()
+        check_response(smurf, resp)
+
+
+def _run_op(operation, concurrent, settling_time, **kwargs):
+    """Run operation across all active SMuRF controllers.
+
+    Additional kwargs are passed directly to the ``.start()`` call.
+
+    Args:
+        operation (str): Operation name.
+        concurrent (bool, optional): A bool which determines how the operation
+            is run across the active SMuRF controllers. It runs in parallel if
+            True, and in series if False.
+        settling_time (float, optional):
+            Time in seconds to wait between operation runs across the active
+            SMuRF controllers if *not* running concurrently. If running
+            concurrently this is ignored. If None, defaults to a fixed wait
+            time of 120 seconds.
+
+    """
+    if concurrent:
+        _run_in_parallel(operation, **kwargs)
+    else:
+        _run_in_series(operation,
+                       settling_time=settling_time,
+                       **kwargs)
+
+
 def set_targets(targets):
     """Set the target pysmurf-controller Agents that sorunlib will command.
 
@@ -53,19 +119,10 @@ def bias_step(tag=None, concurrent=True, settling_time=None):
             time of 120 seconds.
 
     """
-    for smurf in run.CLIENTS['smurf']:
-        smurf.take_bias_steps.start(tag=tag)
-        if not concurrent:
-            resp = smurf.take_bias_steps.wait()
-            check_response(smurf, resp)
-
-            # Allow cryo to settle
-            _wait_for_cryo(settling_time)
-
-    if concurrent:
-        for smurf in run.CLIENTS['smurf']:
-            resp = smurf.take_bias_steps.wait()
-            check_response(smurf, resp)
+    _run_op('take_bias_steps',
+            concurrent=concurrent,
+            settling_time=settling_time,
+            tag=tag)
 
 
 def iv_curve(tag=None, concurrent=True, settling_time=None):
@@ -84,19 +141,10 @@ def iv_curve(tag=None, concurrent=True, settling_time=None):
             time of 120 seconds.
 
     """
-    for smurf in run.CLIENTS['smurf']:
-        smurf.take_iv.start(tag=tag)
-        if not concurrent:
-            resp = smurf.take_iv.wait()
-            check_response(smurf, resp)
-
-            # Allow cryo to settle
-            _wait_for_cryo(settling_time)
-
-    if concurrent:
-        for smurf in run.CLIENTS['smurf']:
-            resp = smurf.take_iv.wait()
-            check_response(smurf, resp)
+    _run_op('take_iv',
+            concurrent=concurrent,
+            settling_time=settling_time,
+            tag=tag)
 
 
 def uxm_setup(concurrent=True, settling_time=0):
@@ -112,19 +160,9 @@ def uxm_setup(concurrent=True, settling_time=0):
             concurrently this is ignored. Defaults to 0 seconds.
 
     """
-    for smurf in run.CLIENTS['smurf']:
-        smurf.uxm_setup.start()
-        if not concurrent:
-            resp = smurf.uxm_setup.wait()
-            check_response(smurf, resp)
-
-            # Allow cryo to settle
-            time.sleep(settling_time)
-
-    if concurrent:
-        for smurf in run.CLIENTS['smurf']:
-            resp = smurf.uxm_setup.wait()
-            check_response(smurf, resp)
+    _run_op('uxm_setup',
+            concurrent=concurrent,
+            settling_time=settling_time)
 
 
 def uxm_relock(test_mode=False, concurrent=True, settling_time=0):
@@ -142,23 +180,15 @@ def uxm_relock(test_mode=False, concurrent=True, settling_time=0):
             concurrently this is ignored. Defaults to 0 seconds.
 
     """
-    for smurf in run.CLIENTS['smurf']:
-        if test_mode:
-            smurf.uxm_relock.start(test_mode=test_mode)
-        else:
-            smurf.uxm_relock.start()
-
-        if not concurrent:
-            resp = smurf.uxm_relock.wait()
-            check_response(smurf, resp)
-
-            # Allow cryo to settle
-            time.sleep(settling_time)
-
-    if concurrent:
-        for smurf in run.CLIENTS['smurf']:
-            resp = smurf.uxm_relock.wait()
-            check_response(smurf, resp)
+    if test_mode:
+        _run_op('uxm_relock',
+                concurrent=concurrent,
+                settling_time=settling_time,
+                test_mode=test_mode)
+    else:
+        _run_op('uxm_relock',
+                concurrent=concurrent,
+                settling_time=settling_time)
 
 
 def bias_dets(concurrent=True, settling_time=0):
@@ -174,19 +204,9 @@ def bias_dets(concurrent=True, settling_time=0):
             concurrently this is ignored. Defaults to 0 seconds.
 
     """
-    for smurf in run.CLIENTS['smurf']:
-        smurf.bias_dets.start()
-        if not concurrent:
-            resp = smurf.bias_dets.wait()
-            check_response(smurf, resp)
-
-            # Allow cryo to settle
-            time.sleep(settling_time)
-
-    if concurrent:
-        for smurf in run.CLIENTS['smurf']:
-            resp = smurf.bias_dets.wait()
-            check_response(smurf, resp)
+    _run_op('bias_dets',
+            concurrent=concurrent,
+            settling_time=settling_time)
 
 
 def set_biases(bias, bias_group=None, concurrent=True, settling_time=0):
@@ -209,19 +229,11 @@ def set_biases(bias, bias_group=None, concurrent=True, settling_time=0):
             concurrently this is ignored. Defaults to 0 seconds.
 
     """
-    for smurf in run.CLIENTS['smurf']:
-        smurf.set_biases.start(bias=bias, bg=bias_group)
-        if not concurrent:
-            resp = smurf.set_biases.wait()
-            check_response(smurf, resp)
-
-            # Allow cryo to settle
-            time.sleep(settling_time)
-
-    if concurrent:
-        for smurf in run.CLIENTS['smurf']:
-            resp = smurf.set_biases.wait()
-            check_response(smurf, resp)
+    _run_op('set_biases',
+            concurrent=concurrent,
+            settling_time=settling_time,
+            bias=bias,
+            bg=bias_group)
 
 
 def zero_biases(bias_group=None, concurrent=True, settling_time=0):
@@ -240,19 +252,10 @@ def zero_biases(bias_group=None, concurrent=True, settling_time=0):
             concurrently this is ignored. Defaults to 0 seconds.
 
     """
-    for smurf in run.CLIENTS['smurf']:
-        smurf.zero_biases.start(bg=bias_group)
-        if not concurrent:
-            resp = smurf.zero_biases.wait()
-            check_response(smurf, resp)
-
-            # Allow cryo to settle
-            time.sleep(settling_time)
-
-    if concurrent:
-        for smurf in run.CLIENTS['smurf']:
-            resp = smurf.zero_biases.wait()
-            check_response(smurf, resp)
+    _run_op('zero_biases',
+            concurrent=concurrent,
+            settling_time=settling_time,
+            bg=bias_group)
 
 
 def take_bgmap(tag=None, concurrent=True, settling_time=0):
@@ -270,19 +273,10 @@ def take_bgmap(tag=None, concurrent=True, settling_time=0):
             concurrently this is ignored. Defaults to 0 seconds.
 
     """
-    for smurf in run.CLIENTS['smurf']:
-        smurf.take_bgmap.start(tag=tag)
-        if not concurrent:
-            resp = smurf.take_bgmap.wait()
-            check_response(smurf, resp)
-
-            # Allow cryo to settle
-            time.sleep(settling_time)
-
-    if concurrent:
-        for smurf in run.CLIENTS['smurf']:
-            resp = smurf.take_bgmap.wait()
-            check_response(smurf, resp)
+    _run_op('take_bgmap',
+            concurrent=concurrent,
+            settling_time=settling_time,
+            tag=tag)
 
 
 def take_noise(tag=None, concurrent=True, settling_time=0):
@@ -300,19 +294,10 @@ def take_noise(tag=None, concurrent=True, settling_time=0):
             concurrently this is ignored. Defaults to 0 seconds.
 
     """
-    for smurf in run.CLIENTS['smurf']:
-        smurf.take_noise.start(tag=tag)
-        if not concurrent:
-            resp = smurf.take_noise.wait()
-            check_response(smurf, resp)
-
-            # Allow cryo to settle
-            time.sleep(settling_time)
-
-    if concurrent:
-        for smurf in run.CLIENTS['smurf']:
-            resp = smurf.take_noise.wait()
-            check_response(smurf, resp)
+    _run_op('take_noise',
+            concurrent=concurrent,
+            settling_time=settling_time,
+            tag=tag)
 
 
 def stream(state, tag=None, subtype=None):
