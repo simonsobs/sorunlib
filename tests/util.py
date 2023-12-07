@@ -35,7 +35,7 @@ def _mock_smurf_client(instance_id):
     return smurf
 
 
-def mocked_clients(test_mode):
+def mocked_clients(**kwargs):
     smurf_ids = ['smurf1', 'smurf2', 'smurf3']
     smurfs = [_mock_smurf_client(id_) for id_ in smurf_ids]
 
