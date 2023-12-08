@@ -1,4 +1,5 @@
 ---
+smurf_failure_threshold: 2
 registry: 'registry'
 wiregrid:
   labjack: 'wg-labjack'
