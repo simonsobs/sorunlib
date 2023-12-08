@@ -325,6 +325,7 @@ def stream(state, tag=None, subtype=None):
 
     else:
         for smurf in run.CLIENTS['smurf']:
+            print(f'Turning off stream from {smurf.instance_id}.')
             smurf.stream.stop()
             resp = smurf.stream.wait()
             check_response(smurf, resp)
