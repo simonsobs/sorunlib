@@ -17,47 +17,6 @@ def _wait_for_cryo(time_):
     time.sleep(wait)
 
 
-def _run_in_series(operation, settling_time, **kwargs):
-    """Run operation in series across all active SMuRF controllers.
-
-    Additional kwargs are passed directly to the ``.start()`` call.
-
-    Args:
-        operation (str): Operation name.
-        settling_time (float):
-            Time in seconds to wait between operation runs across the active
-            SMuRF controllers. If None will wait for ``CRYO_WAIT`` seconds.
-
-    """
-    for smurf in run.CLIENTS['smurf']:
-        op = smurf.__getattribute__(operation)
-        op.start(**kwargs)
-        resp = op.wait()
-        check_response(smurf, resp)
-
-        # Allow cryo to settle
-        _wait_for_cryo(settling_time)
-
-
-def _run_in_parallel(operation, **kwargs):
-    """Run operation in parallel across all active SMuRF controllers.
-
-    Additional kwargs are passed directly to the ``.start()`` call.
-
-    Args:
-        operation (str): Operation name.
-
-    """
-    for smurf in run.CLIENTS['smurf']:
-        op = smurf.__getattribute__(operation)
-        op.start(**kwargs)
-
-    for smurf in run.CLIENTS['smurf']:
-        op = smurf.__getattribute__(operation)
-        resp = op.wait()
-        check_response(smurf, resp)
-
-
 def _run_op(operation, concurrent, settling_time, **kwargs):
     """Run operation across all active SMuRF controllers.
 
@@ -75,12 +34,21 @@ def _run_op(operation, concurrent, settling_time, **kwargs):
             time of 120 seconds.
 
     """
+    for smurf in run.CLIENTS['smurf']:
+        op = smurf.__getattribute__(operation)
+        op.start(**kwargs)
+        if not concurrent:
+            resp = op.wait()
+            check_response(smurf, resp)
+
+            # Allow cryo to settle
+            _wait_for_cryo(settling_time)
+
     if concurrent:
-        _run_in_parallel(operation, **kwargs)
-    else:
-        _run_in_series(operation,
-                       settling_time=settling_time,
-                       **kwargs)
+        for smurf in run.CLIENTS['smurf']:
+            op = smurf.__getattribute__(operation)
+            resp = op.wait()
+            check_response(smurf, resp)
 
 
 def set_targets(targets):
