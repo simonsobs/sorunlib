@@ -128,7 +128,11 @@ def test_take_noise(concurrent):
         client.take_noise.start.assert_called_with(tag=None)
 
 
-def test_stream():
-    smurf.stream(state='on')
+@pytest.mark.parametrize("state", [("on"), ("off")])
+def test_stream(state):
+    smurf.stream(state=state)
     for client in smurf.run.CLIENTS['smurf']:
-        client.stream.start.assert_called_once()
+        if state == "on":
+            client.stream.start.assert_called_once()
+        else:
+            client.stream.stop.assert_called_once()
