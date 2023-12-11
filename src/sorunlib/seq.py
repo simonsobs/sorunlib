@@ -49,6 +49,7 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None):
         run.commands.wait_until(stop_time)
     finally:
         # Stop motion
+        print("Stopping scan.")
         acu.generate_scan.stop()
         resp = acu.generate_scan.wait(timeout=OP_TIMEOUT)
         check_response(acu, resp)
