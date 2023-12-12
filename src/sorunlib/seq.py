@@ -48,11 +48,12 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None):
         # Wait until stop time
         run.commands.wait_until(stop_time)
     finally:
-        # Stop motion
         print("Stopping scan.")
+        # Stop SMuRF streams
+        run.smurf.stream('off')
+
+        # Stop motion
         acu.generate_scan.stop()
         resp = acu.generate_scan.wait(timeout=OP_TIMEOUT)
         check_response(acu, resp)
-
-        # Stop SMuRF streams
-        run.smurf.stream('off')
+        print("Scan finished.")
