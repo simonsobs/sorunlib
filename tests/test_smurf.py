@@ -8,16 +8,13 @@ import pytest
 from ocs.ocs_client import OCSReply
 
 from sorunlib import smurf
-from util import mocked_clients
+from util import create_patch_clients
 
 
 # Use pytest-mock plugin to patch CLIENTS on all tests
-@pytest.fixture(autouse=True)
-def patch_clients(mocker):
-    mocker.patch('sorunlib.smurf.run.CLIENTS', mocked_clients())
+patch_clients = create_patch_clients('satp', autouse=True)
 
 
-@patch('sorunlib.create_clients', mocked_clients)
 def test_set_targets():
     smurf.set_targets(['smurf1'])
     assert len(smurf.run.CLIENTS['smurf']) == 1

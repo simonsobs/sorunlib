@@ -62,15 +62,21 @@ def mocked_clients(**kwargs):
     return clients
 
 
-def create_patch_clients(platform_type):
+def create_patch_clients(platform_type, autouse=False):
     """Create patch_clients fixture that patches out the global CLIENTS list
     with a set of mocked clients using the ``pytest-mock`` plugin.
 
     Args:
         platform_type (str): Either 'satp' or 'ccat'.
+        autouse (bool): Whether to enable 'autouse' on the fixture. This will
+            enable the fixture for all tests within a test module.
+
+    Returns:
+        function: A pytest fixture that patches out ``sorunlib.CLIENTS`` with a
+            set of mocked clients.
 
     """
-    @pytest.fixture()
+    @pytest.fixture(autouse=autouse)
     def patch_clients(mocker):
         mocker.patch('sorunlib.CLIENTS', mocked_clients(platform_type=platform_type))
 
