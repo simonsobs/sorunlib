@@ -1,6 +1,10 @@
+import pytest
+
 from unittest.mock import MagicMock
 
+import ocs
 from ocs.ocs_agent import OpSession
+from ocs.ocs_client import OCSReply
 
 
 def create_session(op_name):
@@ -35,11 +39,39 @@ def _mock_smurf_client(instance_id):
     return smurf
 
 
+def _mock_acu_client(platform_type):
+    """Create an ACU client with mock monitor Process session.data."""
+    acu_client = MagicMock()
+    session = create_session('monitor')
+    session.data = {'PlatformType': platform_type}
+    reply = OCSReply(ocs.OK, 'msg', session.encoded())
+    acu_client.monitor.status = MagicMock(return_value=reply)
+
+    return acu_client
+
+
 def mocked_clients(**kwargs):
+    platform_type = kwargs.get('platform_type', 'satp')
+
     smurf_ids = ['smurf1', 'smurf2', 'smurf3']
     smurfs = [_mock_smurf_client(id_) for id_ in smurf_ids]
 
-    clients = {'acu': MagicMock(),
+    clients = {'acu': _mock_acu_client(platform_type),
                'smurf': smurfs}
 
     return clients
+
+
+def create_patch_clients(platform_type):
+    """Create patch_clients fixture that patches out the global CLIENTS list
+    with a set of mocked clients using the ``pytest-mock`` plugin.
+
+    Args:
+        platform_type (str): Either 'satp' or 'ccat'.
+
+    """
+    @pytest.fixture()
+    def patch_clients(mocker):
+        mocker.patch('sorunlib.CLIENTS', mocked_clients(platform_type=platform_type))
+
+    return patch_clients
