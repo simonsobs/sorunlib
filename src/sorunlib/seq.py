@@ -1,5 +1,5 @@
 import sorunlib as run
-from sorunlib._internal import check_response
+from sorunlib._internal import check_response, check_started
 
 
 OP_TIMEOUT = 60
@@ -41,9 +41,7 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None):
                                        el_endpoint2=el,
                                        el_speed=0,
                                        az_drift=az_drift)
-
-        if not resp.session:
-            raise Exception(f"Generate Scan failed to start:\n  {resp}")
+        check_started(acu, resp)
 
         # Wait until stop time
         run.commands.wait_until(stop_time)
