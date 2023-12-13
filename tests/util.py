@@ -40,6 +40,12 @@ def _mock_smurf_client(instance_id):
     smurf.take_bgmap = MagicMock()
     smurf.take_noise = MagicMock()
 
+    # smurf.stream
+    session = create_session('stream', status='running')
+    reply = OCSReply(ocs.OK, 'msg', session.encoded())
+    smurf.stream.start = MagicMock(return_value=reply)
+    smurf.stream.status = MagicMock(return_value=reply)
+
     return smurf
 
 

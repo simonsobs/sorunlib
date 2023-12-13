@@ -14,7 +14,7 @@ previously failed SMuRFs to the ``CLIENTS`` list.
 import time
 
 import sorunlib as run
-from sorunlib._internal import check_response
+from sorunlib._internal import check_response, check_started
 
 # Timing between commanding separate SMuRF Controllers
 # Yet to be determined in the field. Eventually might need this to be unique
@@ -28,6 +28,16 @@ def _wait_for_cryo(time_):
     else:
         wait = time_
     time.sleep(wait)
+
+
+def _check_smurf_threshold():
+    cfg = run.config.load_config()
+    threshold = cfg['smurf_failure_threshold']
+    remaining = len(run.CLIENTS['smurf'])
+    if remaining < threshold:
+        error = 'Functional SMuRF count below failure threshold ' + \
+                f'({remaining} < {threshold}). Aborting.'
+        raise RuntimeError(error)
 
 
 def _run_op(operation, concurrent, settling_time, **kwargs):
@@ -83,13 +93,7 @@ def _run_op(operation, concurrent, settling_time, **kwargs):
         run.CLIENTS['smurf'].remove(client)
 
     # Check if enough SMuRFs remain
-    cfg = run.config.load_config()
-    threshold = cfg['smurf_failure_threshold']
-    remaining = len(run.CLIENTS['smurf'])
-    if remaining < threshold:
-        error = 'Functional SMuRF count below failure threshold ' + \
-                f'({remaining} < {threshold}). Aborting.'
-        raise RuntimeError(error)
+    _check_smurf_threshold()
 
 
 def set_targets(targets):
@@ -322,13 +326,36 @@ def stream(state, tag=None, subtype=None):
         subtype (str, optional): Operation subtype used to tag the stream.
 
     """
+    clients_to_remove = []
+
     if state.lower() == 'on':
         for smurf in run.CLIENTS['smurf']:
             smurf.stream.start(subtype=subtype, tag=tag)
+
+        for smurf in run.CLIENTS['smurf']:
+            resp = smurf.stream.status()
+            try:
+                check_started(smurf, resp, timeout=60)
+            except RuntimeError as e:
+                print(f"Failed to start stream on {smurf}, removing from targets list.")
+                print(e)
+                clients_to_remove.append(smurf)
 
     else:
         for smurf in run.CLIENTS['smurf']:
             print(f'Turning off stream from {smurf.instance_id}.')
             smurf.stream.stop()
             resp = smurf.stream.wait()
-            check_response(smurf, resp)
+            try:
+                check_response(smurf, resp)
+            except RuntimeError as e:
+                print(f"Failed to stop stream on {smurf}, removing from targets list.")
+                print(e)
+                clients_to_remove.append(smurf)
+
+    # Remove failed SMuRF clients
+    for client in clients_to_remove:
+        run.CLIENTS['smurf'].remove(client)
+
+    # Check if enough SMuRFs remain
+    _check_smurf_threshold()
