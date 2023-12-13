@@ -63,7 +63,7 @@ def test_bias_step_failure_threshold(concurrent):
 def test_iv_curve(concurrent):
     smurf.iv_curve(concurrent=concurrent)
     for client in smurf.run.CLIENTS['smurf']:
-        client.take_iv.start.assert_called_with(tag=None)
+        client.take_iv.start.assert_called_with(tag=None, kwargs=None)
 
 
 @patch('sorunlib.smurf.time.sleep', MagicMock())

@@ -134,12 +134,14 @@ def bias_step(tag=None, concurrent=True, settling_time=None):
             tag=tag)
 
 
-def iv_curve(tag=None, concurrent=True, settling_time=None):
+def iv_curve(tag=None, iv_kwargs=None, concurrent=True, settling_time=None):
     """Perform an iv curve on all SMuRF Controllers.
 
     Args:
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation.
+        iv_kwargs (dict, optional): Additional keyword arguments to pass to
+            ``take_iv``.
         concurrent (bool, optional): A bool which determines how the operation
             is run across the active SMuRF controllers. It runs in parallel if
             True, and in series if False.
@@ -153,7 +155,8 @@ def iv_curve(tag=None, concurrent=True, settling_time=None):
     _run_op('take_iv',
             concurrent=concurrent,
             settling_time=settling_time,
-            tag=tag)
+            tag=tag,
+            kwargs=iv_kwargs)
 
 
 def uxm_setup(concurrent=True, settling_time=0):
