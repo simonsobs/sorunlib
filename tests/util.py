@@ -7,10 +7,14 @@ from ocs.ocs_agent import OpSession
 from ocs.ocs_client import OCSReply
 
 
-def create_session(op_name):
+def create_session(op_name, status=None, success=None):
     """Create an OpSession with a mocked app for testing."""
     mock_app = MagicMock()
     session = OpSession(1, op_name, app=mock_app)
+    session.op_name = 'test_op'
+    if status is not None:
+        session.set_status(status)
+    session.success = success
 
     return session
 
