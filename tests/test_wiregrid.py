@@ -10,7 +10,7 @@ import ocs
 from ocs.ocs_client import OCSReply
 from sorunlib import wiregrid
 
-from util import create_session, create_patch_clients
+from util import create_session, create_patch_clients, mocked_clients
 
 patch_clients = create_patch_clients('satp')
 
@@ -111,17 +111,6 @@ def create_encoder_client():
     client.acq.status = MagicMock(return_value=reply)
 
     return client
-
-
-def mocked_clients():
-    clients = {'acu': MagicMock(),
-               'smurf': [MagicMock(), MagicMock(), MagicMock()],
-               'wiregrid': {'actuator': MagicMock(),
-                            'encoder': MagicMock(),
-                            'kikusui': MagicMock(),
-                            'labjack': MagicMock()}}
-
-    return clients
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
