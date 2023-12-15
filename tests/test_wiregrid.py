@@ -233,9 +233,8 @@ def test__check_agents_online():
 
 
 @pytest.mark.parametrize('continuous', [(True), (False)])
-@patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
-def test_calibrate_stepwise(continuous):
+def test_calibrate_stepwise(patch_clients, continuous):
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = create_actuator_client(motor=1)
