@@ -43,15 +43,23 @@ def _mock_smurf_client(instance_id):
     return smurf
 
 
-def _mock_acu_client(platform_type):
+def _mock_acu_client(platform_type, az=180, el=50, boresight=0):
     """Create an ACU client with mock monitor Process session.data."""
-    acu_client = MagicMock()
+    acu = MagicMock()
     session = create_session('monitor')
-    session.data = {'PlatformType': platform_type}
+    session.data = {'PlatformType': platform_type,
+                    'StatusDetailed': {'Azimuth current position': az,
+                                       'Elevation current position': el,
+                                       'Boresight current position': boresight}}
     reply = OCSReply(ocs.OK, 'msg', session.encoded())
-    acu_client.monitor.status = MagicMock(return_value=reply)
+    acu.monitor.status = MagicMock(return_value=reply)
 
-    return acu_client
+    session = create_session('generate_scan', status='running')
+    reply = OCSReply(ocs.OK, 'msg', session.encoded())
+    acu.generate_scan.start = MagicMock(return_value=reply)
+    acu.generate_scan.status = MagicMock(return_value=reply)
+
+    return acu
 
 
 def mocked_clients(**kwargs):
