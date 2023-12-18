@@ -1,12 +1,20 @@
+import pytest
+
 from unittest.mock import MagicMock
 
+import ocs
 from ocs.ocs_agent import OpSession
+from ocs.ocs_client import OCSReply
 
 
-def create_session(op_name):
+def create_session(op_name, status=None, success=None):
     """Create an OpSession with a mocked app for testing."""
     mock_app = MagicMock()
     session = OpSession(1, op_name, app=mock_app)
+    session.op_name = 'test_op'
+    if status is not None:
+        session.set_status(status)
+    session.success = success
 
     return session
 
@@ -35,11 +43,57 @@ def _mock_smurf_client(instance_id):
     return smurf
 
 
+def _mock_acu_client(platform_type, az=180, el=50, boresight=0):
+    """Create an ACU client with mock monitor Process session.data."""
+    acu = MagicMock()
+    session = create_session('monitor')
+    session.data = {'PlatformType': platform_type,
+                    'StatusDetailed': {'Azimuth current position': az,
+                                       'Elevation current position': el,
+                                       'Boresight current position': boresight}}
+    reply = OCSReply(ocs.OK, 'msg', session.encoded())
+    acu.monitor.status = MagicMock(return_value=reply)
+
+    session = create_session('generate_scan', status='running')
+    reply = OCSReply(ocs.OK, 'msg', session.encoded())
+    acu.generate_scan.start = MagicMock(return_value=reply)
+    acu.generate_scan.status = MagicMock(return_value=reply)
+
+    return acu
+
+
 def mocked_clients(**kwargs):
+    platform_type = kwargs.get('platform_type', 'satp')
+
     smurf_ids = ['smurf1', 'smurf2', 'smurf3']
     smurfs = [_mock_smurf_client(id_) for id_ in smurf_ids]
 
-    clients = {'acu': MagicMock(),
-               'smurf': smurfs}
+    clients = {'acu': _mock_acu_client(platform_type),
+               'smurf': smurfs,
+               'wiregrid': {'actuator': MagicMock(),
+                            'encoder': MagicMock(),
+                            'kikusui': MagicMock(),
+                            'labjack': MagicMock()}}
 
     return clients
+
+
+def create_patch_clients(platform_type, autouse=False):
+    """Create patch_clients fixture that patches out the global CLIENTS list
+    with a set of mocked clients using the ``pytest-mock`` plugin.
+
+    Args:
+        platform_type (str): Either 'satp' or 'ccat'.
+        autouse (bool): Whether to enable 'autouse' on the fixture. This will
+            enable the fixture for all tests within a test module.
+
+    Returns:
+        function: A pytest fixture that patches out ``sorunlib.CLIENTS`` with a
+            set of mocked clients.
+
+    """
+    @pytest.fixture(autouse=autouse)
+    def patch_clients(mocker):
+        mocker.patch('sorunlib.CLIENTS', mocked_clients(platform_type=platform_type))
+
+    return patch_clients

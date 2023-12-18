@@ -10,7 +10,9 @@ import ocs
 from ocs.ocs_client import OCSReply
 from sorunlib import wiregrid
 
-from util import create_session
+from util import create_session, create_patch_clients, mocked_clients
+
+patch_clients = create_patch_clients('satp')
 
 
 def create_acu_client(az, el, boresight):
@@ -111,17 +113,6 @@ def create_encoder_client():
     return client
 
 
-def mocked_clients():
-    clients = {'acu': MagicMock(),
-               'smurf': [MagicMock(), MagicMock(), MagicMock()],
-               'wiregrid': {'actuator': MagicMock(),
-                            'encoder': MagicMock(),
-                            'kikusui': MagicMock(),
-                            'labjack': MagicMock()}}
-
-    return clients
-
-
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
 def test_insert():
     wiregrid.insert()
@@ -193,9 +184,7 @@ def test__check_temperature_sensors():
     wiregrid.run.CLIENTS['wiregrid']['labjack'].acq.status.assert_called_once()
 
 
-@patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
-def test__check_telescope_position():
-    wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
+def test__check_telescope_position(patch_clients):
     wiregrid._check_telescope_position()
     wiregrid.run.CLIENTS['acu'].monitor.status.assert_called_once()
 
@@ -244,9 +233,8 @@ def test__check_agents_online():
 
 
 @pytest.mark.parametrize('continuous', [(True), (False)])
-@patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
-def test_calibrate_stepwise(continuous):
+def test_calibrate_stepwise(patch_clients, continuous):
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = create_actuator_client(motor=1)

@@ -2,24 +2,17 @@ import os
 import ocs
 import pytest
 
-from unittest.mock import MagicMock
-from ocs.ocs_agent import OpSession
 from ocs.ocs_client import OCSReply
 
 from sorunlib._internal import check_response, check_running
 
+from util import create_session as create_unencoded_session
+
 os.environ["OCS_CONFIG_DIR"] = "./test_util/"
 
 
-def create_session(op_name, status=None, success=None):
-    """Create an OpSession with a mocked app for testing."""
-    mock_app = MagicMock()
-    session = OpSession(1, op_name, app=mock_app)
-    session.op_name = 'test_op'
-    if status is not None:
-        session.set_status(status)
-    session.success = success
-
+def create_session(*args, **kwargs):
+    session = create_unencoded_session(*args, **kwargs)
     return session.encoded()
 
 
