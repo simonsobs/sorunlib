@@ -10,7 +10,9 @@ import ocs
 from ocs.ocs_client import OCSReply
 from sorunlib import wiregrid
 
-from util import create_session
+from util import create_session, create_patch_clients
+
+patch_clients = create_patch_clients('satp')
 
 
 def create_acu_client(az, el, boresight):
@@ -193,9 +195,7 @@ def test__check_temperature_sensors():
     wiregrid.run.CLIENTS['wiregrid']['labjack'].acq.status.assert_called_once()
 
 
-@patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
-def test__check_telescope_position():
-    wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
+def test__check_telescope_position(patch_clients):
     wiregrid._check_telescope_position()
     wiregrid.run.CLIENTS['acu'].monitor.status.assert_called_once()
 
