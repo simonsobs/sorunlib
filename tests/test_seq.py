@@ -1,5 +1,6 @@
 import os
 os.environ["OCS_CONFIG_DIR"] = "./test_util/"
+os.environ["SORUNLIB_CONFIG"] = "./data/example_config.yaml"
 import datetime as dt
 
 import pytest
@@ -8,27 +9,20 @@ from unittest.mock import MagicMock, patch
 import sorunlib
 from sorunlib import seq
 
-
-def mocked_clients(test_mode):
-    clients = {'acu': MagicMock(),
-               'smurf': [MagicMock(), MagicMock(), MagicMock()]}
-
-    return clients
+from util import create_patch_clients
 
 
-@patch('sorunlib.create_clients', mocked_clients)
+patch_clients = create_patch_clients('satp')
+
+
 @patch('sorunlib.commands.time.sleep', MagicMock())
-def test_scan():
-    seq.run.initialize(test_mode=True)
+def test_scan(patch_clients):
     target = dt.datetime.now() + dt.timedelta(seconds=1)
     seq.scan(description='test', stop_time=target.isoformat(), width=20.)
 
 
-@patch('sorunlib.create_clients', mocked_clients)
 @patch('sorunlib.commands.time.sleep', MagicMock())
-def test_scan_failed_to_start():
-    seq.run.initialize(test_mode=True)
-
+def test_scan_failed_to_start(patch_clients):
     # Setup mock OCSReply without session object
     mock_reply = MagicMock()
     mock_reply.session = None
