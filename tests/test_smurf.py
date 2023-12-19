@@ -10,6 +10,8 @@ from ocs.ocs_client import OCSReply
 from sorunlib import smurf
 from util import create_patch_clients
 
+os.environ["SORUNLIB_CONFIG"] = "./data/example_config.yaml"
+
 
 # Use pytest-mock plugin to patch CLIENTS on all tests
 patch_clients = create_patch_clients('satp', autouse=True)
@@ -127,6 +129,24 @@ def test_take_noise(concurrent):
 
 @pytest.mark.parametrize("state", [("on"), ("off")])
 def test_stream(state):
+    smurf.stream(state=state)
+    for client in smurf.run.CLIENTS['smurf']:
+        if state == "on":
+            client.stream.start.assert_called_once()
+        else:
+            client.stream.stop.assert_called_once()
+
+
+@pytest.mark.parametrize("state", [("on"), ("off")])
+def test_stream_single_failure(state):
+    # Create failure on smurf1
+    mocked_response = OCSReply(
+        0, 'msg', {'success': False, 'op_name': 'stream'})
+    # For state == 'on'
+    smurf.run.CLIENTS['smurf'][0].stream.status.side_effect = [mocked_response]
+    # For state == 'off'
+    smurf.run.CLIENTS['smurf'][0].stream.wait.side_effect = [mocked_response]
+
     smurf.stream(state=state)
     for client in smurf.run.CLIENTS['smurf']:
         if state == "on":
