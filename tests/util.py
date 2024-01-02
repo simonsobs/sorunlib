@@ -39,6 +39,7 @@ def _mock_smurf_client(instance_id):
     smurf.zero_biases = MagicMock()
     smurf.take_bgmap = MagicMock()
     smurf.take_noise = MagicMock()
+    smurf.all_off = MagicMock()
 
     # smurf.stream
     session = create_session('stream', status='running')

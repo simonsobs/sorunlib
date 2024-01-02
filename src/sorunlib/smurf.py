@@ -316,6 +316,27 @@ def take_noise(tag=None, concurrent=True, settling_time=0):
             tag=tag)
 
 
+def shutdown(concurrent=True, settling_time=0):
+    """Safely shutdown the SMuRFs.
+
+    This turns off tones, flux-ramp voltage and amplifier biases on all SMuRF
+    Controllers.
+
+    Args:
+        concurrent (bool, optional): A bool which determines how the operation
+            is run across the active SMuRF controllers. It runs in parallel if
+            True, and in series if False.
+        settling_time (float, optional):
+            Time in seconds to wait between operation runs across the active
+            SMuRF controllers if *not* running concurrently. If running
+            concurrently this is ignored. Defaults to 0 seconds.
+
+    """
+    _run_op('all_off',
+            concurrent=concurrent,
+            settling_time=settling_time)
+
+
 def stream(state, tag=None, subtype=None):
     """Stream data on all SMuRF Controllers.
 
