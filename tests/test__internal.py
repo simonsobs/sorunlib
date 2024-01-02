@@ -1,11 +1,12 @@
 import os
 import ocs
 import pytest
+import datetime as dt
 
 from unittest.mock import MagicMock, patch
 from ocs.ocs_client import OCSReply
 
-from sorunlib._internal import check_response, check_running, check_started
+from sorunlib._internal import check_response, check_running, check_started, monitor_process
 
 from util import create_session as create_unencoded_session
 
@@ -82,3 +83,23 @@ def test_check_started_raises(client, response):
 @pytest.mark.parametrize("client,response", running_responses)
 def test_check_started(client, response):
     check_started(client, response)
+
+
+@pytest.mark.parametrize("client,response", running_responses)
+def test_monitor_process(client, response):
+    # Prepare client for status check
+    client.test = MagicMock()
+    client.test.status = MagicMock(return_value=response)
+    # Durations here affect test runtime, keep them short
+    stop_time = (dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=0.01)).isoformat()
+    monitor_process(client, 'test', stop_time, check_interval=0.005)
+
+
+@pytest.mark.parametrize("client,response", invalid_running_responses)
+def test_monitor_process_invalid(client, response):
+    # Prepare client for status check
+    client.test = MagicMock()
+    client.test.status = MagicMock(return_value=response)
+    stop_time = (dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=0.01)).isoformat()
+    with pytest.raises(RuntimeError):
+        monitor_process(client, 'test', stop_time, check_interval=1)

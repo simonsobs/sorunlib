@@ -4,9 +4,12 @@ The usual caveats apply, these interfaces might change without notice.
 
 """
 
+import datetime as dt
 import time
 
 import ocs
+
+from sorunlib.commands import _timestamp_to_utc_datetime
 
 
 def _check_error(client, response):
@@ -123,3 +126,54 @@ def check_started(client, response, timeout=60):
         error = f"Operation {op} in Agent {instance} is not 'running'.\n" + \
                 f"Current OpCode: {op_code}\n" + str(response)
         raise RuntimeError(error)
+
+
+def _check_operation_running(client, operation):
+    op = client.__getattribute__(operation)
+    resp = op.status()
+    check_running(client, resp)
+
+
+def _seconds_until_target(target):
+    target_dt = _timestamp_to_utc_datetime(target)
+    now = dt.datetime.now(dt.timezone.utc)
+    diff = (target_dt - now).total_seconds()
+    return diff
+
+
+def monitor_process(client, operation, stop_time, check_interval=10):
+    """Monitor a running process.
+
+    This will block until ``stop_time``, checking that the process given in
+    ``operation`` is still running every ``check_interval`` seconds.
+
+    Args:
+        client (ocs.ocs_client.OCSClient): OCS Client which returned the
+            response.
+        operation (str): Operation name to monitor.
+        stop_time (str): Time in ISO format and in UTC timezone to stop
+            monitoring the process. If UTC ("+00:00") is not explicitly used in
+            the timestamp it is assumed.
+        check_interval (float): Interval, in seconds, at which the Operation
+            status is checked. Defaults to 10 seconds.
+
+    Raises:
+        RuntimeError: If Operation stops running before ``stop_time``.
+
+    """
+    diff = _seconds_until_target(stop_time)
+
+    while diff > 0:
+        # Check process response
+        _check_operation_running(client, operation)
+
+        # Wait until next check
+        if diff > check_interval:
+            time.sleep(check_interval)
+        else:
+            # Recompute diff to avoid waiting too long
+            diff = _seconds_until_target(stop_time)
+            time.sleep(diff)
+
+        # Recompute diff
+        diff = _seconds_until_target(stop_time)

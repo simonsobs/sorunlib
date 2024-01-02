@@ -1,5 +1,5 @@
 import sorunlib as run
-from sorunlib._internal import check_response, check_started
+from sorunlib._internal import check_response, check_started, monitor_process
 
 
 OP_TIMEOUT = 60
@@ -44,7 +44,7 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None):
         check_started(acu, resp)
 
         # Wait until stop time
-        run.commands.wait_until(stop_time)
+        monitor_process(acu, 'generate_scan', stop_time)
     finally:
         print("Stopping scan.")
         # Stop SMuRF streams
