@@ -33,7 +33,7 @@ setup(
     ],
     python_requires=">=3.7",
     install_requires=[
-        'ocs==0.10.3',
+        'ocs==0.10.4',
         'pyyaml',
     ],
     extras_require={
