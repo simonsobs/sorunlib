@@ -138,7 +138,10 @@ def _create_wiregrid_clients(config=None, sorunlib_config=None):
     kikusui = _find_active_instances('WiregridKikusuiAgent')
 
     cfg = load_config(filename=sorunlib_config)
-    labjack = cfg['wiregrid']['labjack']
+    try:
+        labjack = cfg['wiregrid']['labjack']
+    except KeyError:
+        labjack = None
 
     clients = {'actuator': _try_client(actuator),
                'encoder': _try_client(encoder),
@@ -148,12 +151,14 @@ def _create_wiregrid_clients(config=None, sorunlib_config=None):
     return clients
 
 
-def create_clients(config=None, test_mode=False):
+def create_clients(config=None, sorunlib_config=None, test_mode=False):
     """Create all clients needed for commanding a single platform.
 
     Args:
         config (str): Path to the OCS Site Config File. If None the default
             file in OCS_CONFIG_DIR will be used.
+        sorunlib_config (str): Path to sorunlib config file. If None the path
+            from environment variable SORUNLIB_CONFIG is used.
         test_mode (bool): Operate in 'test mode'. Use this to find Agents that
             are meant to stand in for real agents while testing, i.e.
             SmurfFileEmulators instead of PysmurfControllers.
@@ -188,6 +193,8 @@ def create_clients(config=None, test_mode=False):
     smurf_clients = [_try_client(x) for x in smurf_ids]
     clients['smurf'] = smurf_clients
 
-    clients['wiregrid'] = _create_wiregrid_clients(config=config)
+    clients['wiregrid'] = _create_wiregrid_clients(
+        config=config,
+        sorunlib_config=sorunlib_config)
 
     return clients

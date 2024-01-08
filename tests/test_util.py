@@ -169,3 +169,15 @@ def test_create_clients_test_mode():
     assert 'smurf' in clients
     assert len(clients['smurf']) == 2
     assert 'wiregrid' in clients
+
+
+@patch('sorunlib.util.OCSClient', mock_registry_client)
+def test__create_clients_minimal_config():
+    clients = util.create_clients(sorunlib_config='./data/minimal_config.yaml')
+    assert 'acu' in clients
+    assert 'smurf' in clients
+    assert len(clients['smurf']) == 0  # since we're not in test_mode
+    # Optional configs
+    assert 'wiregrid' in clients
+    for client in clients['wiregrid'].values():
+        assert client is None
