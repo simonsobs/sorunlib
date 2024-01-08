@@ -148,8 +148,8 @@ def monitor_process(client, operation, stop_time, check_interval=10):
     ``operation`` is still running every ``check_interval`` seconds.
 
     Args:
-        client (ocs.ocs_client.OCSClient): OCS Client which returned the
-            response.
+        client (ocs.ocs_client.OCSClient): OCS Client that has the process to
+            monitor.
         operation (str): Operation name to monitor.
         stop_time (str): Time in ISO format and in UTC timezone to stop
             monitoring the process. If UTC ("+00:00") is not explicitly used in
