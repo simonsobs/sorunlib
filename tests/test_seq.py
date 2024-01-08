@@ -17,9 +17,10 @@ from util import create_patch_clients, create_session
 patch_clients = create_patch_clients('satp')
 
 
-@patch('sorunlib.commands.time.sleep', MagicMock())
+@patch('sorunlib._internal.time.sleep', MagicMock())
 def test_scan(patch_clients):
-    target = dt.datetime.now() + dt.timedelta(seconds=1)
+    # This affects test runtime duration keep it short
+    target = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=0.01)
     seq.scan(description='test', stop_time=target.isoformat(), width=20.)
 
 
