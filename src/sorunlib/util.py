@@ -99,6 +99,9 @@ def _find_active_instances(agent_class):
 
 def _try_client(instanceid):
     """User in place of OCSClient to handle common exceptions."""
+    if not instanceid:
+        return
+
     try:
         client = OCSClient(instanceid)
     except ControlClientError as e:
