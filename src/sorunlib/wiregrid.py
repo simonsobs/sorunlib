@@ -257,9 +257,9 @@ def calibrate(continuous=False):
 
         # Enable SMuRF streams
         if continuous:
-            rotation = 'continuous'
+            rotation = 'wg_continuous'
         else:
-            rotation = 'stepwise'
+            rotation = 'wg_stepwise'
         run.smurf.stream('on', tag=f'wiregrid, {rotation}', subtype='cal')
 
         # Insert the wiregrid
