@@ -42,9 +42,9 @@ def create_labjack_client():
     session.data = {
         "block_name": "sens",
         "data": {
-            "AIN0": 23.0,
-            "AIN1": 20.0,
-            "AIN2": 30.0,
+            "AIN0C": 23.0,
+            "AIN1C": 20.0,
+            "AIN2C": 30.0,
         },
         "timestamp": time.time()
     }
