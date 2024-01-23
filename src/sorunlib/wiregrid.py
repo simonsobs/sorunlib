@@ -174,10 +174,10 @@ def _check_temperature_sensors():
     labjack = run.CLIENTS['wiregrid']['labjack']
     resp = labjack.acq.status()
     # AIN0 > -10 C && AIN1 > -10 C (On the wiregrid)
-    _verify_temp_response(resp, 'AIN0', -10)
-    _verify_temp_response(resp, 'AIN1', -10)
+    _verify_temp_response(resp, 'AIN0C', -10)
+    _verify_temp_response(resp, 'AIN1C', -10)
     # AIN2 > 0 C (Inside the electronics enclosure for the gridloader)
-    _verify_temp_response(resp, 'AIN2', 0)
+    _verify_temp_response(resp, 'AIN2C', 0)
 
 
 # Public API
