@@ -138,7 +138,7 @@ def _seconds_until_target(target):
     target_dt = _timestamp_to_utc_datetime(target)
     now = dt.datetime.now(dt.timezone.utc)
     diff = (target_dt - now).total_seconds()
-    return diff
+    return max(diff, 0)
 
 
 def monitor_process(client, operation, stop_time, check_interval=10):
