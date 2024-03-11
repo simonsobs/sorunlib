@@ -18,3 +18,8 @@ def test_stop(patch_clients_satp, active):
         hwp.run.CLIENTS['hwp'].brake.assert_called()
     else:
         hwp.run.CLIENTS['hwp'].pmx_off.assert_called()
+
+
+def test_set_freq(patch_clients_satp):
+    hwp.set_freq(freq=2.0)
+    hwp.run.CLIENTS['hwp'].pid_to_freq.assert_called_with(target_freq=2.0)

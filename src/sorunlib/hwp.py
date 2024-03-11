@@ -15,7 +15,9 @@ def set_freq(freq):
     .. _docs: https://socs.readthedocs.io/en/main/agents/hwp_supervisor_agent.html
 
     """
-    pass
+    hwp = run.CLIENTS['hwp']
+    resp = hwp.pid_to_freq(target_freq=freq)
+    check_response(hwp, resp)
 
 
 def stop(active=True):
