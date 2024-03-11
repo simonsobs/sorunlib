@@ -1,3 +1,7 @@
+import sorunlib as run
+from sorunlib._internal import check_response
+
+
 # Public API
 def set_freq(freq):
     """Set the rotational frequency of the HWP.
@@ -23,4 +27,11 @@ def stop(active=True):
             it spin down on its own. Defaults to True.
 
     """
-    pass
+    hwp = run.CLIENTS['hwp']
+
+    if active:
+        resp = hwp.brake()
+        check_response(hwp, resp)
+    else:
+        resp = hwp.pmx_off()
+        check_response(hwp, resp)
