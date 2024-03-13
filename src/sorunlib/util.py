@@ -171,6 +171,7 @@ def create_clients(config=None, sorunlib_config=None, test_mode=False):
         in the format::
 
             clients = {'acu': acu_client,
+                       'hwp': hwp_supervisor_client,
                        'smurf': [smurf_client1, smurf_client2, smurf_client3],
                        'wiregrid': {'actuator': actuator_client,
                                     'encoder': encoder_client,
@@ -186,11 +187,15 @@ def create_clients(config=None, sorunlib_config=None, test_mode=False):
         smurf_agent_class = 'PysmurfController'
 
     acu_id = _find_active_instances('ACUAgent')
+    hwp_id = _find_active_instances('HWPSupervisor')
     smurf_ids = _find_active_instances(smurf_agent_class)
 
     if acu_id:
         acu_client = _try_client(acu_id)
         clients['acu'] = acu_client
+    if hwp_id:
+        hwp_client = _try_client(hwp_id)
+        clients['hwp'] = hwp_client
 
     # Always create smurf client list, even if empty
     smurf_clients = [_try_client(x) for x in smurf_ids]

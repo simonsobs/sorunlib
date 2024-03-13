@@ -73,6 +73,22 @@ reg_session = {'session_id': 0,
                            'delay_task': 1},
                        'agent_class': 'FakeDataAgent',
                        'agent_address': 'observatory.fake-data-1'},
+                   'observatory.hwp-supervisor': {
+                       'expired': False,
+                       'time_expired': None,
+                       'last_updated': 1710168924.336035,
+                       'op_codes': {
+                           'monitor': 3,
+                           'spin_control': 3,
+                           'pid_to_freq': 1,
+                           'set_const_voltage': 1,
+                           'brake': 1,
+                           'pmx_off': 1,
+                           'abort_action': 7
+                       },
+                       'agent_class': 'HWPSupervisor',
+                       'agent_address': 'observatory.hwp-supervisor'
+                   },
                    'observatory.acu-sat1': {
                        'expired': False,
                        'time_expired': None,

@@ -77,6 +77,7 @@ def mocked_clients(**kwargs):
     smurfs = [_mock_smurf_client(id_) for id_ in smurf_ids]
 
     clients = {'acu': _mock_acu_client(platform_type),
+               'hwp': MagicMock(),
                'smurf': smurfs,
                'wiregrid': {'actuator': MagicMock(),
                             'encoder': MagicMock(),

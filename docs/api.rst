@@ -27,6 +27,14 @@ sorunlib.commands
     :undoc-members:
     :show-inheritance:
 
+sorunlib.hwp
+------------
+
+.. automodule:: sorunlib.hwp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 sorunlib.seq
 ------------
 

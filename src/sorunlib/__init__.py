@@ -1,4 +1,4 @@
-from . import acu, seq, smurf, wiregrid
+from . import acu, hwp, seq, smurf, wiregrid
 
 from .commands import wait_until
 from .util import create_clients
@@ -18,7 +18,13 @@ def initialize(test_mode=False):
     CLIENTS = create_clients(test_mode=test_mode)
 
 
-__all__ = ["acu", "seq", "smurf", "wiregrid", "wait_until", "initialize"]
+__all__ = ["acu",
+           "hwp",
+           "seq",
+           "smurf",
+           "wiregrid",
+           "wait_until",
+           "initialize"]
 
 from . import _version
 __version__ = _version.get_versions()['version']
