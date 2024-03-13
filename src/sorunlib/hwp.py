@@ -20,19 +20,24 @@ def set_freq(freq):
     check_response(hwp, resp)
 
 
-def stop(active=True):
+def stop(active=True, brake_voltage=None):
     """Stop the HWP.
 
     Args:
         active (bool, optional): If True, actively try to stop the HWP by
             applying the brake. If False, simply turn off the PMX power and let
             it spin down on its own. Defaults to True.
+        brake_voltage (float, optional): Voltage used when actively stopping
+            the HWP. Only considered when active is True.
 
     """
     hwp = run.CLIENTS['hwp']
 
     if active:
-        resp = hwp.brake()
+        if brake_voltage is None:
+            resp = hwp.brake()
+        else:
+            resp = hwp.brake(brake_voltage=brake_voltage)
         check_response(hwp, resp)
     else:
         resp = hwp.pmx_off()

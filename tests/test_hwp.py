@@ -15,9 +15,15 @@ patch_clients_satp = create_patch_clients('satp')
 def test_stop(patch_clients_satp, active):
     hwp.stop(active=active)
     if active:
-        hwp.run.CLIENTS['hwp'].brake.assert_called()
+        hwp.run.CLIENTS['hwp'].brake.assert_called_with()
     else:
         hwp.run.CLIENTS['hwp'].pmx_off.assert_called()
+
+
+def test_stop_brake_voltage(patch_clients_satp):
+    VOLTAGE = 5.0
+    hwp.stop(active=True, brake_voltage=VOLTAGE)
+    hwp.run.CLIENTS['hwp'].brake.assert_called_with(brake_voltage=VOLTAGE)
 
 
 def test_set_freq(patch_clients_satp):
