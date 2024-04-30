@@ -73,7 +73,7 @@ def check_running(client, response):
     _check_error(client, response)
     if response.session['status'] != 'running':
         error = f"Operation {op} in Agent {instance} is not in the 'running' " + \
-                "state.\n" + str(response)
+            "state.\n" + str(response)
         raise RuntimeError(error)
 
 
@@ -119,12 +119,12 @@ def check_started(client, response, timeout=60):
             time.sleep(1)
 
         error = f"Check timed out. Operation {op} in Agent {instance} stuck in " + \
-                "'starting' state.\n" + str(response)
+            "'starting' state.\n" + str(response)
         raise RuntimeError(error)
 
     if op_code != 3:  # RUNNING
         error = f"Operation {op} in Agent {instance} is not 'running'.\n" + \
-                f"Current OpCode: {op_code}\n" + str(response)
+            f"Current OpCode: {op_code}\n" + str(response)
         raise RuntimeError(error)
 
 

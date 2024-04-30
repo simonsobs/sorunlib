@@ -26,7 +26,7 @@ def _check_process_data(process, last_timestamp):
         assert ((time.time() - last_timestamp) < AGENT_TIMEDIFF_THRESHOLD)
     except AssertionError:
         error = f"{process} has no updated data. Cannot proceed with " + \
-                "wiregrid calibration. Aborting."
+            "wiregrid calibration. Aborting."
         raise RuntimeError(error)
 
 
@@ -48,8 +48,8 @@ def _verify_temp_response(response, sensor, min_temp):
         assert (temp > min_temp)
     except AssertionError:
         error = f"Sensor {sensor} reads {temp} C, which is below minimum " + \
-                f"temperature of {min_temp} C. Cannot proceed with wiregrid " + \
-                "calibration. Aborting"
+            f"temperature of {min_temp} C. Cannot proceed with wiregrid " + \
+            "calibration. Aborting"
         raise RuntimeError(error)
 
 
