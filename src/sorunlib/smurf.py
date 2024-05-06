@@ -356,7 +356,7 @@ def stream(state, tag=None, subtype=None):
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.stream.status()
             try:
-                check_started(smurf, resp, timeout=60)
+                check_started(smurf, resp, timeout=120)
             except RuntimeError as e:
                 print(f"Failed to start stream on {smurf}, removing from targets list.")
                 print(e)
