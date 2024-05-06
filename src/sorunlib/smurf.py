@@ -360,6 +360,7 @@ def stream(state, tag=None, subtype=None):
             except RuntimeError as e:
                 print(f"Failed to start stream on {smurf}, removing from targets list.")
                 print(e)
+                smurf.stream.stop()
                 clients_to_remove.append(smurf)
 
     else:
