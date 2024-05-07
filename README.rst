@@ -63,9 +63,9 @@ This project is licensed under the BSD 2-Clause License - see the
 
 .. _LICENSE.txt: https://github.com/simonsobs/sorunlib/blob/main/LICENSE.txt
 
-.. |tests| image:: https://img.shields.io/github/actions/workflow/status/simonsobs/sorunlib/pytest.yml?branch=main
-    :target: https://github.com/simonsobs/sorunlib/actions?query=workflow%3A%22Run+Tests%22
-    :alt: GitHub Workflow Status
+.. |tests| image:: https://github.com/simonsobs/sorunlib/actions/workflows/pytest.yml/badge.svg
+    :target: https://github.com/simonsobs/sorunlib/actions/workflows/pytest.yml
+    :alt: GitHub Actions Workflow Status
 
 .. |docs| image:: https://readthedocs.org/projects/sorunlib/badge/?version=latest
     :target: https://sorunlib.readthedocs.io/en/latest/?badge=latest
