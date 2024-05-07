@@ -2,24 +2,8 @@
 sorunlib
 ========
 
-.. image:: https://img.shields.io/github/actions/workflow/status/simonsobs/sorunlib/pytest.yml?branch=main
-    :target: https://github.com/simonsobs/sorunlib/actions?query=workflow%3A%22Run+Tests%22
-    :alt: GitHub Workflow Status
-
-.. image:: https://readthedocs.org/projects/sorunlib/badge/?version=latest
-    :target: https://sorunlib.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
-
-.. image:: https://coveralls.io/repos/github/simonsobs/sorunlib/badge.svg?branch=main
-    :target: https://coveralls.io/github/simonsobs/sorunlib?branch=main
-
-.. image:: https://img.shields.io/pypi/v/sorunlib
-   :target: https://pypi.org/project/sorunlib/
-   :alt: PyPI Package
-
-.. image:: https://results.pre-commit.ci/badge/github/simonsobs/sorunlib/main.svg
-   :target: https://results.pre-commit.ci/latest/github/simonsobs/sorunlib/main
-   :alt: pre-commit.ci status
+| |pypi| |versions| |license|
+| |tests| |pre-commit| |coverage| |docs|
 
 Overview
 --------
@@ -78,3 +62,30 @@ This project is licensed under the BSD 2-Clause License - see the
 `LICENSE.txt`_ file for details.
 
 .. _LICENSE.txt: https://github.com/simonsobs/sorunlib/blob/main/LICENSE.txt
+
+
+.. |coverage| image:: https://coveralls.io/repos/github/simonsobs/sorunlib/badge.svg?branch=main
+    :target: https://coveralls.io/github/simonsobs/sorunlib?branch=main
+
+.. |docs| image:: https://readthedocs.org/projects/sorunlib/badge/?version=latest
+    :target: https://sorunlib.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
+.. |license| image:: https://img.shields.io/pypi/l/sorunlib
+   :target: LICENSE.txt
+   :alt: PyPI - License
+
+.. |pre-commit| image:: https://results.pre-commit.ci/badge/github/simonsobs/sorunlib/main.svg
+   :target: https://results.pre-commit.ci/latest/github/simonsobs/sorunlib/main
+   :alt: pre-commit.ci status
+
+.. |pypi| image:: https://img.shields.io/pypi/v/sorunlib
+   :target: https://pypi.org/project/sorunlib/
+   :alt: PyPI - Version
+
+.. |tests| image:: https://github.com/simonsobs/sorunlib/actions/workflows/pytest.yml/badge.svg
+    :target: https://github.com/simonsobs/sorunlib/actions/workflows/pytest.yml
+    :alt: GitHub Actions Workflow Status
+
+.. |versions| image:: https://img.shields.io/pypi/pyversions/sorunlib
+   :alt: PyPI - Python Version
