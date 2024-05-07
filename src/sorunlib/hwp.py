@@ -3,8 +3,8 @@ from sorunlib._internal import check_response
 
 
 # Public API
-def set_freq(freq):
-    """Set the rotational frequency of the HWP.
+def spin(freq):
+    """Spin HWP at the given rotational frequency.
 
     Args:
         freq (float): Target frequency to rotate the HWP in Hz. This is a

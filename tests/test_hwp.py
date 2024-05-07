@@ -26,6 +26,6 @@ def test_stop_brake_voltage(patch_clients_satp):
     hwp.run.CLIENTS['hwp'].brake.assert_called_with(brake_voltage=VOLTAGE)
 
 
-def test_set_freq(patch_clients_satp):
-    hwp.set_freq(freq=2.0)
+def test_spin(patch_clients_satp):
+    hwp.spin(freq=2.0)
     hwp.run.CLIENTS['hwp'].pid_to_freq.assert_called_with(target_freq=2.0)
