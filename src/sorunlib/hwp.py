@@ -42,3 +42,17 @@ def stop(active=True, brake_voltage=None):
     else:
         resp = hwp.pmx_off()
         check_response(hwp, resp)
+
+
+def enable():
+    """Enable the HWP by powering on the driver board."""
+    hwp = run.CLIENTS['hwp']
+    resp = hwp.enable_driver_board()
+    check_response(hwp, resp)
+
+
+def disable():
+    """Disable the HWP by powering off the driver board."""
+    hwp = run.CLIENTS['hwp']
+    resp = hwp.disable_driver_board()
+    check_response(hwp, resp)
