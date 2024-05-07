@@ -56,3 +56,13 @@ def disable():
     hwp = run.CLIENTS['hwp']
     resp = hwp.disable_driver_board()
     check_response(hwp, resp)
+
+
+def grip():
+    """Grip the HWP."""
+    raise NotImplementedError
+
+
+def ungrip():
+    """Ungrip the HWP."""
+    raise NotImplementedError
