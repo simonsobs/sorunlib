@@ -2,8 +2,8 @@
 sorunlib
 ========
 
-| |pypi| |versions|
-| |tests| |coverage| |pre-commit| |docs|
+| |pypi| |versions| |license|
+| |tests| |pre-commit| |coverage| |docs|
 
 Overview
 --------
@@ -84,3 +84,7 @@ This project is licensed under the BSD 2-Clause License - see the
 .. |pre-commit| image:: https://results.pre-commit.ci/badge/github/simonsobs/sorunlib/main.svg
    :target: https://results.pre-commit.ci/latest/github/simonsobs/sorunlib/main
    :alt: pre-commit.ci status
+
+.. |license| image:: https://img.shields.io/pypi/l/sorunlib
+   :target: LICENSE.txt
+   :alt: PyPI - License
