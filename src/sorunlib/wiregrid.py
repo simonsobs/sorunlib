@@ -266,7 +266,7 @@ def calibrate(continuous=False, loose_el_check=False):
         _check_motor_on()
 
         # Rotate for reference before insertion
-        rotate(continuous=True, duration=5)
+        rotate(continuous=True, duration=10)
 
         # Enable SMuRF streams
         if continuous:
