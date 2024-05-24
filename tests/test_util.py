@@ -104,8 +104,32 @@ reg_session = {'session_id': 0,
                            'stop_and_clear': 1},
                        'agent_class': 'ACUAgent',
                        'agent_address': 'observatory.acu-sat1'}}}
-
 mock_registry_client = create_mock_ocsclient(reg_session)
+
+reg_session_single_smurf = {'session_id': 0,
+                            'op_name': 'main',
+                            'op_code': 3,
+                            'status': 'running',
+                            'success': None,
+                            'start_time': 1669919099.7585046,
+                            'end_time': None,
+                            'data': {
+                                'observatory.smurf-file-emulator-5': {
+                                    'expired': False,
+                                    'time_expired': None,
+                                    'last_updated': 1669935108.8366735,
+                                    'op_codes': {
+                                        'uxm_setup': 1,
+                                        'uxm_relock': 1,
+                                        'take_iv': 1,
+                                        'take_bias_steps': 1,
+                                        'take_bgmap': 1,
+                                        'bias_dets': 1,
+                                        'take_noise': 1,
+                                        'stream': 1},
+                                    'agent_class': 'SmurfFileEmulator',
+                                    'agent_address': 'observatory.smurf-file-emulator-5'}}}
+mock_registry_client_single_smurf = create_mock_ocsclient(reg_session_single_smurf)
 
 
 class NoAgentClient:
@@ -185,6 +209,13 @@ def test_create_clients_test_mode():
     assert 'smurf' in clients
     assert len(clients['smurf']) == 2
     assert 'wiregrid' in clients
+
+
+@patch('sorunlib.util.OCSClient', mock_registry_client_single_smurf)
+def test_create_clients_test_mode_single_smurf():
+    clients = util.create_clients(test_mode=True)
+    assert 'smurf' in clients
+    assert len(clients['smurf']) == 1
 
 
 @patch('sorunlib.util.OCSClient', mock_registry_client)

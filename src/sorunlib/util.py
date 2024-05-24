@@ -197,8 +197,12 @@ def create_clients(config=None, sorunlib_config=None, test_mode=False):
         hwp_client = _try_client(hwp_id)
         clients['hwp'] = hwp_client
 
-    # Always create smurf client list, even if empty
-    smurf_clients = [_try_client(x) for x in smurf_ids]
+    if isinstance(smurf_ids, str):
+        # when only a single SMuRF controller online
+        smurf_clients = [smurf_ids]
+    else:
+        # create smurf client list, even if empty
+        smurf_clients = [_try_client(x) for x in smurf_ids]
     clients['smurf'] = smurf_clients
 
     clients['wiregrid'] = _create_wiregrid_clients(
