@@ -273,7 +273,11 @@ def calibrate(continuous=False, loose_el_check=False):
             rotation = 'wg_continuous'
         else:
             rotation = 'wg_stepwise'
-        run.smurf.stream('on', tag=f'wiregrid, {rotation}', subtype='cal')
+        if loose_el_check:
+            el_check_tag = ', wg_loose_el_check'
+        else:
+            el_check_tag = ''
+        run.smurf.stream('on', tag=f'wiregrid, {rotation}{el_check_tag}', subtype='cal')
 
         # Insert the wiregrid
         insert()
