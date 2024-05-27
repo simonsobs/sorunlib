@@ -73,7 +73,7 @@ def _check_telescope_position():
     if (abs(el - 60) < EL_DIFF_THRESHOLD):
         nominal_el = True
     else
-        nominal_el = False
+    nominal_el = False
 
     # Check boresight angle
     try:
