@@ -54,7 +54,7 @@ def _verify_temp_response(response, sensor, min_temp):
 
 
 # Calibration Functions
-def _check_telescope_position(loose_el_check=False):
+def _check_telescope_position():
     # Get current telescope position
     acu = run.CLIENTS['acu']
     resp = acu.monitor.status()
@@ -63,22 +63,17 @@ def _check_telescope_position(loose_el_check=False):
     boresight = resp.session['data']['StatusDetailed']['Boresight current position']
 
     # Check appropriate elevation
-    if loose_el_check:
-        try:
-            assert (el > 60 - EL_DIFF_THRESHOLD)
-        except AssertionError:
-            error = "Telescope not at > 60 deg elevation. Cannot proceed with " + \
-                    f"wiregrid calibration in current position ({az}, {el}). " + \
-                    "Aborting."
-            raise RuntimeError(error)
-    else:
-        try:
-            assert (abs(el - 60) < EL_DIFF_THRESHOLD)
-        except AssertionError:
-            error = "Telescope not at 60 deg elevation. Cannot proceed with " + \
-                    f"wiregrid calibration in current position ({az}, {el}). " + \
-                    "Aborting."
-            raise RuntimeError(error)
+    try:
+        assert (el > 50 - EL_DIFF_THRESHOLD)
+    except AssertionError:
+        error = "Telescope not at > 50 deg elevation. Cannot proceed with " + \
+                f"wiregrid calibration in current position ({az}, {el}). " + \
+                "Aborting."
+        raise RuntimeError(error)
+    if (abs(el - 60) < EL_DIFF_THRESHOLD):
+        nominal_el = True
+    else
+        nominal_el = False
 
     # Check boresight angle
     try:
@@ -88,6 +83,8 @@ def _check_telescope_position(loose_el_check=False):
                 f"wiregrid calibration in current position ({boresight}). " + \
                 "Aborting."
         raise RuntimeError(error)
+
+    return nominal_el
 
 
 def _configure_power(continuous):
@@ -247,20 +244,16 @@ def rotate(continuous, duration=30, num_laps=1, stopped_time=10.):
         check_response(kikusui, resp)
 
 
-def calibrate(continuous=False, loose_el_check=False):
+def calibrate(continuous=False):
     """Run a wiregrid calibration.
 
     Args:
         continuous (bool): Calibration by continuous rotation or not.
             Default is False, in which the wiregrid rotates step-wisely.
 
-        loose_el_limit (bool): Loosen Elevation requirement or not.
-            Default is False, in which the El should be 59.5~60.5.
-            Otherwise, the El should be higher than 59.5.
-
     """
     try:
-        _check_telescope_position(loose_el_check)
+        nominal_el = _check_telescope_position()
         _check_agents_online()
         _check_temperature_sensors()
         _check_motor_on()
@@ -273,7 +266,11 @@ def calibrate(continuous=False, loose_el_check=False):
             rotation = 'wg_continuous'
         else:
             rotation = 'wg_stepwise'
-        run.smurf.stream('on', tag=f'wiregrid, {rotation}', subtype='cal')
+        if nominal_el:
+            el_tag = ', wg_nominal_el'
+        else:
+            el_tag = ''
+        run.smurf.stream('on', tag=f'wiregrid, {rotation}{el_tag}', subtype='cal')
 
         # Insert the wiregrid
         insert()
