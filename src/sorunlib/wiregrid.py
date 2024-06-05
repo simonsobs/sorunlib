@@ -3,10 +3,13 @@ import time
 import sorunlib as run
 from sorunlib._internal import check_response, check_running
 
-EL_DIFF_THRESHOLD = 0.5  # deg diff from 50 that its ok to run calibration
+EL_DIFF_THRESHOLD = 0.5  # deg diff from 60 that its ok to run calibration
 BORESIGHT_DIFF_THRESHOLD = 0.5  # deg
 AGENT_TIMEDIFF_THRESHOLD = 5  # sec
 OP_TIMEOUT = 60
+CURRENT_SATP1 = 3  # A / rotation motor current for SATp1 (SAT-MF1)
+CURRENT_SATP2 = 3  # A / rotation motor current for SATp2 (SAT-UHF)
+CURRENT_SATP3 = 4  # A / rotation motor current for SATp3 (SAT-MF2)
 
 
 # Internal Helper Functions
@@ -64,12 +67,16 @@ def _check_telescope_position():
 
     # Check appropriate elevation
     try:
-        assert (abs(el - 50) < EL_DIFF_THRESHOLD)
+        assert (el > 50 - EL_DIFF_THRESHOLD)
     except AssertionError:
-        error = "Telescope not at 50 deg elevation. Cannot proceed with " + \
+        error = "Telescope not at > 50 deg elevation. Cannot proceed with " + \
                 f"wiregrid calibration in current position ({az}, {el}). " + \
                 "Aborting."
         raise RuntimeError(error)
+    if (abs(el - 60) < EL_DIFF_THRESHOLD):
+        nominal_el = True
+    else
+    nominal_el = False
 
     # Check boresight angle
     try:
@@ -79,6 +86,8 @@ def _check_telescope_position():
                 f"wiregrid calibration in current position ({boresight}). " + \
                 "Aborting."
         raise RuntimeError(error)
+
+    return nominal_el
 
 
 def _configure_power(continuous):
@@ -93,10 +102,17 @@ def _configure_power(continuous):
     resp = kikusui.set_v(volt=12)
     check_response(kikusui, resp)
 
-    if continuous:
-        current = 3.0
+    # FIXME
+    satp = 'satp1'  # get sat p name
+
+    if satp == 'satp1':  # SAT-MF1
+        current = CURRENT_SATP1
+    elif satp == 'satp2':  # SAT-UHF
+        current = CURRENT_SATP2
+    elif satp == 'satp3':  # SAT-MF2
+        current = CURRENT_SATP3
     else:
-        current = 2.4
+        current = 3.0
 
     resp = kikusui.set_c(current=current)
     check_response(kikusui, resp)
@@ -247,20 +263,24 @@ def calibrate(continuous=False):
 
     """
     try:
-        _check_telescope_position()
+        nominal_el = _check_telescope_position()
         _check_agents_online()
         _check_temperature_sensors()
         _check_motor_on()
 
         # Rotate for reference before insertion
-        rotate(continuous=True, duration=5)
+        rotate(continuous=True, duration=10)
 
         # Enable SMuRF streams
         if continuous:
             rotation = 'wg_continuous'
         else:
             rotation = 'wg_stepwise'
-        run.smurf.stream('on', tag=f'wiregrid, {rotation}', subtype='cal')
+        if nominal_el:
+            el_tag = ', wg_nominal_el'
+        else:
+            el_tag = ''
+        run.smurf.stream('on', tag=f'wiregrid, {rotation}{el_tag}', subtype='cal')
 
         # Insert the wiregrid
         insert()
