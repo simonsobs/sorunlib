@@ -7,9 +7,9 @@ EL_DIFF_THRESHOLD = 0.5  # deg diff from 60 that its ok to run calibration
 BORESIGHT_DIFF_THRESHOLD = 0.5  # deg
 AGENT_TIMEDIFF_THRESHOLD = 5  # sec
 OP_TIMEOUT = 60
-#CURRENT_SATP1 = 3  # A / rotation motor current for SATp1 (SAT-MF1)
-#CURRENT_SATP2 = 3  # A / rotation motor current for SATp2 (SAT-UHF)
-#CURRENT_SATP3 = 4  # A / rotation motor current for SATp3 (SAT-MF2)
+# CURRENT_SATP1 = 3  # A / rotation motor current for SATp1 (SAT-MF1)
+# CURRENT_SATP2 = 3  # A / rotation motor current for SATp2 (SAT-UHF)
+# CURRENT_SATP3 = 4  # A / rotation motor current for SATp3 (SAT-MF2)
 
 
 # Internal Helper Functions
@@ -102,15 +102,15 @@ def _configure_power(continuous):
     check_response(kikusui, resp)
 
     # FIXME
-    #satp = 'satp1'  # get sat p name
+    # satp = 'satp1'  # get sat p name
     #
-    #if satp == 'satp1':  # SAT-MF1
+    # if satp == 'satp1':  # SAT-MF1
     #    current = CURRENT_SATP1
-    #elif satp == 'satp2':  # SAT-UHF
+    # elif satp == 'satp2':  # SAT-UHF
     #    current = CURRENT_SATP2
-    #elif satp == 'satp3':  # SAT-MF2
+    # elif satp == 'satp3':  # SAT-MF2
     #    current = CURRENT_SATP3
-    #else:
+    # else:
     #    current = 3.0
     current = 3.0
 
