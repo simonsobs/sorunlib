@@ -73,10 +73,9 @@ def _check_telescope_position():
                 f"wiregrid calibration in current position ({az}, {el}). " + \
                 "Aborting."
         raise RuntimeError(error)
-    if (abs(el - 60) < EL_DIFF_THRESHOLD):
-        nominal_el = True
-    else
-    nominal_el = False
+    zenith = False
+    if (abs(el - 90) < EL_DIFF_THRESHOLD):
+        zenith = True
 
     # Check boresight angle
     try:
@@ -87,7 +86,7 @@ def _check_telescope_position():
                 "Aborting."
         raise RuntimeError(error)
 
-    return nominal_el
+    return zenith
 
 
 def _configure_power(continuous):
@@ -263,7 +262,7 @@ def calibrate(continuous=False):
 
     """
     try:
-        nominal_el = _check_telescope_position()
+        zenith = _check_telescope_position()
         _check_agents_online()
         _check_temperature_sensors()
         _check_motor_on()
@@ -276,8 +275,8 @@ def calibrate(continuous=False):
             rotation = 'wg_continuous'
         else:
             rotation = 'wg_stepwise'
-        if nominal_el:
-            el_tag = ', wg_nominal_el'
+        if zenith:
+            el_tag = ', wg_el90'
         else:
             el_tag = ''
         run.smurf.stream('on', tag=f'wiregrid, {rotation}{el_tag}', subtype='cal')
