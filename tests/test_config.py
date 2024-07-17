@@ -5,6 +5,7 @@ os.environ["SORUNLIB_CONFIG"] = "./data/example_config.yaml"
 from sorunlib.config import load_config
 
 CONFIG = {'smurf_failure_threshold': 2,
+          'wiregrid_motor_current': 3.0,
           'registry': 'registry',
           'wiregrid': {'labjack': 'wg-labjack'}}
 
