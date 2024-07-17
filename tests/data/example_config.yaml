@@ -1,5 +1,6 @@
 ---
 smurf_failure_threshold: 2
+wiregrid_motor_current: 3.0
 registry: 'registry'
 wiregrid:
   labjack: 'wg-labjack'

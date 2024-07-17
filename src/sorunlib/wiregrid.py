@@ -3,7 +3,7 @@ import time
 import sorunlib as run
 from sorunlib._internal import check_response, check_running
 
-EL_DIFF_THRESHOLD = 0.5  # deg diff from 50 that its ok to run calibration
+EL_DIFF_THRESHOLD = 0.5  # deg diff from target that its ok to run calibration
 BORESIGHT_DIFF_THRESHOLD = 0.5  # deg
 AGENT_TIMEDIFF_THRESHOLD = 5  # sec
 OP_TIMEOUT = 60
@@ -53,6 +53,24 @@ def _verify_temp_response(response, sensor, min_temp):
         raise RuntimeError(error)
 
 
+def _check_zenith():
+    """Checks to see if the telescope is currently pointing at zenith.
+
+    Returns:
+        bool: True if the telescope is at zenith, otherwise returns False.
+
+    """
+    acu = run.CLIENTS['acu']
+    resp = acu.monitor.status()
+    el = resp.session['data']['StatusDetailed']['Elevation current position']
+
+    zenith = False
+    if (abs(el - 90) < EL_DIFF_THRESHOLD):
+        zenith = True
+
+    return zenith
+
+
 # Calibration Functions
 def _check_telescope_position():
     # Get current telescope position
@@ -64,9 +82,9 @@ def _check_telescope_position():
 
     # Check appropriate elevation
     try:
-        assert (abs(el - 50) < EL_DIFF_THRESHOLD)
+        assert (el > 50 - EL_DIFF_THRESHOLD)
     except AssertionError:
-        error = "Telescope not at 50 deg elevation. Cannot proceed with " + \
+        error = "Telescope not at > 50 deg elevation. Cannot proceed with " + \
                 f"wiregrid calibration in current position ({az}, {el}). " + \
                 "Aborting."
         raise RuntimeError(error)
@@ -93,10 +111,8 @@ def _configure_power(continuous):
     resp = kikusui.set_v(volt=12)
     check_response(kikusui, resp)
 
-    if continuous:
-        current = 3.0
-    else:
-        current = 2.4
+    cfg = run.config.load_config()
+    current = cfg.get('wiregrid_motor_current', 3.0)
 
     resp = kikusui.set_c(current=current)
     check_response(kikusui, resp)
@@ -253,14 +269,18 @@ def calibrate(continuous=False):
         _check_motor_on()
 
         # Rotate for reference before insertion
-        rotate(continuous=True, duration=5)
+        rotate(continuous=True, duration=10)
 
         # Enable SMuRF streams
         if continuous:
             rotation = 'wg_continuous'
         else:
             rotation = 'wg_stepwise'
-        run.smurf.stream('on', tag=f'wiregrid, {rotation}', subtype='cal')
+        if _check_zenith():
+            el_tag = ', wg_el90'
+        else:
+            el_tag = ''
+        run.smurf.stream('on', tag=f'wiregrid, {rotation}{el_tag}', subtype='cal')
 
         # Insert the wiregrid
         insert()
