@@ -3,7 +3,7 @@ import time
 import sorunlib as run
 from sorunlib._internal import check_response, check_running
 
-EL_DIFF_THRESHOLD = 0.5  # deg diff from 60 that its ok to run calibration
+EL_DIFF_THRESHOLD = 0.5  # deg diff from target that its ok to run calibration
 BORESIGHT_DIFF_THRESHOLD = 0.5  # deg
 AGENT_TIMEDIFF_THRESHOLD = 5  # sec
 OP_TIMEOUT = 60
