@@ -158,7 +158,7 @@ def test_rotate_continuous():
 def test_rotate_stepwise():
     wiregrid.rotate(continuous=False)
     wiregrid.run.CLIENTS['wiregrid']['kikusui'].set_v.assert_called_once_with(volt=12)
-    wiregrid.run.CLIENTS['wiregrid']['kikusui'].set_c.assert_called_once_with(current=2.4)
+    wiregrid.run.CLIENTS['wiregrid']['kikusui'].set_c.assert_called_once_with(current=3.0)
     wiregrid.run.CLIENTS['wiregrid']['kikusui'].stepwise_rotation.assert_called_once_with(num_laps=1, stopped_time=10)
 
 
