@@ -232,11 +232,13 @@ def test__check_agents_online():
     wiregrid.run.CLIENTS['wiregrid']['labjack'].acq.status.assert_called_once()
 
 
-@pytest.mark.parametrize('continuous', [(True), (False)])
+@pytest.mark.parametrize('continuous, el, tag',
+                         [(True, 50, 'wiregrid, wg_continuous'),
+                          (False, 90, 'wiregrid, wg_stepwise, wg_el90')])
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
-def test_calibrate_stepwise(patch_clients, continuous):
+def test_calibrate_stepwise(patch_clients, continuous, el, tag):
     # Setup all mock clients
-    wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
+    wiregrid.run.CLIENTS['acu'] = create_acu_client(180, el, 0)
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = create_actuator_client(motor=1)
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
     wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
@@ -246,7 +248,7 @@ def test_calibrate_stepwise(patch_clients, continuous):
     # All other internal functions tested separately, just make sure smurf
     # stream is run
     for client in wiregrid.run.CLIENTS['smurf']:
-        client.stream.start.assert_called()
+        client.stream.start.assert_called_with(tag=tag, subtype='cal')
         client.stream.stop.assert_called()
 
 

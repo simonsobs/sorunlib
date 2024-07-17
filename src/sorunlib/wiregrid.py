@@ -53,6 +53,24 @@ def _verify_temp_response(response, sensor, min_temp):
         raise RuntimeError(error)
 
 
+def _check_zenith():
+    """Checks to see if the telescope is currently pointing at zenith.
+
+    Returns:
+        bool: True if the telescope is at zenith, otherwise returns False.
+
+    """
+    acu = run.CLIENTS['acu']
+    resp = acu.monitor.status()
+    el = resp.session['data']['StatusDetailed']['Elevation current position']
+
+    zenith = False
+    if (abs(el - 90) < EL_DIFF_THRESHOLD):
+        zenith = True
+
+    return zenith
+
+
 # Calibration Functions
 def _check_telescope_position():
     # Get current telescope position
@@ -70,9 +88,6 @@ def _check_telescope_position():
                 f"wiregrid calibration in current position ({az}, {el}). " + \
                 "Aborting."
         raise RuntimeError(error)
-    zenith = False
-    if (abs(el - 90) < EL_DIFF_THRESHOLD):
-        zenith = True
 
     # Check boresight angle
     try:
@@ -82,8 +97,6 @@ def _check_telescope_position():
                 f"wiregrid calibration in current position ({boresight}). " + \
                 "Aborting."
         raise RuntimeError(error)
-
-    return zenith
 
 
 def _configure_power(continuous):
@@ -250,7 +263,7 @@ def calibrate(continuous=False):
 
     """
     try:
-        zenith = _check_telescope_position()
+        _check_telescope_position()
         _check_agents_online()
         _check_temperature_sensors()
         _check_motor_on()
@@ -263,7 +276,7 @@ def calibrate(continuous=False):
             rotation = 'wg_continuous'
         else:
             rotation = 'wg_stepwise'
-        if zenith:
+        if _check_zenith():
             el_tag = ', wg_el90'
         else:
             el_tag = ''
