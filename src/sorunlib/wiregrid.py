@@ -72,7 +72,7 @@ def _check_zenith():
 
 
 # Calibration Functions
-def _check_telescope_position():
+def _check_telescope_position(boresight_check=True):
     # Get current telescope position
     acu = run.CLIENTS['acu']
     resp = acu.monitor.status()
@@ -90,13 +90,14 @@ def _check_telescope_position():
         raise RuntimeError(error)
 
     # Check boresight angle
-    try:
-        assert (abs(boresight - 0) < BORESIGHT_DIFF_THRESHOLD)
-    except AssertionError:
-        error = "Telescope not at 0 deg boresight. Cannot proceed with " + \
-                f"wiregrid calibration in current position ({boresight}). " + \
-                "Aborting."
-        raise RuntimeError(error)
+    if boresight_check:
+        try:
+            assert (abs(boresight - 0) < BORESIGHT_DIFF_THRESHOLD)
+        except AssertionError:
+            error = "Telescope not at 0 deg boresight. Cannot proceed with " + \
+                    f"wiregrid calibration in current position ({boresight}). " + \
+                    "Aborting."
+            raise RuntimeError(error)
 
 
 def _configure_power(continuous):
@@ -254,16 +255,18 @@ def rotate(continuous, duration=30, num_laps=1, stopped_time=10.):
         check_response(kikusui, resp)
 
 
-def calibrate(continuous=False):
+def calibrate(continuous=False, boresight_check=True):
     """Run a wiregrid calibration.
 
     Args:
         continuous (bool): Calibration by continuous rotation or not.
             Default is False, in which the wiregrid rotates step-wisely.
+        boresight_check (bool): Check the boresight angle before 
+            the calibration or not
 
     """
     try:
-        _check_telescope_position()
+        _check_telescope_position(boresight_check=boresight_check)
         _check_agents_online()
         _check_temperature_sensors()
         _check_motor_on()
