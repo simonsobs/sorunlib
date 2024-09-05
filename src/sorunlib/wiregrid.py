@@ -257,19 +257,19 @@ def rotate(continuous, duration=30, num_laps=1, stopped_time=10.):
 
 
 def calibrate(continuous=False, elevation_check=True, boresight_check=True,
-        temperature_check=True):
+              temperature_check=True):
     """Run a wiregrid calibration.
 
     Args:
         continuous (bool): Calibration by continuous rotation or not.
             Default is False, in which the wiregrid rotates step-wisely.
-        boresight_check (bool): Check the boresight angle before 
+        boresight_check (bool): Check the boresight angle before
             the calibration or not
 
     """
     try:
-        _check_telescope_position(elevation_check=elevation_check, 
-                boresight_check=boresight_check)
+        _check_telescope_position(elevation_check=elevation_check,
+                                  boresight_check=boresight_check)
         _check_agents_online()
         if temperature_check:
             _check_temperature_sensors()
