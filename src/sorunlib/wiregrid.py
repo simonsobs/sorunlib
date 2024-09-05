@@ -72,7 +72,7 @@ def _check_zenith():
 
 
 # Calibration Functions
-def _check_telescope_position(boresight_check=True):
+def _check_telescope_position(elevation_check=True, boresight_check=True):
     # Get current telescope position
     acu = run.CLIENTS['acu']
     resp = acu.monitor.status()
@@ -81,13 +81,14 @@ def _check_telescope_position(boresight_check=True):
     boresight = resp.session['data']['StatusDetailed']['Boresight current position']
 
     # Check appropriate elevation
-    try:
-        assert (el > 50 - EL_DIFF_THRESHOLD)
-    except AssertionError:
-        error = "Telescope not at > 50 deg elevation. Cannot proceed with " + \
-                f"wiregrid calibration in current position ({az}, {el}). " + \
-                "Aborting."
-        raise RuntimeError(error)
+    if elevation_check:
+        try:
+            assert (el > 50 - EL_DIFF_THRESHOLD)
+        except AssertionError:
+            error = "Telescope not at > 50 deg elevation. Cannot proceed with " + \
+                    f"wiregrid calibration in current position ({az}, {el}). " + \
+                    "Aborting."
+            raise RuntimeError(error)
 
     # Check boresight angle
     if boresight_check:
@@ -255,7 +256,8 @@ def rotate(continuous, duration=30, num_laps=1, stopped_time=10.):
         check_response(kikusui, resp)
 
 
-def calibrate(continuous=False, boresight_check=True):
+def calibrate(continuous=False, elevation_check=True, boresight_check=True,
+        temperature_check=True):
     """Run a wiregrid calibration.
 
     Args:
@@ -266,9 +268,11 @@ def calibrate(continuous=False, boresight_check=True):
 
     """
     try:
-        _check_telescope_position(boresight_check=boresight_check)
+        _check_telescope_position(elevation_check=elevation_check, 
+                boresight_check=boresight_check)
         _check_agents_online()
-        _check_temperature_sensors()
+        if temperature_check:
+            _check_temperature_sensors()
         _check_motor_on()
 
         # Rotate for reference before insertion
