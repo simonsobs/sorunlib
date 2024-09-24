@@ -72,7 +72,7 @@ def _check_zenith():
 
 
 # Calibration Functions
-def _check_telescope_position():
+def _check_telescope_position(elevation_check=True, boresight_check=True):
     # Get current telescope position
     acu = run.CLIENTS['acu']
     resp = acu.monitor.status()
@@ -81,22 +81,24 @@ def _check_telescope_position():
     boresight = resp.session['data']['StatusDetailed']['Boresight current position']
 
     # Check appropriate elevation
-    try:
-        assert (el > 50 - EL_DIFF_THRESHOLD)
-    except AssertionError:
-        error = "Telescope not at > 50 deg elevation. Cannot proceed with " + \
-                f"wiregrid calibration in current position ({az}, {el}). " + \
-                "Aborting."
-        raise RuntimeError(error)
+    if elevation_check:
+        try:
+            assert (el > 50 - EL_DIFF_THRESHOLD)
+        except AssertionError:
+            error = "Telescope not at > 50 deg elevation. Cannot proceed with " + \
+                    f"wiregrid calibration in current position ({az}, {el}). " + \
+                    "Aborting."
+            raise RuntimeError(error)
 
     # Check boresight angle
-    try:
-        assert (abs(boresight - 0) < BORESIGHT_DIFF_THRESHOLD)
-    except AssertionError:
-        error = "Telescope not at 0 deg boresight. Cannot proceed with " + \
-                f"wiregrid calibration in current position ({boresight}). " + \
-                "Aborting."
-        raise RuntimeError(error)
+    if boresight_check:
+        try:
+            assert (abs(boresight - 0) < BORESIGHT_DIFF_THRESHOLD)
+        except AssertionError:
+            error = "Telescope not at 0 deg boresight. Cannot proceed with " + \
+                    f"wiregrid calibration in current position ({boresight}). " + \
+                    "Aborting."
+            raise RuntimeError(error)
 
 
 def _configure_power(continuous):
@@ -254,18 +256,28 @@ def rotate(continuous, duration=30, num_laps=1, stopped_time=10.):
         check_response(kikusui, resp)
 
 
-def calibrate(continuous=False):
+def calibrate(continuous=False, elevation_check=True, boresight_check=True,
+              temperature_check=True):
     """Run a wiregrid calibration.
 
     Args:
         continuous (bool): Calibration by continuous rotation or not.
             Default is False, in which the wiregrid rotates step-wisely.
+        elevation_check (bool): Check the elevation angle is in an appropriate
+            range before the calibration or not. Default is True.
+        boresight_check (bool): Check the boresight angle is in an appropriate
+            range before the calibration or not. Default is True.
+        temperature_check (bool): Check the temperature of various components
+            are within operational limits before the calibration or not.
+            Default is True.
 
     """
     try:
-        _check_telescope_position()
+        _check_telescope_position(elevation_check=elevation_check,
+                                  boresight_check=boresight_check)
         _check_agents_online()
-        _check_temperature_sensors()
+        if temperature_check:
+            _check_temperature_sensors()
         _check_motor_on()
 
         # Rotate for reference before insertion
