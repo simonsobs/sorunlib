@@ -263,8 +263,13 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
     Args:
         continuous (bool): Calibration by continuous rotation or not.
             Default is False, in which the wiregrid rotates step-wisely.
-        boresight_check (bool): Check the boresight angle before
-            the calibration or not
+        elevation_check (bool): Check the elevation angle is in an appropriate
+            range before the calibration or not. Default is True.
+        boresight_check (bool): Check the boresight angle is in an appropriate
+            range before the calibration or not. Default is True.
+        temperature_check (bool): Check the temperature of various components
+            are within operational limits before the calibration or not.
+            Default is True.
 
     """
     try:
