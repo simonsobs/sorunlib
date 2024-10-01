@@ -364,9 +364,12 @@ def stream(state, tag=None, subtype=None):
                 clients_to_remove.append(smurf)
 
     else:
+        print('Stopping SMuRF streams.')
         for smurf in run.CLIENTS['smurf']:
-            print(f'Turning off stream from {smurf.instance_id}.')
             smurf.stream.stop()
+
+        for smurf in run.CLIENTS['smurf']:
+            print(f'Waiting for stream from {smurf.instance_id} to stop.')
             resp = smurf.stream.wait()
             try:
                 check_response(smurf, resp)
