@@ -5,8 +5,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from ocs.client_http import ControlClientError
 from ocs.ocs_client import OCSReply
 
+import sorunlib as run
 from sorunlib import smurf
 from util import create_patch_clients
 
@@ -15,6 +17,30 @@ os.environ["SORUNLIB_CONFIG"] = "./data/example_config.yaml"
 
 # Use pytest-mock plugin to patch CLIENTS on all tests
 patch_clients = create_patch_clients('satp', autouse=True)
+
+
+# Used to mock errors communicating with an OCS Client
+class ErrorProcess:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def start(self, **kwargs):
+        raise ControlClientError("no callee registered for procedure <observatory.controller.ops")
+
+    def wait(self, timeout=None):
+        raise ControlClientError("no callee registered for procedure <observatory.controller.ops")
+
+    def status(self):
+        raise ControlClientError("no callee registered for procedure <observatory.controller.ops")
+
+    def stop(self):
+        raise ControlClientError("no callee registered for procedure <observatory.controller.ops")
+
+
+class ErrorClient:
+    def __init__(self, instance_id, *args, **kwargs):
+        self.stream = ErrorProcess()
+        self.instance_id = instance_id
 
 
 def test_set_targets():
@@ -160,3 +186,9 @@ def test_stream_single_failure(state):
             client.stream.start.assert_called_once()
         else:
             client.stream.stop.assert_called_once()
+
+
+def test_stream_agent_unavailable_on_stop():
+    # Replace 'smurf1' client with one that will error on stream.stop()
+    run.CLIENTS['smurf'][0] = ErrorClient('smurf1')
+    smurf.stream(state='off')

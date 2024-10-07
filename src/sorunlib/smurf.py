@@ -13,6 +13,8 @@ previously failed SMuRFs to the ``CLIENTS`` list.
 
 import time
 
+from ocs.client_http import ControlClientError
+
 import sorunlib as run
 from sorunlib._internal import check_response, check_started
 
@@ -366,7 +368,18 @@ def stream(state, tag=None, subtype=None):
     else:
         print('Stopping SMuRF streams.')
         for smurf in run.CLIENTS['smurf']:
-            smurf.stream.stop()
+            try:
+                smurf.stream.stop()
+            # Handles case where agent becomes unreachable
+            except ControlClientError as e:
+                print(f"Failed to stop stream on {smurf}, removing from targets list.")
+                print(e)
+                clients_to_remove.append(smurf)
+
+        # Remove failed SMuRF clients
+        for client in clients_to_remove:
+            run.CLIENTS['smurf'].remove(client)
+        clients_to_remove = []
 
         for smurf in run.CLIENTS['smurf']:
             print(f'Waiting for stream from {smurf.instance_id} to stop.')
