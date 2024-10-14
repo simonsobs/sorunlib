@@ -42,7 +42,11 @@ def check_response(client, response):
             initial request or after completion) or the response has timed out.
 
     """
-    op = response.session['op_name']
+    try:
+        op = response.session['op_name']
+    except KeyError:
+        error = f"Unable to parse response from {client}:\n{str(response)}"
+        raise RuntimeError(error)
     instance = client.instance_id
 
     _check_error(client, response)

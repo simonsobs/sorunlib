@@ -25,12 +25,19 @@ class MockClient:
         self.test_op = MagicMock()
 
 
+# Attempt to recreate https://github.com/simonsobs/sorunlib/issues/174
+malformed_session = create_session('test', success=False)
+malformed_session.pop('op_name')
+
 invalid_responses = [(MockClient(), OCSReply(ocs.TIMEOUT,
                                              'msg',
                                              create_session('test', success=True))),
                      (MockClient(), OCSReply(ocs.ERROR,
                                              'msg',
-                                             create_session('test', success=False)))]
+                                             create_session('test', success=False))),
+                     (MockClient(), OCSReply(ocs.ERROR,
+                                             'msg',
+                                             malformed_session))]
 
 valid_responses = [
     (MockClient(), OCSReply(ocs.OK, 'msg', create_session('test', success=True)))]
