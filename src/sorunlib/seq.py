@@ -32,6 +32,10 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None,
     now = dt.datetime.now(dt.timezone.utc)
     scan_stop = _timestamp_to_utc_datetime(stop_time)
 
+    # Check stop time has not already passed
+    if now > scan_stop:
+        return
+
     # Check there is enough time to perform scan
     if min_duration is not None:
         start_by_time = scan_stop - dt.timedelta(seconds=min_duration)
