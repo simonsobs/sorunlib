@@ -1,11 +1,16 @@
+import datetime as dt
+
 import sorunlib as run
+
+from sorunlib.commands import _timestamp_to_utc_datetime
 from sorunlib._internal import check_response, check_started, monitor_process
 
 
 OP_TIMEOUT = 60
 
 
-def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None):
+def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None,
+         min_duration=None):
     """Run a constant elevation scan, collecting detector data.
 
     Args:
@@ -19,8 +24,20 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None):
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation. Passed through to the smurf stream command.
         subtype (str, optional): Operation subtype used to tag the stream.
+        min_duration (float, optional): Minimum duration required to scan,
+            specified in seconds. If not enough time exists between now and the
+            ``stop_time`` the scan is not executed. Defaults to None.
 
     """
+    now = dt.datetime.now(dt.timezone.utc)
+    scan_stop = _timestamp_to_utc_datetime(stop_time)
+
+    # Check there is enough time to perform scan
+    if min_duration is not None:
+        start_by_time = scan_stop - dt.timedelta(seconds=min_duration)
+        if now > start_by_time:
+            return
+
     acu = run.CLIENTS['acu']
 
     # Enable SMuRF streams
