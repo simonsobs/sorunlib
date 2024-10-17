@@ -251,7 +251,7 @@ def set_biases(bias, bias_group=None, concurrent=True, settling_time=0):
             concurrent=concurrent,
             settling_time=settling_time,
             bias=bias,
-            bg=bias_group)
+            bgs=bias_group)
 
 
 def zero_biases(bias_group=None, concurrent=True, settling_time=0):
@@ -273,7 +273,7 @@ def zero_biases(bias_group=None, concurrent=True, settling_time=0):
     _run_op('zero_biases',
             concurrent=concurrent,
             settling_time=settling_time,
-            bg=bias_group)
+            bgs=bias_group)
 
 
 def take_bgmap(tag=None, concurrent=True, settling_time=0):
