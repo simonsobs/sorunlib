@@ -5,9 +5,11 @@ comment: false
 coverage:
   status:
     changes: true
+    patch: true
     project:
-      default:
+      default: true
+      tests:
         target: auto
         threshold: 1
         paths:
-          - "src"
+          - "src/"
