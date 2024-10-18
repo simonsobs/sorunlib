@@ -64,8 +64,8 @@ This project is licensed under the BSD 2-Clause License - see the
 .. _LICENSE.txt: https://github.com/simonsobs/sorunlib/blob/main/LICENSE.txt
 
 
-.. |coverage| image:: https://coveralls.io/repos/github/simonsobs/sorunlib/badge.svg?branch=main
-    :target: https://coveralls.io/github/simonsobs/sorunlib?branch=main
+.. |coverage| image:: https://codecov.io/github/simonsobs/sorunlib/graph/badge.svg?token=701SYU7A4I
+    :target: https://codecov.io/github/simonsobs/sorunlib
 
 .. |docs| image:: https://readthedocs.org/projects/sorunlib/badge/?version=latest
     :target: https://sorunlib.readthedocs.io/en/latest/?badge=latest
