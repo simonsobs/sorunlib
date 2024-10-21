@@ -452,8 +452,18 @@ def time_constant(initial_hwp_direction, stepwise_first=True, stepwise_last=True
     bs_tag = f'biasstep, wg_time_constant, wg_ejected, hwp_2hz_{current_hwp_direction}' + el_tag
     run.smurf.bias_step(tag=bs_tag, concurrent=True)
 
-    # Insert the wiregrid
-    insert()
+    # Insert the wiregrid with streaming
+    time.sleep(5)
+    try:
+        # Enable SMuRF streams
+        stream_tag = f'wg_time_constant, wg_inserting, hwp_2hz_{current_hwp_direction}' + el_tag
+        run.smurf.stream('on', tag=stream_tag, subtype='cal')
+        # Insert the wiregrid
+        insert()
+    finally:
+        # Stop SMuRF streams
+        run.smurf.stream('off')
+    time.sleep(5)
 
     for i in range(repeat):
         # Bias step (the wire grid is on the window)
@@ -482,8 +492,18 @@ def time_constant(initial_hwp_direction, stepwise_first=True, stepwise_last=True
     bs_tag = f'biasstep, wg_time_constant, wg_inserted, hwp_2hz_{current_hwp_direction}' + el_tag
     run.smurf.bias_step(tag=bs_tag, concurrent=True)
 
-    # Eject the wiregrid
-    eject()
+    # Eject the wiregrid with streaming
+    time.sleep(5)
+    try:
+        # Enable SMuRF streams
+        stream_tag = f'wg_time_constant, wg_ejecting, hwp_2hz_{current_hwp_direction}' + el_tag
+        run.smurf.stream('on', tag=stream_tag, subtype='cal')
+        # Eject the wiregrid
+        eject()
+    finally:
+        # Stop SMuRF streams
+        run.smurf.stream('off')
+    time.sleep(5)
 
     # Bias step (the wire grid is off the window)
     bs_tag = f'biasstep, wg_time_constant, wg_ejected, hwp_2hz_{current_hwp_direction}' + el_tag
