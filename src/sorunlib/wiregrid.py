@@ -209,11 +209,11 @@ def _check_wiregrid_position():
         position = 'inside'
     else:
         raise RuntimeError("The wiregrid position is unknown. The limitswitch response is like this:\n" +
-                           "LSR1: {}\n".format('ON' if ls_status['LSR1'] == 1 else 'OFF') +
-                           "LSL1: {}\n".format('ON' if ls_status['LSL1'] == 1 else 'OFF') +
-                           "LSR2: {}\n".format('ON' if ls_status['LSR2'] == 1 else 'OFF') +
-                           "LSL2: {}\n".format('ON' if ls_status['LSL2'] == 1 else 'OFF') +
-                           "Aborting...")
+                           "LSR1: {}\n".format('ON' if ls_status['LSR1'] == 1 else 'OFF')
+                           + "LSL1: {}\n".format('ON' if ls_status['LSL1'] == 1 else 'OFF')
+                           + "LSR2: {}\n".format('ON' if ls_status['LSR2'] == 1 else 'OFF')
+                           + "LSL2: {}\n".format('ON' if ls_status['LSL2'] == 1 else 'OFF')
+                           + "Aborting...")
     return position
 
 
@@ -234,7 +234,7 @@ def _stop_hwp_with_wiregrid():
 
 def _spin_hwp_with_wiregrid(target_hwp_direction):
     """Spin the HWP to the target direction at 2Hz after comfirming the wiregrid is inserted.
-    
+
     Args:
         target_hwp_direction (str): Target HWP direction, 'forward' or 'backward'.
     """
@@ -259,14 +259,14 @@ def _spin_hwp_with_wiregrid(target_hwp_direction):
 
 def _reverse_hwp_with_wiregrid(initial_hwp_direction, streaming=False, stepwise_before=False, stepwise_after=False):
     """Change the HWP direction after comfirming the wiregrid is inserted.
-    
+
     Args:
         initial_hwp_direction (str): Initial HWP direction, 'forward' or 'backward'.
         streaming (bool): Do SMuRF streaming during the HWP direction chaging or not . Default is False.
         stepwise_before (bool): Do stepwise rotation before changing HWP direction or not. Default is False.
         stepwise_after (bool): Do stepwise rotation after changing HWP direction or not. Default is False.
     """
-    if initial_hwp_direction not in ['forward', 'backward']: 
+    if initial_hwp_direction not in ['forward', 'backward']:
         raise RuntimeError("Initial HWP direction should be either 'forward' or 'backward'. Aborting...")
 
     current_hwp_direction = initial_hwp_direction
@@ -293,7 +293,7 @@ def _reverse_hwp_with_wiregrid(initial_hwp_direction, streaming=False, stepwise_
         # Spin up the HWP in the opposite direction
         _spin_hwp_with_wiregrid(target_hwp_direction)
         current_hwp_direction = target_hwp_direction
-        # Stepwise rotation after spinning up the HWP 
+        # Stepwise rotation after spinning up the HWP
         if stepwise_after:
             rotate(False)
     finally:
@@ -416,7 +416,7 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
 def time_constant(initial_hwp_direction, stepwise_first=True, stepwise_last=True, stepwise_mid=False, repeat=1):
     """
     Run a wiregrid time constant measurement.
-    
+
     Args:
         initial_hwp_direction (str): Initial HWP direction, 'forward' or 'backward'.
         stepwise_first (bool): Do stepwise rotation or not before the first HWP speed change. Default is True.
@@ -426,7 +426,7 @@ def time_constant(initial_hwp_direction, stepwise_first=True, stepwise_last=True
             If this is odd, the HWP direction will be changed to the opposite of the initial direction.
             If this is even, the HWP direction will be the same as the initial direction.
     """
-    
+
     # Check the initial HWP direction
     if initial_hwp_direction not in ['forward', 'backward']:
         raise RuntimeError("Initial HWP direction should be either 'forward' or 'backward'. Aborting...")
@@ -439,7 +439,7 @@ def time_constant(initial_hwp_direction, stepwise_first=True, stepwise_last=True
     _check_agents_online()
     _check_motor_on()
     _check_telescope_position(elevation_check=True, boresight_check=False)
-    
+
     if _check_zenith:
         el_tag = ', wg_el90'
     else:
@@ -478,7 +478,7 @@ def time_constant(initial_hwp_direction, stepwise_first=True, stepwise_last=True
         if stepwise_mid and i != 0:
             # Stepwise rotation between changing HWP speed
             stepwise_before = True
-        if stepwise_last and i == repeat-1:
+        if stepwise_last and i == repeat - 1:
             # Stepwise rotation after the last HWP speed change
             stepwise_after = True
 
