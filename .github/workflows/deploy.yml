@@ -11,6 +11,7 @@ on:
 jobs:
   test:
     uses: ./.github/workflows/pytest.yml
+    secrets: inherit
 
   wheel:
     name: build and deploy to PyPI
