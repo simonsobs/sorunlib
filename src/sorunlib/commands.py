@@ -79,7 +79,7 @@ def wait_until(timestamp, tolerance=None):
     if deadline is None:
         pass
     elif now > deadline:
-        raise ValueError(f"Current time ({timestamp}) is past deadline "
+        raise ValueError(f"Current time ({now}) is past deadline "
                          + f"({deadline.isoformat()}) set by tolerance ({tolerance})")
 
     # Wait until timestamp
