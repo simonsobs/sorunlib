@@ -24,6 +24,22 @@ def test_scan(patch_clients):
     seq.scan(description='test', stop_time=target.isoformat(), width=20.)
 
 
+@patch('sorunlib._internal.time.sleep', MagicMock())
+def test_scan_passed_stop_time(patch_clients):
+    # This affects test runtime duration keep it short
+    target = dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=10)
+    seq.scan(description='test', stop_time=target.isoformat(), width=20.)
+    seq.run.CLIENTS['acu'].generate_scan.start.assert_not_called()
+
+
+@patch('sorunlib._internal.time.sleep', MagicMock())
+def test_scan_passed_min_duration(patch_clients):
+    # This affects test runtime duration keep it short
+    target = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=10)
+    seq.scan(description='test', stop_time=target.isoformat(), width=20., min_duration=60)
+    seq.run.CLIENTS['acu'].generate_scan.start.assert_not_called()
+
+
 @patch('sorunlib.commands.time.sleep', MagicMock())
 def test_scan_no_session(patch_clients):
     # Setup mock OCSReply without session object
@@ -31,7 +47,7 @@ def test_scan_no_session(patch_clients):
     mock_reply.session = None
     sorunlib.CLIENTS['acu'].generate_scan.start = MagicMock(return_value=mock_reply)
 
-    target = dt.datetime.now() + dt.timedelta(seconds=1)
+    target = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=1)
     with pytest.raises(Exception):
         seq.scan(description='test', stop_time=target.isoformat(), width=20.)
 
@@ -60,6 +76,6 @@ def test_scan_failed_to_start(patch_clients):
     #   other keys in .session: op_code, data
     print(mock_reply)
 
-    target = dt.datetime.now() + dt.timedelta(seconds=1)
+    target = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=10)
     with pytest.raises(RuntimeError):
         seq.scan(description='test', stop_time=target.isoformat(), width=20.)

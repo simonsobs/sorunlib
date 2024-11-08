@@ -9,47 +9,9 @@ on:
       - 'v*.*.*dev*'  # for testing releases
 
 jobs:
-  test:  # Copied from pytest.yml
-    name: pytest with coverage
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v5
-      with:
-        python-version: 3.8
-
-    - name: clone sorunlib
-      uses: actions/checkout@v4
-
-    - name: Lint with flake8
-      run: |
-        pip3 install flake8
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 ./src/ --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 ./src/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-    - name: Install sorunlib
-      run: |
-        pip3 install -e .[tests]
-
-    # Unit Tests
-    - name: Run unit tests
-      working-directory: ./tests
-      run: |
-        COVERAGE_FILE=.coverage.unit python3 -m pytest --cov sorunlib
-
-    # Coverage
-    - name: Report test coverage
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        mv ./tests/.coverage.* ./
-        pip install coveralls
-        coverage combine
-        coverage report
-        coveralls --service=github
+  test:
+    uses: ./.github/workflows/pytest.yml
+    secrets: inherit
 
   wheel:
     name: build and deploy to PyPI

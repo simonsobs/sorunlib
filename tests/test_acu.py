@@ -1,5 +1,6 @@
 import os
 os.environ["OCS_CONFIG_DIR"] = "./test_util/"
+import datetime as dt
 
 import pytest
 
@@ -24,6 +25,27 @@ def test_move_to_failed(patch_clients_satp):
     acu.run.CLIENTS['acu'].go_to.side_effect = [mocked_response]
     with pytest.raises(RuntimeError):
         acu.move_to(180, 90)
+
+
+def test_move_to_target_before_start(patch_clients_satp):
+    start = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=10)
+    end = start + dt.timedelta(seconds=3600)
+    acu.move_to_target(300, 50, start.isoformat(), end.isoformat(), -0.005)
+    acu.run.CLIENTS['acu'].go_to.assert_called_with(az=300, el=50)
+
+
+def test_move_to_target_within_range(patch_clients_satp):
+    start = dt.datetime.now(dt.timezone.utc)
+    end = start + dt.timedelta(seconds=3600)
+    acu.move_to_target(300, 50, start.isoformat(), end.isoformat(), -0.005)
+    acu.run.CLIENTS['acu'].go_to.assert_called_once()
+
+
+def test_move_to_target_after_stop(patch_clients_satp):
+    start = dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=3600)
+    end = start + dt.timedelta(seconds=3590)
+    acu.move_to_target(300, 50, start.isoformat(), end.isoformat(), -0.005)
+    acu.run.CLIENTS['acu'].go_to.assert_not_called()
 
 
 def test_set_boresight(patch_clients_satp):
