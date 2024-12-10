@@ -9,8 +9,8 @@ from sorunlib._internal import check_response, check_started, monitor_process
 OP_TIMEOUT = 60
 
 
-def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None,
-         min_duration=None):
+def scan(description, stop_time, width, az_drift=0, start_position=None,
+         tag=None, subtype=None, min_duration=None):
     """Run a constant elevation scan, collecting detector data.
 
     Args:
@@ -18,9 +18,13 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None,
         stop_time (str): Time in ISO format to scan until, i.e.
             "2022-06-21T15:58:00"
         width (float): Scan width in azimuth. The scan will start at the
-            current position and move in the positive azimuth direction.
+            current position unless specified in ``start_position``. The scan
+            moves in the positive azimuth direction.
         az_drift (float): Drift velocity in deg/s, causing scan extrema to move
             accordingly.
+        start_position (tuple, optional): Starting position given as (azimuth,
+            elevation). If provided, the telescope will move to this position
+            before starting the scan.
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation. Passed through to the smurf stream command.
         subtype (str, optional): Operation subtype used to tag the stream.
@@ -36,7 +40,11 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None,
     if now > scan_stop:
         return
 
+    if start_position:
+        run.acu.move_to(*start_position)
+
     # Check there is enough time to perform scan
+    now = dt.datetime.now(dt.timezone.utc)
     if min_duration is not None:
         start_by_time = scan_stop - dt.timedelta(seconds=min_duration)
         if now > start_by_time:
