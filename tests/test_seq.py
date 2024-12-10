@@ -25,6 +25,15 @@ def test_scan(patch_clients):
 
 
 @patch('sorunlib._internal.time.sleep', MagicMock())
+def test_scan_start_position(patch_clients):
+    # This affects test runtime duration keep it short
+    target = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=0.01)
+    seq.scan(description='test', stop_time=target.isoformat(), width=20.,
+             start_position=(208.5, 60.0))
+    seq.run.CLIENTS['acu'].go_to.assert_called_with(az=208.5, el=60.0)
+
+
+@patch('sorunlib._internal.time.sleep', MagicMock())
 def test_scan_passed_stop_time(patch_clients):
     # This affects test runtime duration keep it short
     target = dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=10)
