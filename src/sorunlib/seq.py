@@ -14,7 +14,10 @@ def _stop_scan():
 
     print("Stopping scan.")
     # Stop SMuRF streams
-    run.smurf.stream('off')
+    try:
+        run.smurf.stream('off')
+    except RuntimeError as e:
+        print(f"Caught error while shutting down SMuRF streams: {e}")
 
     # Stop motion
     acu.generate_scan.stop()
