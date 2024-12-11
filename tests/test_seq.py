@@ -79,3 +79,16 @@ def test_scan_failed_to_start(patch_clients):
     target = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=10)
     with pytest.raises(RuntimeError):
         seq.scan(description='test', stop_time=target.isoformat(), width=20.)
+
+
+@patch('sorunlib._internal.time.sleep', MagicMock())
+def test_scan_failed_smurfs_on_shutdown(patch_clients):
+    # Create failure on all three smurf agents
+    mocked_response = OCSReply(
+        0, 'msg', {'success': False, 'op_name': 'stream'})
+    seq.run.CLIENTS['smurf'][0].stream.wait.side_effect = [mocked_response]
+    seq.run.CLIENTS['smurf'][1].stream.wait.side_effect = [mocked_response]
+    seq.run.CLIENTS['smurf'][2].stream.wait.side_effect = [mocked_response]
+
+    seq._stop_scan()
+    seq.run.CLIENTS['acu'].generate_scan.wait.assert_called()
