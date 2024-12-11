@@ -38,7 +38,7 @@ def _check_smurf_threshold():
     remaining = len(run.CLIENTS['smurf'])
     if remaining < threshold:
         error = 'Functional SMuRF count below failure threshold ' + \
-                f'({remaining} < {threshold}). Aborting.'
+                f'({remaining} < {threshold}).'
         raise RuntimeError(error)
 
 
