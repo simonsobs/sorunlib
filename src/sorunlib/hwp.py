@@ -20,7 +20,7 @@ def set_freq(freq):
     check_response(hwp, resp)
 
 
-def stop(active=True, brake_voltage=None):
+def stop(active=True, brake_voltage=None, fast=False):
     """Stop the HWP.
 
     Args:
@@ -35,9 +35,9 @@ def stop(active=True, brake_voltage=None):
 
     if active:
         if brake_voltage is None:
-            resp = hwp.brake()
+            resp = hwp.brake(fast=fast)
         else:
-            resp = hwp.brake(brake_voltage=brake_voltage)
+            resp = hwp.brake(brake_voltage=brake_voltage, fast=fast)
         check_response(hwp, resp)
     else:
         resp = hwp.pmx_off()
