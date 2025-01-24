@@ -347,7 +347,7 @@ def stream(state, tag=None, subtype=None, downsample_factor=None, filter_disable
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation.
         subtype (str, optional): Operation subtype used to tag the stream.
-        downsample_factor (int, optional): Downsample factor. If None, this will be 
+        downsample_factor (int, optional): Downsample factor. If None, this will be
             pulled from the device cfg.
         filter_disable (bool, optional): If true, will disable the downsample filter
             before streaming.
