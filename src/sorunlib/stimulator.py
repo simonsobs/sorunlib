@@ -6,14 +6,14 @@ ID_SHUTTER = 1
 
 def _open_shutter():
     """Open the shutter of the stimulator"""
-    ds  = run.CLIENTS['stimulator']['ds378']
+    ds = run.CLIENTS['stimulator']['ds378']
     ds.set_relay(relay_number=ID_SHUTTER, on_off=1)
     time.sleep(1)
 
 
 def _close_shutter():
     """Close the shutter of the stimulator"""
-    ds  = run.CLIENTS['stimulator']['ds378']
+    ds = run.CLIENTS['stimulator']['ds378']
     ds.set_relay(relay_number=ID_SHUTTER, on_off=0)
     time.sleep(1)
 
@@ -31,7 +31,7 @@ def _setup():
 
 def _stop():
     blh = run.CLIENTS['stimulator']['blh']
-    
+
     # Stop rotation
     blh.stop_rotation()
     time.sleep(10)
@@ -44,7 +44,7 @@ def calibrate_tau(duration_step=10,
                   speeds_rpm=[225, 495, 945, 1395, 1845, 2205],
                   forward=True, do_setup=True, stop=True):
     """Time constant calibration using the stimulator.
-    
+
     Parameters
     ----------
     duration_step : float, optional
@@ -58,7 +58,7 @@ def calibrate_tau(duration_step=10,
     stop : bool, default True
         Stop the rotation and close the shutter if True.
     """
-    
+
     blh = run.CLIENTS['stimulator']['blh']
 
     # Replace to the following after the implementation of `downsample_factor` parameter
@@ -89,7 +89,7 @@ def calibrate_tau(duration_step=10,
 def calibrate_gain(duration=60, speed_rpm=90,
                    forward=True, do_setup=True, stop=True):
     """Gain calibration with the stimulator
-    
+
     Parameters
     ----------
     duration : float, optional
@@ -116,7 +116,7 @@ def calibrate_gain(duration=60, speed_rpm=90,
 
     # Sleep for rotation stabilization
     time.sleep(10)
-    
+
     # Data taking
     time.sleep(duration)
 

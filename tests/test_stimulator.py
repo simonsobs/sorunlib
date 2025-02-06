@@ -17,6 +17,7 @@ patch_clients_lat = create_patch_clients('lat')
 def test_calibrate_tau(patch_clients_lat, do_setup):
     stimulator.calibrate_tau(do_setup=do_setup)
 
+
 @pytest.mark.parametrize("do_setup", [True, False])
 @patch('sorunlib.stimulator.time.sleep', MagicMock())
 def test_calibrate_gain(patch_clients_lat, do_setup):
