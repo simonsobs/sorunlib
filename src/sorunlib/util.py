@@ -154,6 +154,32 @@ def _create_wiregrid_clients(config=None, sorunlib_config=None):
     return clients
 
 
+def _create_stimulator_clients():
+    """Create all stimulator related clients.
+
+    Returns:
+        dict: Dictionary with the keys, 'blh', 'pcr500ma', and 'ds378'
+            with each value being the corresponding OCSClient.
+
+    """
+    blh_id = _find_active_instances('BLHAgent')
+    pcr500ma_id = _find_active_instances('PCR500MAAgent')
+    ds378_id = _find_active_instances('DS378Agent')
+
+    clients = {}
+
+    if blh_id:
+        clients['blh'] = _try_client(blh_id)
+
+    if pcr500ma_id:
+        clients['pcr500ma'] = _try_client(pcr500ma_id)
+
+    if ds378_id:
+        clients['ds378'] = _try_client(ds378_id)
+
+    return clients
+
+
 def create_clients(config=None, sorunlib_config=None, test_mode=False):
     """Create all clients needed for commanding a single platform.
 
@@ -208,5 +234,7 @@ def create_clients(config=None, sorunlib_config=None, test_mode=False):
     clients['wiregrid'] = _create_wiregrid_clients(
         config=config,
         sorunlib_config=sorunlib_config)
+
+    clients['stimulator'] = _create_stimulator_clients()
 
     return clients

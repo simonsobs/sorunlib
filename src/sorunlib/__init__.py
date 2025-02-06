@@ -1,4 +1,4 @@
-from . import acu, hwp, seq, smurf, wiregrid
+from . import acu, hwp, seq, smurf, stimulator, wiregrid
 
 from .commands import wait_until
 from .util import create_clients
@@ -22,6 +22,7 @@ __all__ = ["acu",
            "hwp",
            "seq",
            "smurf",
+           "stimulator",
            "wiregrid",
            "wait_until",
            "initialize"]
