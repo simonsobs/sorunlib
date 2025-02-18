@@ -248,7 +248,13 @@ def test_calibrate_stepwise(patch_clients, continuous, el, tag):
     # All other internal functions tested separately, just make sure smurf
     # stream is run
     for client in wiregrid.run.CLIENTS['smurf']:
-        client.stream.start.assert_called_with(tag=tag, subtype='cal')
+        client.stream.start.assert_called_with(
+            tag=tag,
+            subtype='cal',
+            kwargs={
+                "downsample_factor": None,
+                "filter_disable": False},
+        )
         client.stream.stop.assert_called()
 
 
