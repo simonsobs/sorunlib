@@ -346,7 +346,7 @@ def shutdown(concurrent=True, settling_time=0):
             settling_time=settling_time)
 
 
-def stream(state, tag=None, subtype=None):
+def stream(state, tag=None, subtype=None, downsample_factor=None, filter_disable=False):
     """Stream data on all SMuRF Controllers.
 
     Args:
@@ -354,13 +354,19 @@ def stream(state, tag=None, subtype=None):
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation.
         subtype (str, optional): Operation subtype used to tag the stream.
+        downsample_factor (int, optional): Downsample factor. If None, this will be
+            pulled from the device cfg.
+        filter_disable (bool, optional): If true, will disable the downsample filter
+            before streaming.
 
     """
     clients_to_remove = []
+    kwargs = {'downsample_factor': downsample_factor,
+              'filter_disable': filter_disable}
 
     if state.lower() == 'on':
         for smurf in run.CLIENTS['smurf']:
-            smurf.stream.start(subtype=subtype, tag=tag)
+            smurf.stream.start(subtype=subtype, tag=tag, kwargs=kwargs)
 
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.stream.status()
