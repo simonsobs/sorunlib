@@ -209,10 +209,16 @@ def uxm_relock(test_mode=False, concurrent=True, settling_time=0):
                 settling_time=settling_time)
 
 
-def bias_dets(concurrent=True, settling_time=0):
+def bias_dets(rfrac=None, concurrent=True, settling_time=0):
     """Bias the detectors on all SMuRF Controllers.
 
     Args:
+        rfrac (float, tuple, optional): Target rfrac to aim for. If a float
+            is provided, bias voltages will be chosen such that the median
+            rfrac of each bias group is as close as possible to this value. If
+            a tuple is provided, bias voltages will be chosen to maximize the
+            number of channels within the given range. If None, the agent
+            defaults are used. Defaults to None.
         concurrent (bool, optional): A bool which determines how the operation
             is run across the active SMuRF controllers. It runs in parallel if
             True, and in series if False.
@@ -224,7 +230,8 @@ def bias_dets(concurrent=True, settling_time=0):
     """
     _run_op('bias_dets',
             concurrent=concurrent,
-            settling_time=settling_time)
+            settling_time=settling_time,
+            rfrac=rfrac)
 
 
 def set_biases(bias, bias_group=None, concurrent=True, settling_time=0):
