@@ -33,7 +33,7 @@ def stop(active=True, brake_voltage=None):
     """
     hwp = run.CLIENTS['hwp']
 
-    print('Stop HWP and wait for it to spin down...')
+    print('Stopping HWP and waiting for it to spin down.')
     if active:
         if brake_voltage is None:
             resp = hwp.brake()
