@@ -40,5 +40,5 @@ def stop(active=True, brake_voltage=None):
             resp = hwp.brake(brake_voltage=brake_voltage)
         check_response(hwp, resp)
     else:
-        resp = hwp.pmx_off()
+        resp = hwp.pmx_off(wait_stop=True)
         check_response(hwp, resp)
