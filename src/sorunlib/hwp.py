@@ -25,14 +25,15 @@ def stop(active=True, brake_voltage=None):
 
     Args:
         active (bool, optional): If True, actively try to stop the HWP by
-            applying the brake. If False, simply turn off the PMX power and let
-            it spin down on its own. Defaults to True.
+            applying the brake. If False, simply turn off the PMX power and wait
+            for it to spin down on its own. Defaults to True.
         brake_voltage (float, optional): Voltage used when actively stopping
             the HWP. Only considered when active is True.
 
     """
     hwp = run.CLIENTS['hwp']
 
+    print('Stop HWP and wait for it to spin down...')
     if active:
         if brake_voltage is None:
             resp = hwp.brake()
