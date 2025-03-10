@@ -82,7 +82,10 @@ def mocked_clients(**kwargs):
                'wiregrid': {'actuator': MagicMock(),
                             'encoder': MagicMock(),
                             'kikusui': MagicMock(),
-                            'labjack': MagicMock()}}
+                            'labjack': MagicMock()},
+               'stimulator': {'blh': MagicMock(),
+                              'ds378': MagicMock(),
+                              'pcr500ma': MagicMock()}}
 
     return clients
 
