@@ -83,9 +83,9 @@ def _check_telescope_position(elevation_check=True, boresight_check=True):
     # Check appropriate elevation
     if elevation_check:
         try:
-            assert (el > 50 - EL_DIFF_THRESHOLD)
+            assert (el > 48 - EL_DIFF_THRESHOLD)
         except AssertionError:
-            error = "Telescope not at > 50 deg elevation. Cannot proceed with " + \
+            error = "Telescope not at > 48 deg elevation. Cannot proceed with " + \
                     f"wiregrid calibration in current position ({az}, {el}). " + \
                     "Aborting."
             raise RuntimeError(error)

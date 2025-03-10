@@ -57,7 +57,7 @@ def wait_until(timestamp, tolerance=None):
         >>> wait_until("2015-10-21T07:28:00")
         >>> wait_until("2015-10-21T07:28:00+00:00")
         >>> wait_until("2015-10-21T07:28:00+00:00", 60)
-        >>> wait_until("2015-10-21T07:28:00+00:00", "2015-10-21T07:29:00+00:00)
+        >>> wait_until("2015-10-21T07:28:00+00:00", "2015-10-21T07:29:00+00:00")
 
     """
     target = _timestamp_to_utc_datetime(timestamp)
@@ -79,7 +79,7 @@ def wait_until(timestamp, tolerance=None):
     if deadline is None:
         pass
     elif now > deadline:
-        raise ValueError(f"Current time ({timestamp}) is past deadline "
+        raise ValueError(f"Current time ({now}) is past deadline "
                          + f"({deadline.isoformat()}) set by tolerance ({tolerance})")
 
     # Wait until timestamp
