@@ -8,8 +8,9 @@ BORESIGHT_DIFF_THRESHOLD = 0.5  # deg
 AGENT_TIMEDIFF_THRESHOLD = 5  # sec
 OP_TIMEOUT = 60
 
-
 # Internal Helper Functions
+
+
 def _check_process_data(process, last_timestamp):
     """Check the latest timestamp from a process' session.data is recent enough.
 
@@ -198,6 +199,84 @@ def _check_temperature_sensors():
     _verify_temp_response(resp, 'AIN2C', 0)
 
 
+def _check_wiregrid_position():
+    """Check the wiregrid position.
+
+    Returns:
+        str: The wiregrid position, either 'inside' or 'outside'.
+
+    Raises:
+        RuntimeError: When the wiregrid position is unknown.
+
+    """
+    actuator = run.CLIENTS['wiregrid']['actuator']
+    resp = actuator.acq.status()
+    position = resp.session['data']['fields']['position']
+    if position not in ['inside', 'outside']:
+        raise RuntimeError("The wiregrid position is unknown. Aborting...")
+    return position
+
+
+def _check_hwp_direction():
+    """Check the HWP direction by referring to the 'direction' in session.data
+       of the HWP PID Agent via the HWP Supervisor Agent.
+
+    Returns:
+        str: The HWP direction, either 'forward' or 'backward'.
+
+    """
+    hwp = run.CLIENTS['hwp']
+    resp = hwp.monitor.status()
+    pid_direction = resp.session['data']['hwp_status']['pid_direction']
+    if pid_direction == 0:
+        direction = 'forward'
+    elif pid_direction == 1:
+        direction = 'backward'
+    else:
+        raise RuntimeError("The HWP direction is unknown. Aborting...")
+    return direction
+
+
+def _reverse_hwp_direction(initial_hwp_direction, stepwise_before=False,
+                           stepwise_after=False):
+    """Reverse the HWP rotation direction from ``initial_hwp_direction``.
+
+    Args:
+        initial_hwp_direction (str): The initial HWP direction, either 'forward'
+            or 'backward'.
+        stepwise_before (bool): Do stepwise rotation before changing HWP direction
+            or not. Default is False.
+        stepwise_after (bool): Do stepwise rotation after changing HWP direction
+            or not. Default is False.
+
+    Returns:
+        str: The current HWP direction after reversing.
+    """
+    # Set the target HWP direction
+    current_hwp_direction = initial_hwp_direction
+    if current_hwp_direction == 'forward':
+        target_hwp_direction = 'backward'
+    elif current_hwp_direction == 'backward':
+        target_hwp_direction = 'forward'
+    else:
+        raise RuntimeError("Invalid initial hwp rotation direction. Aborting...")
+    # Run stepwise rotation before stopping the HWP
+    if stepwise_before:
+        rotate(False)
+    # Stop the HWP
+    run.hwp.stop(active=True)
+    # Spin up the HWP reversely
+    if target_hwp_direction == 'forward':
+        run.hwp.set_freq(freq=2.0)
+    elif target_hwp_direction == 'backward':
+        run.hwp.set_freq(freq=-2.0)
+    current_hwp_direction = target_hwp_direction
+    # Run stepwise rotation after spinning up the HWP
+    if stepwise_after:
+        rotate(False)
+    return current_hwp_direction
+
+
 # Public API
 def insert():
     """Insert the wiregrid."""
@@ -305,3 +384,116 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
     finally:
         # Stop SMuRF streams
         run.smurf.stream('off')
+
+
+def time_constant(num_repeats=1):
+    """
+    Run a wiregrid time constant measurement.
+
+    Args:
+        num_repeats (int): Number of repeats. Default is 1.
+            If this is odd, the HWP direction will be changed to the opposite
+            of the initial direction. If this is even, the HWP direction will be
+            the same as the initial direction.
+
+    """
+    # Check the number of repeats
+    if num_repeats < 1 or not isinstance(num_repeats, int):
+        error = "The ``num_repeats`` should be int and larger than 0."
+        raise RuntimeError(error)
+
+    _check_agents_online()
+    _check_motor_on()
+    _check_telescope_position(elevation_check=True, boresight_check=False)
+    position = _check_wiregrid_position()
+    print(position)
+    if _check_wiregrid_position() == 'inside':
+        error = "The wiregrid is already inserted before the wiregrid time " + \
+                "constant measurement. Please inspect wiregrid and HWP " + \
+                "before continuing observations."
+        raise RuntimeError(error)
+
+    if _check_zenith():
+        el_tag = ', wg_el90'
+    else:
+        el_tag = ''
+
+    # Check the current HWP direction
+    current_hwp_direction = _check_hwp_direction()
+
+    # Rotate for reference before insertion
+    rotate(continuous=True, duration=10)
+
+    # Bias step (the wire grid is off the window)
+    bs_tag = 'wiregrid, wg_time_constant, wg_ejected, ' + \
+             f'hwp_2hz_{current_hwp_direction}' + el_tag
+    run.smurf.bias_step(tag=bs_tag, concurrent=True)
+
+    # Insert the wiregrid with streaming
+    time.sleep(5)
+    try:
+        # Enable SMuRF streams
+        stream_tag = 'wiregrid, wg_time_constant, wg_inserting, ' + \
+                     f'hwp_2hz_{current_hwp_direction}' + el_tag
+        run.smurf.stream('on', tag=stream_tag, subtype='cal')
+        # Insert the wiregrid
+        insert()
+    finally:
+        # Stop SMuRF streams
+        run.smurf.stream('off')
+    time.sleep(5)
+
+    for i in range(num_repeats):
+        # Bias step (the wire grid is on the window)
+        bs_tag = 'wiregrid, wg_time_constant, wg_inserted, ' + \
+            f'hwp_2hz_{current_hwp_direction}' + el_tag
+        run.smurf.bias_step(tag=bs_tag, concurrent=True)
+
+        stepwise_before = True if i == 0 else False
+        stepwise_after = True
+        try:
+            if current_hwp_direction == 'forward':
+                target_hwp_direction = 'backward'
+            elif current_hwp_direction == 'backward':
+                target_hwp_direction = 'forward'
+            stream_tag = 'wiregrid, wg_time_constant, ' + \
+                         f'hwp_change_to_{target_hwp_direction}' + el_tag
+            # Enable SMuRF streams
+            run.smurf.stream('on', tag=stream_tag, subtype='cal')
+            # Reverse the HWP with streaming and a stepwise rotation
+            current_hwp_direction = \
+                _reverse_hwp_direction(current_hwp_direction,
+                                       stepwise_before=stepwise_before,
+                                       stepwise_after=stepwise_after)
+        except RuntimeError as e:
+            error = "The wiregrid time constant measurement failed. " + \
+                    "Please inspect wiregrid and HWP before continuing " + \
+                    "observations.\n" + str(e)
+            raise RuntimeError(error)
+        finally:
+            # Stop SMuRF streams
+            run.smurf.stream('off')
+
+    # Bias step (the wire grid is on the window)
+    bs_tag = 'wiregrid, wg_time_constant, wg_inserted, ' + \
+             f'hwp_2hz_{current_hwp_direction}' + el_tag
+    run.smurf.bias_step(tag=bs_tag, concurrent=True)
+
+    # Eject the wiregrid with streaming
+    time.sleep(5)
+    try:
+        # Enable SMuRF streams
+        stream_tag = 'wiregrid, wg_time_constant, wg_ejecting, ' + \
+                     f'hwp_2hz_{current_hwp_direction}' + el_tag
+        run.smurf.stream('on', tag=stream_tag, subtype='cal')
+        # Eject the wiregrid
+        eject()
+    finally:
+        # Stop SMuRF streams
+        run.smurf.stream('off')
+    time.sleep(5)
+
+    # Bias step (the wire grid is off the window)
+    bs_tag = 'wiregrid, wg_time_constant, wg_ejected, ' + \
+             f'hwp_2hz_{current_hwp_direction}' + el_tag
+    run.smurf.bias_step(tag=bs_tag, concurrent=True)
