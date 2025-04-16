@@ -227,7 +227,7 @@ def _check_hwp_direction():
     """
     hwp = run.CLIENTS['hwp']
     resp = hwp.monitor.status()
-    pid_direction = resp.session['data']['hwp_status']['pid_direction']
+    pid_direction = resp.session['data']['hwp_state']['pid_direction']
     if pid_direction == 0:
         direction = 'forward'
     elif pid_direction == 1:
