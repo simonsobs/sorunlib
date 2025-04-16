@@ -425,7 +425,7 @@ def time_constant(num_repeats=1):
 
     # Bias step (the wire grid is off the window)
     bs_tag = 'wiregrid, wg_time_constant, wg_ejected, ' + \
-             f'hwp_2hz_{current_hwp_direction}' + el_tag
+             f'hwp_{current_hwp_direction}' + el_tag
     run.smurf.bias_step(tag=bs_tag, concurrent=True)
 
     # Insert the wiregrid with streaming
@@ -433,7 +433,7 @@ def time_constant(num_repeats=1):
     try:
         # Enable SMuRF streams
         stream_tag = 'wiregrid, wg_time_constant, wg_inserting, ' + \
-                     f'hwp_2hz_{current_hwp_direction}' + el_tag
+                     f'hwp_{current_hwp_direction}' + el_tag
         run.smurf.stream('on', tag=stream_tag, subtype='cal')
         # Insert the wiregrid
         insert()
@@ -445,7 +445,7 @@ def time_constant(num_repeats=1):
     for i in range(num_repeats):
         # Bias step (the wire grid is on the window)
         bs_tag = 'wiregrid, wg_time_constant, wg_inserted, ' + \
-            f'hwp_2hz_{current_hwp_direction}' + el_tag
+            f'hwp_{current_hwp_direction}' + el_tag
         run.smurf.bias_step(tag=bs_tag, concurrent=True)
 
         stepwise_before = True if i == 0 else False
@@ -475,7 +475,7 @@ def time_constant(num_repeats=1):
 
     # Bias step (the wire grid is on the window)
     bs_tag = 'wiregrid, wg_time_constant, wg_inserted, ' + \
-             f'hwp_2hz_{current_hwp_direction}' + el_tag
+             f'hwp_{current_hwp_direction}' + el_tag
     run.smurf.bias_step(tag=bs_tag, concurrent=True)
 
     # Eject the wiregrid with streaming
@@ -483,7 +483,7 @@ def time_constant(num_repeats=1):
     try:
         # Enable SMuRF streams
         stream_tag = 'wiregrid, wg_time_constant, wg_ejecting, ' + \
-                     f'hwp_2hz_{current_hwp_direction}' + el_tag
+                     f'hwp_{current_hwp_direction}' + el_tag
         run.smurf.stream('on', tag=stream_tag, subtype='cal')
         # Eject the wiregrid
         eject()
@@ -494,5 +494,5 @@ def time_constant(num_repeats=1):
 
     # Bias step (the wire grid is off the window)
     bs_tag = 'wiregrid, wg_time_constant, wg_ejected, ' + \
-             f'hwp_2hz_{current_hwp_direction}' + el_tag
+             f'hwp_{current_hwp_direction}' + el_tag
     run.smurf.bias_step(tag=bs_tag, concurrent=True)
