@@ -406,7 +406,6 @@ def time_constant(num_repeats=1):
     _check_motor_on()
     _check_telescope_position(elevation_check=True, boresight_check=False)
     position = _check_wiregrid_position()
-    print(position)
     if _check_wiregrid_position() == 'inside':
         error = "The wiregrid is already inserted before the wiregrid time " + \
                 "constant measurement. Please inspect wiregrid and HWP " + \
