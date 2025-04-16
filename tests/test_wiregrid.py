@@ -344,11 +344,10 @@ def test__reverse_hwp_direction_initial_direction(initial_hwp_direction):
             mock_hwp_set_freq.assert_called_once_with(freq=2.0)
 
 
-@pytest.mark.parametrize('initial_hwp_direction', 'unknown')
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
-def test__reverse_hwp_direction_initial_direction_failed(initial_hwp_direction):
+def test__reverse_hwp_direction_initial_direction_failed():
     with pytest.raises(RuntimeError):
-        wiregrid._reverse_hwp_direction(initial_hwp_direction, True, True)
+        wiregrid._reverse_hwp_direction('unknown', True, True)
 
 
 @pytest.mark.parametrize('stepwise_before, stepwise_after',
