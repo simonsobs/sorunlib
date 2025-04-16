@@ -45,7 +45,7 @@ def create_hwp_client(pid_direction):
     client = MagicMock()
     session = create_session('acq')
     session.data = {
-        'hwp_status': {
+        'hwp_state': {
             'pid_direction': pid_direction,
         },
         'timestamp': time.time(),
@@ -386,10 +386,10 @@ def test_time_constant_forward():
     # just make sure bias_steps and streams because other functions are already
     # tested separately.
     expected_calls_of_bias_steps = [
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_2hz_forward'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_2hz_forward'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_2hz_backward'),
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_2hz_backward'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_forward'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_forward'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_backward'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_backward'),
     ]
 
     common_kwargs_of_streams = {
@@ -397,9 +397,9 @@ def test_time_constant_forward():
         "filter_disable": False
     }
     expected_tags_of_streams = [
-        'wiregrid, wg_time_constant, wg_inserting, hwp_2hz_forward',
+        'wiregrid, wg_time_constant, wg_inserting, hwp_forward',
         'wiregrid, wg_time_constant, hwp_change_to_backward',
-        'wiregrid, wg_time_constant, wg_ejecting, hwp_2hz_backward',
+        'wiregrid, wg_time_constant, wg_ejecting, hwp_backward',
     ]
     expected_calls_of_streams = [
         call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
@@ -429,10 +429,10 @@ def test_time_constant_backward_el90():
     # just make sure bias_steps and streams because other functions are already
     # tested separately.
     expected_calls_of_bias_steps = [
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_2hz_backward, wg_el90'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_2hz_backward, wg_el90'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_2hz_forward, wg_el90'),
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_2hz_forward, wg_el90'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_backward, wg_el90'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_backward, wg_el90'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_forward, wg_el90'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_forward, wg_el90'),
     ]
 
     common_kwargs_of_streams = {
@@ -440,9 +440,9 @@ def test_time_constant_backward_el90():
         "filter_disable": False
     }
     expected_tags_of_streams = [
-        'wiregrid, wg_time_constant, wg_inserting, hwp_2hz_backward, wg_el90',
+        'wiregrid, wg_time_constant, wg_inserting, hwp_backward, wg_el90',
         'wiregrid, wg_time_constant, hwp_change_to_forward, wg_el90',
-        'wiregrid, wg_time_constant, wg_ejecting, hwp_2hz_forward, wg_el90',
+        'wiregrid, wg_time_constant, wg_ejecting, hwp_forward, wg_el90',
     ]
     expected_calls_of_streams = [
         call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
@@ -473,11 +473,11 @@ def test_time_constant_repeats():
     # just make sure bias_steps and streams because other functions are already
     # tested separately.
     expected_calls_of_bias_steps = [
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_2hz_forward'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_2hz_forward'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_2hz_backward'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_2hz_forward'),
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_2hz_forward'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_forward'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_forward'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_backward'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_forward'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_forward'),
     ]
 
     common_kwargs_of_streams = {
@@ -485,10 +485,10 @@ def test_time_constant_repeats():
         "filter_disable": False
     }
     expected_tags_of_streams = [
-        'wiregrid, wg_time_constant, wg_inserting, hwp_2hz_forward',
+        'wiregrid, wg_time_constant, wg_inserting, hwp_forward',
         'wiregrid, wg_time_constant, hwp_change_to_backward',
         'wiregrid, wg_time_constant, hwp_change_to_forward',
-        'wiregrid, wg_time_constant, wg_ejecting, hwp_2hz_forward',
+        'wiregrid, wg_time_constant, wg_ejecting, hwp_forward',
     ]
     expected_calls_of_streams = [
         call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
