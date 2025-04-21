@@ -459,7 +459,7 @@ def time_constant(num_repeats=1):
             if stepwise_before:
                 # Enable SMuRF streams
                 stream_tag = 'wiregrid, wg_time_constant, ' + \
-                         f'wg_stepwise_before' + el_tag
+                    f'wg_stepwise_before' + el_tag
                 run.smurf.stream('on', tag=stream_tag, subtype='cal')
                 rotate(False)
                 # Stop SMuRF streams
@@ -492,13 +492,13 @@ def time_constant(num_repeats=1):
             if stepwise_after:
                 # Enable SMuRF streams
                 stream_tag = 'wiregrid, wg_time_constant, ' + \
-                         f'wg_stepwise_after' + el_tag
+                    f'wg_stepwise_after' + el_tag
                 run.smurf.stream('on', tag=stream_tag, subtype='cal')
                 rotate(False)
                 # Stop SMuRF streams
                 run.smurf.stream('off')
 
-            #current_hwp_direction = \
+            # current_hwp_direction = \
             #    _reverse_hwp_direction(current_hwp_direction,
             #                           stepwise_before=stepwise_before,
             #                           stepwise_after=stepwise_after)
