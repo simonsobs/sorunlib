@@ -43,3 +43,33 @@ def stop(active=True, brake_voltage=None):
     else:
         resp = hwp.pmx_off(wait_stop=True)
         check_response(hwp, resp)
+
+
+def get_direction():
+    """Return the rotational direction of the HWP.
+    If True, it is counter-clockwise (CCW) seen from the sky to window.
+    If False, it is clockwise (CW).
+
+    Args:
+        None
+
+    .. _docs: https://socs.readthedocs.io/en/main/agents/hwp_supervisor_agent.html
+
+    """
+    hwp = run.CLIENTS['hwp']
+
+    resp = hwp.monitor.status()
+    pid_direction = resp.session['data']['hwp_state']['pid_direction']
+    if pid_direction == 0:
+        is_forward = True
+    elif pid_direction == 1:
+        is_forward = False
+    else:
+        raise RuntimeError("the hwp direction is unknown. aborting...")
+
+    forward_is_cw = hwp.forward_is_cw  # TODO: Need to check if this is possible
+
+    if is_forward ^ forward_is_cw:
+        return True
+    else:
+        return False

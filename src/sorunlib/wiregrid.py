@@ -217,6 +217,7 @@ def _check_wiregrid_position():
     return position
 
 
+# TODO: Should be changed to check CCW or CW
 def _check_hwp_direction():
     """Check the HWP direction by referring to the 'direction' in session.data
        of the HWP PID Agent via the HWP Supervisor Agent.
@@ -233,7 +234,7 @@ def _check_hwp_direction():
     elif pid_direction == 1:
         direction = 'backward'
     else:
-        raise RuntimeError("The HWP direction is unknown. Aborting...")
+        raise RuntimeError("the hwp direction is unknown. aborting...")
     return direction
 
 
