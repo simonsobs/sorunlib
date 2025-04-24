@@ -65,7 +65,7 @@ def get_direction():
     elif pid_direction == 1:
         is_forward = False
     else:
-        raise RuntimeError("the hwp direction is unknown. aborting...")
+        raise RuntimeError("The HWP direction is unknown. Aborting...")
 
     forward_is_cw = hwp.forward_is_cw  # TODO: Need to check if this is possible
 

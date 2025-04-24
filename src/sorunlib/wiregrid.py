@@ -234,7 +234,7 @@ def _check_hwp_direction():
     elif pid_direction == 1:
         direction = 'backward'
     else:
-        raise RuntimeError("the hwp direction is unknown. aborting...")
+        raise RuntimeError("The HWP direction is unknown. Aborting...")
     return direction
 
 
