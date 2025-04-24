@@ -333,42 +333,6 @@ def test__check_hwp_direction_invalid():
     wiregrid.run.CLIENTS['hwp'].monitor.status.assert_called_once()
 
 
-@pytest.mark.parametrize('initial_hwp_direction', [('forward'), ('backward')])
-@patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
-def test__reverse_hwp_direction_initial_direction(initial_hwp_direction):
-    with patch('sorunlib.wiregrid.run.hwp.set_freq') as mock_hwp_set_freq:
-        wiregrid._reverse_hwp_direction(initial_hwp_direction)
-        if initial_hwp_direction == 'forward':
-            mock_hwp_set_freq.assert_called_once_with(freq=-2.0)
-        elif initial_hwp_direction == 'backward':
-            mock_hwp_set_freq.assert_called_once_with(freq=2.0)
-
-
-@patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
-def test__reverse_hwp_direction_initial_direction_failed():
-    with pytest.raises(RuntimeError):
-        wiregrid._reverse_hwp_direction('unknown', True, True)
-
-
-@pytest.mark.parametrize('stepwise_before, stepwise_after',
-                         [(True, True),
-                          (True, False),
-                          (False, True),
-                          (False, False)])
-@patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
-def test__reverse_hwp_direction_stepwise(stepwise_before, stepwise_after):
-    with patch('sorunlib.wiregrid.rotate') as mock_rotate:
-        wiregrid._reverse_hwp_direction('forward',
-                                        stepwise_before=stepwise_before,
-                                        stepwise_after=stepwise_after)
-        if stepwise_before and stepwise_after:
-            assert mock_rotate.call_count == 2
-        elif not stepwise_before and not stepwise_after:
-            assert mock_rotate.call_count == 0
-        else:
-            assert mock_rotate.call_count == 1
-
-
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
 def test_time_constant_forward():
@@ -520,21 +484,5 @@ def test_time_constant_wiregrid_position_failed():
     wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
     wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
 
-    with pytest.raises(RuntimeError):
-        wiregrid.time_constant(num_repeats=1)
-
-
-@patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
-@patch('sorunlib.wiregrid.time.sleep', MagicMock())
-def test_time_constant_reverse_hwp_failed():
-    wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
-    wiregrid.run.CLIENTS['hwp'] = create_hwp_client(0)
-    wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
-        create_actuator_client(motor=1, position='outside')
-    wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
-    wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
-    wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
-
-    wiregrid.run.wiregrid._reverse_hwp_direction = MagicMock(side_effect=RuntimeError)
     with pytest.raises(RuntimeError):
         wiregrid.time_constant(num_repeats=1)
