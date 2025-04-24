@@ -238,46 +238,6 @@ def _check_hwp_direction():
     return direction
 
 
-def _reverse_hwp_direction(initial_hwp_direction, stepwise_before=False,
-                           stepwise_after=False):
-    """Reverse the HWP rotation direction from ``initial_hwp_direction``.
-
-    Args:
-        initial_hwp_direction (str): The initial HWP direction, either 'forward'
-            or 'backward'.
-        stepwise_before (bool): Do stepwise rotation before changing HWP direction
-            or not. Default is False.
-        stepwise_after (bool): Do stepwise rotation after changing HWP direction
-            or not. Default is False.
-
-    Returns:
-        str: The current HWP direction after reversing.
-    """
-    # Set the target HWP direction
-    current_hwp_direction = initial_hwp_direction
-    if current_hwp_direction == 'forward':
-        target_hwp_direction = 'backward'
-    elif current_hwp_direction == 'backward':
-        target_hwp_direction = 'forward'
-    else:
-        raise RuntimeError("Invalid initial hwp rotation direction. Aborting...")
-    # Run stepwise rotation before stopping the HWP
-    if stepwise_before:
-        rotate(False)
-    # Stop the HWP
-    run.hwp.stop(active=True)
-    # Spin up the HWP reversely
-    if target_hwp_direction == 'forward':
-        run.hwp.set_freq(freq=2.0)
-    elif target_hwp_direction == 'backward':
-        run.hwp.set_freq(freq=-2.0)
-    current_hwp_direction = target_hwp_direction
-    # Run stepwise rotation after spinning up the HWP
-    if stepwise_after:
-        rotate(False)
-    return current_hwp_direction
-
-
 # Public API
 def insert():
     """Insert the wiregrid."""
