@@ -35,18 +35,18 @@ def create_acu_client(az, el, boresight):
     return acu_client
 
 
-def create_hwp_client(pid_direction):
+def create_hwp_client(direction):
     """Create a HWP client with mock acq Process session.data.
 
     Args:
-        pid_direction (int): PID direction of the HWP. 0 is forward, 1 is backward.
+        direction (str): direction of the HWP. 'cw' (clockwise) or 'ccw' (counter-clockwise).
 
     """
     client = MagicMock()
     session = create_session('acq')
     session.data = {
         'hwp_state': {
-            'pid_direction': pid_direction,
+            'direction': direction,
         },
         'timestamp': time.time(),
     }
@@ -313,21 +313,21 @@ def test__check_wiregrid_position_invalid(position):
     wiregrid.run.CLIENTS['wiregrid']['actuator'].acq.status.assert_called_once()
 
 
-@pytest.mark.parametrize('pid_direction', [(0), (1)])
+@pytest.mark.parametrize('direction', [('cw'), ('ccw')])
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
-def test__check_hwp_direction(pid_direction):
-    wiregrid.run.CLIENTS['hwp'] = create_hwp_client(pid_direction)
+def test__check_hwp_direction(direction):
+    wiregrid.run.CLIENTS['hwp'] = create_hwp_client(direction)
     hwp_direction = wiregrid._check_hwp_direction()
-    if pid_direction == 0:
-        assert hwp_direction == 'forward'
-    elif pid_direction == 1:
-        assert hwp_direction == 'backward'
+    if direction == 'cw':
+        assert hwp_direction == 'cw'
+    elif direction == 'ccw':
+        assert hwp_direction == 'ccw'
     wiregrid.run.CLIENTS['hwp'].monitor.status.assert_called_once()
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
 def test__check_hwp_direction_invalid():
-    wiregrid.run.CLIENTS['hwp'] = create_hwp_client(pid_direction=3)
+    wiregrid.run.CLIENTS['hwp'] = create_hwp_client(direction=None)
     with pytest.raises(RuntimeError):
         wiregrid._check_hwp_direction()
     wiregrid.run.CLIENTS['hwp'].monitor.status.assert_called_once()
@@ -335,10 +335,10 @@ def test__check_hwp_direction_invalid():
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
-def test_time_constant_forward():
+def test_time_constant_cw():
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
-    wiregrid.run.CLIENTS['hwp'] = create_hwp_client(0)  # forward
+    wiregrid.run.CLIENTS['hwp'] = create_hwp_client('cw')  # cw
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
         create_actuator_client(motor=1, position='outside')
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
@@ -350,10 +350,10 @@ def test_time_constant_forward():
     # just make sure bias_steps and streams because other functions are already
     # tested separately.
     expected_calls_of_bias_steps = [
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_forward'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_forward'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_backward'),
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_backward'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_ccw'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_ccw'),
     ]
 
     common_kwargs_of_streams = {
@@ -361,9 +361,12 @@ def test_time_constant_forward():
         "filter_disable": False
     }
     expected_tags_of_streams = [
-        'wiregrid, wg_time_constant, wg_inserting, hwp_forward',
-        'wiregrid, wg_time_constant, hwp_change_to_backward',
-        'wiregrid, wg_time_constant, wg_ejecting, hwp_backward',
+        'wiregrid, wg_time_constant, wg_inserting, hwp_cw',
+        'wiregrid, wg_time_constant, wg_stepwise, hwp_cw',
+        'wiregrid, wg_time_constant, hwp_change_cw_to_0',
+        'wiregrid, wg_time_constant, hwp_change_0_to_ccw',
+        'wiregrid, wg_time_constant, wg_stepwise, hwp_ccw',
+        'wiregrid, wg_time_constant, wg_ejecting, hwp_ccw',
     ]
     expected_calls_of_streams = [
         call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
@@ -373,15 +376,17 @@ def test_time_constant_forward():
     for client in wiregrid.run.CLIENTS['smurf']:
         assert client.take_bias_steps.start.call_args_list == expected_calls_of_bias_steps
         assert client.stream.start.call_args_list == expected_calls_of_streams
-        assert client.stream.stop.call_count == 3
+        assert client.stream.stop.call_count == 6
+
+    assert wiregrid.run.wiregrid.rotate.call_count == 2
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
-def test_time_constant_backward_el90():
+def test_time_constant_ccw_el90():
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 90, 0)
-    wiregrid.run.CLIENTS['hwp'] = create_hwp_client(1)  # backward
+    wiregrid.run.CLIENTS['hwp'] = create_hwp_client('ccw')  # ccw
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
         create_actuator_client(motor=1, position='outside')
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
@@ -393,10 +398,10 @@ def test_time_constant_backward_el90():
     # just make sure bias_steps and streams because other functions are already
     # tested separately.
     expected_calls_of_bias_steps = [
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_backward, wg_el90'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_backward, wg_el90'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_forward, wg_el90'),
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_forward, wg_el90'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_ccw, wg_el90'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_ccw, wg_el90'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw, wg_el90'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw, wg_el90'),
     ]
 
     common_kwargs_of_streams = {
@@ -404,9 +409,12 @@ def test_time_constant_backward_el90():
         "filter_disable": False
     }
     expected_tags_of_streams = [
-        'wiregrid, wg_time_constant, wg_inserting, hwp_backward, wg_el90',
-        'wiregrid, wg_time_constant, hwp_change_to_forward, wg_el90',
-        'wiregrid, wg_time_constant, wg_ejecting, hwp_forward, wg_el90',
+        'wiregrid, wg_time_constant, wg_inserting, hwp_ccw, wg_el90',
+        'wiregrid, wg_time_constant, wg_stepwise, hwp_ccw, wg_el90',
+        'wiregrid, wg_time_constant, hwp_change_ccw_to_0, wg_el90',
+        'wiregrid, wg_time_constant, hwp_change_0_to_cw, wg_el90',
+        'wiregrid, wg_time_constant, wg_stepwise, hwp_cw, wg_el90',
+        'wiregrid, wg_time_constant, wg_ejecting, hwp_cw, wg_el90',
     ]
     expected_calls_of_streams = [
         call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
@@ -416,7 +424,9 @@ def test_time_constant_backward_el90():
     for client in wiregrid.run.CLIENTS['smurf']:
         assert client.take_bias_steps.start.call_args_list == expected_calls_of_bias_steps
         assert client.stream.start.call_args_list == expected_calls_of_streams
-        assert client.stream.stop.call_count == 3
+        assert client.stream.stop.call_count == 6
+
+    assert wiregrid.run.wiregrid.rotate.call_count == 2
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
@@ -424,7 +434,7 @@ def test_time_constant_backward_el90():
 def test_time_constant_repeats():
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
-    wiregrid.run.CLIENTS['hwp'] = create_hwp_client(0)
+    wiregrid.run.CLIENTS['hwp'] = create_hwp_client('cw')
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
         create_actuator_client(motor=1, position='outside')
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
@@ -437,11 +447,11 @@ def test_time_constant_repeats():
     # just make sure bias_steps and streams because other functions are already
     # tested separately.
     expected_calls_of_bias_steps = [
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_forward'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_forward'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_backward'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_forward'),
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_forward'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_ccw'),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw'),
     ]
 
     common_kwargs_of_streams = {
@@ -449,10 +459,15 @@ def test_time_constant_repeats():
         "filter_disable": False
     }
     expected_tags_of_streams = [
-        'wiregrid, wg_time_constant, wg_inserting, hwp_forward',
-        'wiregrid, wg_time_constant, hwp_change_to_backward',
-        'wiregrid, wg_time_constant, hwp_change_to_forward',
-        'wiregrid, wg_time_constant, wg_ejecting, hwp_forward',
+        'wiregrid, wg_time_constant, wg_inserting, hwp_cw',
+        'wiregrid, wg_time_constant, wg_stepwise, hwp_cw',
+        'wiregrid, wg_time_constant, hwp_change_cw_to_0',
+        'wiregrid, wg_time_constant, hwp_change_0_to_ccw',
+        'wiregrid, wg_time_constant, wg_stepwise, hwp_ccw',
+        'wiregrid, wg_time_constant, hwp_change_ccw_to_0',
+        'wiregrid, wg_time_constant, hwp_change_0_to_cw',
+        'wiregrid, wg_time_constant, wg_stepwise, hwp_cw',
+        'wiregrid, wg_time_constant, wg_ejecting, hwp_cw',
     ]
     expected_calls_of_streams = [
         call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
@@ -462,9 +477,9 @@ def test_time_constant_repeats():
     for client in wiregrid.run.CLIENTS['smurf']:
         assert client.take_bias_steps.start.call_args_list == expected_calls_of_bias_steps
         assert client.stream.start.call_args_list == expected_calls_of_streams
-        assert client.stream.stop.call_count == 4
+        assert client.stream.stop.call_count == 9
 
-    assert wiregrid.run.wiregrid.rotate.call_count == 4
+    assert wiregrid.run.wiregrid.rotate.call_count == 3
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
