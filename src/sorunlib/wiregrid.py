@@ -221,7 +221,7 @@ def _check_hwp_direction():
     """Check the HWP direction.
 
     Returns:
-        str: The HWP direction, either 'ccw' or 'cw'.
+        str: The HWP direction, either 'cw' or 'ccw'.
 
     """
     try:
@@ -421,7 +421,8 @@ def time_constant(num_repeats=1):
             try:
                 # Enable SMuRF streams
                 stream_tag = 'wiregrid, wg_time_constant, ' + \
-                             'wg_stepwise_before' + el_tag
+                             'wg_stepwise, hwp_{current_hwp_directoin}' + \
+                             el_tag
                 run.smurf.stream('on', tag=stream_tag, subtype='cal')
                 # Run stepwise rotation
                 rotate(False)
@@ -433,7 +434,7 @@ def time_constant(num_repeats=1):
         try:
             # Enable SMuRF streams
             stream_tag = 'wiregrid, wg_time_constant, ' + \
-                         f'hwp_{current_hwp_direction}_to_0' + el_tag
+                         f'hwp_change_{current_hwp_direction}_to_0' + el_tag
             run.smurf.stream('on', tag=stream_tag, subtype='cal')
             # Stop the HWP
             run.hwp.stop(active=True)
@@ -445,12 +446,12 @@ def time_constant(num_repeats=1):
         try:
             # Enable SMuRF streams
             stream_tag = 'wiregrid, wg_time_constant, ' + \
-                         f'hwp_0_to_{target_hwp_direction}' + el_tag
+                         f'hwp_change_0_to_{target_hwp_direction}' + el_tag
             run.smurf.stream('on', tag=stream_tag, subtype='cal')
             # Spin up the HWP reversely
-            if target_hwp_direction == 'ccw':
+            if target_hwp_direction == 'cw':
                 run.hwp.set_freq(freq=2.0)
-            elif target_hwp_direction == 'cw':
+            elif target_hwp_direction == 'ccw':
                 run.hwp.set_freq(freq=-2.0)
             current_hwp_direction = target_hwp_direction
         finally:
@@ -462,7 +463,8 @@ def time_constant(num_repeats=1):
             try:
                 # Enable SMuRF streams
                 stream_tag = 'wiregrid, wg_time_constant, ' + \
-                             'wg_stepwise_after' + el_tag
+                             'wg_stepwise, hwp_{current_hwp_directoin}' + \
+                             el_tag
                 run.smurf.stream('on', tag=stream_tag, subtype='cal')
                 # Run stepwise rotation
                 rotate(False)

@@ -46,9 +46,9 @@ def stop(active=True, brake_voltage=None):
 
 
 def get_direction():
-    """Return the rotational direction ('ccw' or 'cw') of the HWP.
-    'ccw' means counter-clockwise rotation seen from the sky to window.
+    """Return the rotational direction ('cw' or 'ccw') of the HWP.
     'cw' means clockwise rotation seen from the sky to window.
+    'ccw' means counter-clockwise rotation seen from the sky to window.
 
     Args:
         None
@@ -60,7 +60,7 @@ def get_direction():
     resp = hwp.monitor.status()
     direction = resp.session['data']['hwp_state']['direction']
 
-    if direction not in ['ccw', 'cw']:
+    if direction not in ['cw', 'ccw']:
         raise RuntimeError("The HWP direction is unknown. Aborting...")
 
     return direction
