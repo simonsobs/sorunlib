@@ -217,24 +217,19 @@ def _check_wiregrid_position():
     return position
 
 
-# TODO: Should be changed to check CCW or CW
 def _check_hwp_direction():
-    """Check the HWP direction by referring to the 'direction' in session.data
-       of the HWP PID Agent via the HWP Supervisor Agent.
+    """Check the HWP direction.
 
     Returns:
-        str: The HWP direction, either 'forward' or 'backward'.
+        str: The HWP direction, either 'ccw' or 'cw'.
 
     """
-    hwp = run.CLIENTS['hwp']
-    resp = hwp.monitor.status()
-    pid_direction = resp.session['data']['hwp_state']['pid_direction']
-    if pid_direction == 0:
-        direction = 'forward'
-    elif pid_direction == 1:
-        direction = 'backward'
-    else:
-        raise RuntimeError("The HWP direction is unknown. Aborting...")
+    try:
+        direction = run.hwp.get_direction()
+    except RuntimeError as e:
+        error = "Wiregrid _check_hwp_direction() failed. \n" +\
+                + str(e)
+        raise RuntimeError(error)
     return direction
 
 
@@ -379,7 +374,12 @@ def time_constant(num_repeats=1):
         el_tag = ''
 
     # Check the current HWP direction
-    current_hwp_direction = _check_hwp_direction()
+    try:
+        current_hwp_direction = _check_hwp_direction()
+    except RuntimeError as e:
+        error = "Wiregrid time constant measurment was failed " + \
+                "due to the failure in getting hwp direction. " + str(e)
+        raise RuntimeError(error)
 
     # Rotate for reference before insertion
     rotate(continuous=True, duration=10)
@@ -411,10 +411,10 @@ def time_constant(num_repeats=1):
 
         stepwise_before = True if i == 0 else False
         stepwise_after = True
-        if current_hwp_direction == 'forward':
-            target_hwp_direction = 'backward'
-        elif current_hwp_direction == 'backward':
-            target_hwp_direction = 'forward'
+        if current_hwp_direction == 'cw':
+            target_hwp_direction = 'ccw'
+        elif current_hwp_direction == 'ccw':
+            target_hwp_direction = 'cw'
 
         # Run stepwise rotation before stopping the HWP
         if stepwise_before:
@@ -448,9 +448,9 @@ def time_constant(num_repeats=1):
                          f'hwp_0_to_{target_hwp_direction}' + el_tag
             run.smurf.stream('on', tag=stream_tag, subtype='cal')
             # Spin up the HWP reversely
-            if target_hwp_direction == 'forward':
+            if target_hwp_direction == 'ccw':
                 run.hwp.set_freq(freq=2.0)
-            elif target_hwp_direction == 'backward':
+            elif target_hwp_direction == 'cw':
                 run.hwp.set_freq(freq=-2.0)
             current_hwp_direction = target_hwp_direction
         finally:
