@@ -333,7 +333,7 @@ def test_time_constant_cw():
         call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw'),
         call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw'),
         call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_ccw'),
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_ccw'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_ccw')
     ]
 
     common_kwargs_of_streams = {
@@ -346,7 +346,7 @@ def test_time_constant_cw():
         'wiregrid, wg_time_constant, hwp_change_cw_to_stop',
         'wiregrid, wg_time_constant, hwp_change_stop_to_ccw',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_ccw',
-        'wiregrid, wg_time_constant, wg_ejecting, hwp_ccw',
+        'wiregrid, wg_time_constant, wg_ejecting, hwp_ccw'
     ]
     expected_calls_of_streams = [
         call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
@@ -381,7 +381,7 @@ def test_time_constant_ccw_el90():
         call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_ccw, wg_el90'),
         call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_ccw, wg_el90'),
         call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw, wg_el90'),
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw, wg_el90'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw, wg_el90')
     ]
 
     common_kwargs_of_streams = {
@@ -394,7 +394,7 @@ def test_time_constant_ccw_el90():
         'wiregrid, wg_time_constant, hwp_change_ccw_to_stop, wg_el90',
         'wiregrid, wg_time_constant, hwp_change_stop_to_cw, wg_el90',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_cw, wg_el90',
-        'wiregrid, wg_time_constant, wg_ejecting, hwp_cw, wg_el90',
+        'wiregrid, wg_time_constant, wg_ejecting, hwp_cw, wg_el90'
     ]
     expected_calls_of_streams = [
         call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
@@ -431,7 +431,7 @@ def test_time_constant_repeats():
         call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw'),
         call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_ccw'),
         call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw'),
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw'),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw')
     ]
 
     common_kwargs_of_streams = {
@@ -447,7 +447,7 @@ def test_time_constant_repeats():
         'wiregrid, wg_time_constant, hwp_change_ccw_to_stop',
         'wiregrid, wg_time_constant, hwp_change_stop_to_cw',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_cw',
-        'wiregrid, wg_time_constant, wg_ejecting, hwp_cw',
+        'wiregrid, wg_time_constant, wg_ejecting, hwp_cw'
     ]
     expected_calls_of_streams = [
         call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
