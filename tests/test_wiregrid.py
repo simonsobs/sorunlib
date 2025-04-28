@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch, call
 
 import ocs
 from ocs.ocs_client import OCSReply
-from sorunlib import wiregrid
+from sorunlib import wiregrid, hwp
 
 from util import create_session, create_patch_clients, mocked_clients
 
@@ -314,11 +314,12 @@ def test__check_wiregrid_position_invalid(position):
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
+@patch('sorunlib.hwp.run.CLIENTS', mocked_clients())
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
 def test_time_constant_cw():
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
-    wiregrid.run.CLIENTS['hwp'] = create_hwp_client('cw')  # cw
+    hwp.run.CLIENTS['hwp'] = create_hwp_client('cw')  # cw
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
         create_actuator_client(motor=1, position='outside')
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
@@ -349,7 +350,7 @@ def test_time_constant_cw():
         'wiregrid, wg_time_constant, wg_ejecting, hwp_ccw',
     ]
     expected_calls_of_streams = [
-        call(subtype='cal', tag=stream_tag, kwargs=common_kwargs_of_streams)
+        call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
         for stream_tag in expected_tags_of_streams
     ]
 
@@ -410,6 +411,7 @@ def test_time_constant_ccw_el90():
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
+@patch('sorunlib.hwp.run.CLIENTS', mocked_clients())
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
 def test_time_constant_repeats():
     # Setup all mock clients
