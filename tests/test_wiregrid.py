@@ -410,7 +410,6 @@ def test_time_constant_ccw_el90():
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
-@patch('sorunlib.hwp.run.CLIENTS', mocked_clients())
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
 def test_time_constant_repeats():
     # Setup all mock clients
