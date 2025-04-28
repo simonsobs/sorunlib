@@ -404,7 +404,7 @@ def time_constant(num_repeats=1):
         try:
             # Enable SMuRF streams
             stream_tag = 'wiregrid, wg_time_constant, ' + \
-                         'wg_stepwise, hwp_{current_hwp_directoin}' + \
+                         'wg_stepwise, hwp_{current_hwp_direction}' + \
                          el_tag
             run.smurf.stream('on', tag=stream_tag, subtype='cal')
             # Run stepwise rotation
@@ -445,7 +445,7 @@ def time_constant(num_repeats=1):
     try:
         # Enable SMuRF streams
         stream_tag = 'wiregrid, wg_time_constant, ' + \
-                     'wg_stepwise, hwp_{current_hwp_directoin}' + \
+                     'wg_stepwise, hwp_{current_hwp_direction}' + \
                      el_tag
         run.smurf.stream('on', tag=stream_tag, subtype='cal')
         # Run stepwise rotation
