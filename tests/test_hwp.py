@@ -56,7 +56,7 @@ def test_set_freq(patch_clients_satp):
 
 
 @pytest.mark.parametrize('direction', ['cw', 'ccw'])
-def test_get_direction(direction):
+def test_get_direction(patch_clients_satp, direction):
     hwp.run.CLIENTS['hwp'] = create_hwp_client(direction)
     ret = hwp.get_direction()
     if direction == 'cw':
@@ -67,7 +67,7 @@ def test_get_direction(direction):
 
 
 @pytest.mark.parametrize('direction', [None, ''])
-def test_get_direction_invalid(direction):
+def test_get_direction_invalid(patch_clients_satp, direction):
     hwp.run.CLIENTS['hwp'] = create_hwp_client(direction)
     with pytest.raises(RuntimeError) as e:
         hwp.get_direction()

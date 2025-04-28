@@ -349,7 +349,7 @@ def test_time_constant_cw():
         'wiregrid, wg_time_constant, wg_ejecting, hwp_ccw',
     ]
     expected_calls_of_streams = [
-        call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
+        call(subtype='cal', tag=stream_tag, kwargs=common_kwargs_of_streams)
         for stream_tag in expected_tags_of_streams
     ]
 
