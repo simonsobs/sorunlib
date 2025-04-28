@@ -324,6 +324,7 @@ def test_time_constant_cw():
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
     wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
     wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
+    wiregrid.run.wiregrid.rotate = MagicMock()
 
     wiregrid.time_constant(num_repeats=1)
 
@@ -372,6 +373,7 @@ def test_time_constant_ccw_el90():
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
     wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
     wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
+    wiregrid.run.wiregrid.rotate = MagicMock()
 
     wiregrid.time_constant(num_repeats=1)
 
