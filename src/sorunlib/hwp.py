@@ -47,8 +47,8 @@ def stop(active=True, brake_voltage=None):
 
 def get_direction():
     """Return the rotational direction ('cw' or 'ccw') of the HWP.
-    'cw' means clockwise rotation seen from the sky to window.
-    'ccw' means counter-clockwise rotation seen from the sky to window.
+    'cw' means clockwise rotation seen from the sky to window. (+Hz)
+    'ccw' means counter-clockwise rotation seen from the sky to window. (-Hz)
 
     Args:
         None

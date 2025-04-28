@@ -217,22 +217,6 @@ def _check_wiregrid_position():
     return position
 
 
-def _check_hwp_direction():
-    """Check the HWP direction.
-
-    Returns:
-        str: The HWP direction, either 'cw' or 'ccw'.
-
-    """
-    try:
-        direction = run.hwp.get_direction()
-    except RuntimeError as e:
-        error = "Wiregrid _check_hwp_direction() failed. \n" +\
-                + str(e)
-        raise RuntimeError(error)
-    return direction
-
-
 # Public API
 def insert():
     """Insert the wiregrid."""
@@ -375,13 +359,14 @@ def time_constant(num_repeats=1):
 
     # Check the current HWP direction
     try:
-        current_hwp_direction = _check_hwp_direction()
+        # return 'cw' or 'ccw'
+        current_hwp_direction = run.hwp.get_direction()
     except RuntimeError as e:
         error = "Wiregrid time constant measurment was failed " + \
                 "due to the failure in getting hwp direction. " + str(e)
         raise RuntimeError(error)
 
-    # Rotate for reference before insertion
+    # Rotate to get encoder reference before insertion
     rotate(continuous=True, duration=10)
 
     # Bias step (the wire grid is off the window)
@@ -404,37 +389,35 @@ def time_constant(num_repeats=1):
         run.smurf.stream('off')
 
     for i in range(num_repeats):
-        # Bias step (the wire grid is on the window)
-        bs_tag = 'wiregrid, wg_time_constant, wg_inserted, ' + \
-                 f'hwp_{current_hwp_direction}' + el_tag
-        run.smurf.bias_step(tag=bs_tag, concurrent=True)
-
-        stepwise_before = True if i == 0 else False
-        stepwise_after = True
         if current_hwp_direction == 'cw':
             target_hwp_direction = 'ccw'
         elif current_hwp_direction == 'ccw':
             target_hwp_direction = 'cw'
 
+        # Bias step (the wire grid is on the window)
+        # before stopping the HWP
+        bs_tag = 'wiregrid, wg_time_constant, wg_inserted, ' + \
+                 f'hwp_{current_hwp_direction}' + el_tag
+        run.smurf.bias_step(tag=bs_tag, concurrent=True)
+
         # Run stepwise rotation before stopping the HWP
-        if stepwise_before:
-            try:
-                # Enable SMuRF streams
-                stream_tag = 'wiregrid, wg_time_constant, ' + \
-                             'wg_stepwise, hwp_{current_hwp_directoin}' + \
-                             el_tag
-                run.smurf.stream('on', tag=stream_tag, subtype='cal')
-                # Run stepwise rotation
-                rotate(False)
-            finally:
-                # Stop SMuRF streams
-                run.smurf.stream('off')
+        try:
+            # Enable SMuRF streams
+            stream_tag = 'wiregrid, wg_time_constant, ' + \
+                         'wg_stepwise, hwp_{current_hwp_directoin}' + \
+                         el_tag
+            run.smurf.stream('on', tag=stream_tag, subtype='cal')
+            # Run stepwise rotation
+            rotate(False)
+        finally:
+            # Stop SMuRF streams
+            run.smurf.stream('off')
 
         # Stop the HWP with streaming
         try:
             # Enable SMuRF streams
             stream_tag = 'wiregrid, wg_time_constant, ' + \
-                         f'hwp_change_{current_hwp_direction}_to_0' + el_tag
+                         f'hwp_change_{current_hwp_direction}_to_stop' + el_tag
             run.smurf.stream('on', tag=stream_tag, subtype='cal')
             # Stop the HWP
             run.hwp.stop(active=True)
@@ -446,33 +429,33 @@ def time_constant(num_repeats=1):
         try:
             # Enable SMuRF streams
             stream_tag = 'wiregrid, wg_time_constant, ' + \
-                         f'hwp_change_0_to_{target_hwp_direction}' + el_tag
+                         f'hwp_change_stop_to_{target_hwp_direction}' + el_tag
             run.smurf.stream('on', tag=stream_tag, subtype='cal')
             # Spin up the HWP reversely
             if target_hwp_direction == 'cw':
-                run.hwp.set_freq(freq=2.0)
-            elif target_hwp_direction == 'ccw':
                 run.hwp.set_freq(freq=-2.0)
+            elif target_hwp_direction == 'ccw':
+                run.hwp.set_freq(freq=2.0)
             current_hwp_direction = target_hwp_direction
         finally:
             # Stop SMuRF streams
             run.smurf.stream('off')
 
-        # Run stepwise rotation after spinning up the HWP
-        if stepwise_after:
-            try:
-                # Enable SMuRF streams
-                stream_tag = 'wiregrid, wg_time_constant, ' + \
-                             'wg_stepwise, hwp_{current_hwp_directoin}' + \
-                             el_tag
-                run.smurf.stream('on', tag=stream_tag, subtype='cal')
-                # Run stepwise rotation
-                rotate(False)
-            finally:
-                # Stop SMuRF streams
-                run.smurf.stream('off')
+    # Run stepwise rotation after changing the HWP rotation
+    try:
+        # Enable SMuRF streams
+        stream_tag = 'wiregrid, wg_time_constant, ' + \
+                     'wg_stepwise, hwp_{current_hwp_directoin}' + \
+                     el_tag
+        run.smurf.stream('on', tag=stream_tag, subtype='cal')
+        # Run stepwise rotation
+        rotate(False)
+    finally:
+        # Stop SMuRF streams
+        run.smurf.stream('off')
 
     # Bias step (the wire grid is on the window)
+    # after changing the HWP rotation
     bs_tag = 'wiregrid, wg_time_constant, wg_inserted, ' + \
              f'hwp_{current_hwp_direction}' + el_tag
     run.smurf.bias_step(tag=bs_tag, concurrent=True)
