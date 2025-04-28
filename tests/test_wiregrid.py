@@ -35,27 +35,6 @@ def create_acu_client(az, el, boresight):
     return acu_client
 
 
-def create_hwp_client(direction):
-    """Create a HWP client with mock acq Process session.data.
-
-    Args:
-        direction (str): direction of the HWP. 'cw' (clockwise) or 'ccw' (counter-clockwise).
-
-    """
-    client = MagicMock()
-    session = create_session('acq')
-    session.data = {
-        'hwp_state': {
-            'direction': direction,
-        },
-        'timestamp': time.time(),
-    }
-    reply = OCSReply(ocs.OK, 'msg', session.encoded())
-    client.monitor.status = MagicMock(return_value=reply)
-
-    return client
-
-
 def create_labjack_client():
     """Create a labjack client with mock acq Process session.data."""
     client = MagicMock()
@@ -359,7 +338,7 @@ def test_time_constant_cw():
         assert client.stream.start.call_args_list == expected_calls_of_streams
         assert client.stream.stop.call_count == 6
 
-    assert wiregrid.run.wiregrid.rotate.call_count == 2
+    assert wiregrid.run.wiregrid.rotate.call_count == 3
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
