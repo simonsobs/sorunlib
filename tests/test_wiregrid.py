@@ -313,26 +313,6 @@ def test__check_wiregrid_position_invalid(position):
     wiregrid.run.CLIENTS['wiregrid']['actuator'].acq.status.assert_called_once()
 
 
-@pytest.mark.parametrize('direction', [('cw'), ('ccw')])
-@patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
-def test__check_hwp_direction(direction):
-    wiregrid.run.CLIENTS['hwp'] = create_hwp_client(direction)
-    hwp_direction = wiregrid._check_hwp_direction()
-    if direction == 'cw':
-        assert hwp_direction == 'cw'
-    elif direction == 'ccw':
-        assert hwp_direction == 'ccw'
-    wiregrid.run.CLIENTS['hwp'].monitor.status.assert_called_once()
-
-
-@patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
-def test__check_hwp_direction_invalid():
-    wiregrid.run.CLIENTS['hwp'] = create_hwp_client(direction=None)
-    with pytest.raises(RuntimeError):
-        wiregrid._check_hwp_direction()
-    wiregrid.run.CLIENTS['hwp'].monitor.status.assert_called_once()
-
-
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
 def test_time_constant_cw():
@@ -363,8 +343,8 @@ def test_time_constant_cw():
     expected_tags_of_streams = [
         'wiregrid, wg_time_constant, wg_inserting, hwp_cw',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_cw',
-        'wiregrid, wg_time_constant, hwp_change_cw_to_0',
-        'wiregrid, wg_time_constant, hwp_change_0_to_ccw',
+        'wiregrid, wg_time_constant, hwp_change_cw_to_stop',
+        'wiregrid, wg_time_constant, hwp_change_stop_to_ccw',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_ccw',
         'wiregrid, wg_time_constant, wg_ejecting, hwp_ccw',
     ]
@@ -411,8 +391,8 @@ def test_time_constant_ccw_el90():
     expected_tags_of_streams = [
         'wiregrid, wg_time_constant, wg_inserting, hwp_ccw, wg_el90',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_ccw, wg_el90',
-        'wiregrid, wg_time_constant, hwp_change_ccw_to_0, wg_el90',
-        'wiregrid, wg_time_constant, hwp_change_0_to_cw, wg_el90',
+        'wiregrid, wg_time_constant, hwp_change_ccw_to_stop, wg_el90',
+        'wiregrid, wg_time_constant, hwp_change_stop_to_cw, wg_el90',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_cw, wg_el90',
         'wiregrid, wg_time_constant, wg_ejecting, hwp_cw, wg_el90',
     ]
@@ -426,7 +406,7 @@ def test_time_constant_ccw_el90():
         assert client.stream.start.call_args_list == expected_calls_of_streams
         assert client.stream.stop.call_count == 6
 
-    assert wiregrid.run.wiregrid.rotate.call_count == 2
+    assert wiregrid.run.wiregrid.rotate.call_count == 3
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
@@ -461,11 +441,11 @@ def test_time_constant_repeats():
     expected_tags_of_streams = [
         'wiregrid, wg_time_constant, wg_inserting, hwp_cw',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_cw',
-        'wiregrid, wg_time_constant, hwp_change_cw_to_0',
-        'wiregrid, wg_time_constant, hwp_change_0_to_ccw',
+        'wiregrid, wg_time_constant, hwp_change_cw_to_stop',
+        'wiregrid, wg_time_constant, hwp_change_stop_to_ccw',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_ccw',
-        'wiregrid, wg_time_constant, hwp_change_ccw_to_0',
-        'wiregrid, wg_time_constant, hwp_change_0_to_cw',
+        'wiregrid, wg_time_constant, hwp_change_ccw_to_stop',
+        'wiregrid, wg_time_constant, hwp_change_stop_to_cw',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_cw',
         'wiregrid, wg_time_constant, wg_ejecting, hwp_cw',
     ]
@@ -479,7 +459,7 @@ def test_time_constant_repeats():
         assert client.stream.start.call_args_list == expected_calls_of_streams
         assert client.stream.stop.call_count == 9
 
-    assert wiregrid.run.wiregrid.rotate.call_count == 3
+    assert wiregrid.run.wiregrid.rotate.call_count == 4
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
