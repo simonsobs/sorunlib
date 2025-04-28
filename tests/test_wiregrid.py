@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch, call
 
 import ocs
 from ocs.ocs_client import OCSReply
-from sorunlib import wiregrid, hwp
+from sorunlib import wiregrid
 
 from util import create_session, create_patch_clients, mocked_clients
 
@@ -314,12 +314,11 @@ def test__check_wiregrid_position_invalid(position):
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
-@patch('sorunlib.hwp.run.CLIENTS', mocked_clients())
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
 def test_time_constant_cw():
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
-    hwp.run.CLIENTS['hwp'] = create_hwp_client('cw')  # cw
+    wiregrid.run.hwp.get_direction = MagicMock(return_value='cw')  # cw
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
         create_actuator_client(motor=1, position='outside')
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
@@ -367,7 +366,7 @@ def test_time_constant_cw():
 def test_time_constant_ccw_el90():
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 90, 0)
-    wiregrid.run.CLIENTS['hwp'] = create_hwp_client('ccw')  # ccw
+    wiregrid.run.hwp.get_direction = MagicMock(return_value='ccw')  # ccw
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
         create_actuator_client(motor=1, position='outside')
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
@@ -416,7 +415,7 @@ def test_time_constant_ccw_el90():
 def test_time_constant_repeats():
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
-    wiregrid.run.CLIENTS['hwp'] = create_hwp_client('cw')
+    wiregrid.run.hwp.get_direction = MagicMock(return_value='cw')  # cw
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
         create_actuator_client(motor=1, position='outside')
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
