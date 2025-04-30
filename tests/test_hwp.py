@@ -33,6 +33,26 @@ def create_hwp_client(direction):
     client.monitor.status = MagicMock(return_value=reply)
 
     return client
+    
+
+@pytest.mark.parametrize('direction', ['cw', 'ccw'])
+def test_get_direction(patch_clients_satp, direction):
+    hwp.run.CLIENTS['hwp'] = create_hwp_client(direction)
+    ret = hwp._get_direction()
+    if direction == 'cw':
+        assert ret == 'cw'
+    elif direction == 'ccw':
+        assert ret == 'ccw'
+    hwp.run.CLIENTS['hwp'].monitor.status.assert_called_once()
+
+
+@pytest.mark.parametrize('direction', [None, ''])
+def test_get_direction_invalid(patch_clients_satp, direction):
+    hwp.run.CLIENTS['hwp'] = create_hwp_client(direction)
+    with pytest.raises(RuntimeError) as e:
+        hwp._get_direction()
+    assert str(e.value) == "The HWP direction is unknown. Aborting..."
+    hwp.run.CLIENTS['hwp'].monitor.status.assert_called_once()
 
 
 @pytest.mark.parametrize("active", [True, False])
@@ -53,23 +73,3 @@ def test_stop_brake_voltage(patch_clients_satp):
 def test_set_freq(patch_clients_satp):
     hwp.set_freq(freq=2.0)
     hwp.run.CLIENTS['hwp'].pid_to_freq.assert_called_with(target_freq=2.0)
-
-
-@pytest.mark.parametrize('direction', ['cw', 'ccw'])
-def test_get_direction(patch_clients_satp, direction):
-    hwp.run.CLIENTS['hwp'] = create_hwp_client(direction)
-    ret = hwp.get_direction()
-    if direction == 'cw':
-        assert ret == 'cw'
-    elif direction == 'ccw':
-        assert ret == 'ccw'
-    hwp.run.CLIENTS['hwp'].monitor.status.assert_called_once()
-
-
-@pytest.mark.parametrize('direction', [None, ''])
-def test_get_direction_invalid(patch_clients_satp, direction):
-    hwp.run.CLIENTS['hwp'] = create_hwp_client(direction)
-    with pytest.raises(RuntimeError) as e:
-        hwp.get_direction()
-    assert str(e.value) == "The HWP direction is unknown. Aborting..."
-    hwp.run.CLIENTS['hwp'].monitor.status.assert_called_once()
