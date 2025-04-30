@@ -33,7 +33,7 @@ def create_hwp_client(direction):
     client.monitor.status = MagicMock(return_value=reply)
 
     return client
-    
+
 
 @pytest.mark.parametrize('direction', ['cw', 'ccw'])
 def test_get_direction(patch_clients_satp, direction):
