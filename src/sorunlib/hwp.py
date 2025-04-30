@@ -4,11 +4,11 @@ from sorunlib._internal import check_response
 
 def _get_direction():
     """Return the rotational direction ('cw' or 'ccw') of the HWP.
-    'cw' means clockwise rotation seen from the sky to window. (+Hz)
-    'ccw' means counter-clockwise rotation seen from the sky to window. (-Hz)
+    'ccw' means counter-clockwise rotation seen from the sky to window. (+Hz)
+    'cw' means clockwise rotation seen from the sky to window. (-Hz)
 
-    Args:
-        None
+    Returns:
+        str: The direction of the hwp, either 'ccw' or 'cw'
 
     .. _docs: https://socs.readthedocs.io/en/main/agents/hwp_supervisor_agent.html
 
@@ -17,7 +17,7 @@ def _get_direction():
     resp = hwp.monitor.status()
     direction = resp.session['data']['hwp_state']['direction']
 
-    if direction not in ['cw', 'ccw']:
+    if direction not in ['ccw', 'cw']:
         raise RuntimeError("The HWP direction is unknown. Aborting...")
 
     return direction

@@ -359,7 +359,7 @@ def time_constant(num_repeats=1):
 
     # Check the current HWP direction
     try:
-        # return 'cw' or 'ccw'
+        # return 'ccw' or 'cw'
         current_hwp_direction = run.hwp._get_direction()
     except RuntimeError as e:
         error = "Wiregrid time constant measurment was failed " + \
@@ -389,10 +389,10 @@ def time_constant(num_repeats=1):
         run.smurf.stream('off')
 
     for i in range(num_repeats):
-        if current_hwp_direction == 'cw':
-            target_hwp_direction = 'ccw'
-        elif current_hwp_direction == 'ccw':
+        if current_hwp_direction == 'ccw':
             target_hwp_direction = 'cw'
+        elif current_hwp_direction == 'cw':
+            target_hwp_direction = 'ccw'
 
         # Bias step (the wire grid is on the window)
         # before stopping the HWP
@@ -432,10 +432,10 @@ def time_constant(num_repeats=1):
                          f'hwp_change_stop_to_{target_hwp_direction}' + el_tag
             run.smurf.stream('on', tag=stream_tag, subtype='cal')
             # Spin up the HWP reversely
-            if target_hwp_direction == 'cw':
-                run.hwp.set_freq(freq=-2.0)
-            elif target_hwp_direction == 'ccw':
+            if target_hwp_direction == 'ccw':
                 run.hwp.set_freq(freq=2.0)
+            elif target_hwp_direction == 'cw':
+                run.hwp.set_freq(freq=-2.0)
             current_hwp_direction = target_hwp_direction
         finally:
             # Stop SMuRF streams

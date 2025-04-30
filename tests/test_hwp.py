@@ -18,7 +18,7 @@ def create_hwp_client(direction):
     """Create a HWP client with mock acq Process session.data.
 
     Args:
-        direction (str): direction of the HWP. 'cw' (clockwise) or 'ccw' (counter-clockwise).
+        direction (str): direction of the HWP. 'ccw' (counter-clockwise) or 'cw' (clockwise).
 
     """
     client = MagicMock()
@@ -35,14 +35,14 @@ def create_hwp_client(direction):
     return client
 
 
-@pytest.mark.parametrize('direction', ['cw', 'ccw'])
+@pytest.mark.parametrize('direction', ['ccw', 'cw'])
 def test__get_direction(patch_clients_satp, direction):
     hwp.run.CLIENTS['hwp'] = create_hwp_client(direction)
     ret = hwp._get_direction()
-    if direction == 'cw':
-        assert ret == 'cw'
-    elif direction == 'ccw':
+    if direction == 'ccw':
         assert ret == 'ccw'
+    elif direction == 'cw':
+        assert ret == 'cw'
     hwp.run.CLIENTS['hwp'].monitor.status.assert_called_once()
 
 
