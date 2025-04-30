@@ -2,6 +2,27 @@ import sorunlib as run
 from sorunlib._internal import check_response
 
 
+def _get_direction():
+    """Return the rotational direction ('cw' or 'ccw') of the HWP.
+    'cw' means clockwise rotation seen from the sky to window. (+Hz)
+    'ccw' means counter-clockwise rotation seen from the sky to window. (-Hz)
+
+    Args:
+        None
+
+    .. _docs: https://socs.readthedocs.io/en/main/agents/hwp_supervisor_agent.html
+
+    """
+    hwp = run.CLIENTS['hwp']
+    resp = hwp.monitor.status()
+    direction = resp.session['data']['hwp_state']['direction']
+
+    if direction not in ['cw', 'ccw']:
+        raise RuntimeError("The HWP direction is unknown. Aborting...")
+
+    return direction
+
+
 # Public API
 def set_freq(freq):
     """Set the rotational frequency of the HWP.
@@ -43,24 +64,3 @@ def stop(active=True, brake_voltage=None):
     else:
         resp = hwp.pmx_off(wait_stop=True)
         check_response(hwp, resp)
-
-
-def get_direction():
-    """Return the rotational direction ('cw' or 'ccw') of the HWP.
-    'cw' means clockwise rotation seen from the sky to window. (+Hz)
-    'ccw' means counter-clockwise rotation seen from the sky to window. (-Hz)
-
-    Args:
-        None
-
-    .. _docs: https://socs.readthedocs.io/en/main/agents/hwp_supervisor_agent.html
-
-    """
-    hwp = run.CLIENTS['hwp']
-    resp = hwp.monitor.status()
-    direction = resp.session['data']['hwp_state']['direction']
-
-    if direction not in ['cw', 'ccw']:
-        raise RuntimeError("The HWP direction is unknown. Aborting...")
-
-    return direction
