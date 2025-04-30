@@ -360,7 +360,7 @@ def time_constant(num_repeats=1):
     # Check the current HWP direction
     try:
         # return 'cw' or 'ccw'
-        current_hwp_direction = run.hwp.get_direction()
+        current_hwp_direction = run.hwp._get_direction()
     except RuntimeError as e:
         error = "Wiregrid time constant measurment was failed " + \
                 "due to the failure in getting hwp direction. " + str(e)
