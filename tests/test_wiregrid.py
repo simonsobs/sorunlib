@@ -297,7 +297,7 @@ def test__check_wiregrid_position_invalid(position):
 def test_time_constant_cw():
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
-    wiregrid.run.hwp.get_direction = MagicMock(return_value='cw')  # cw
+    wiregrid.run.hwp._get_direction = MagicMock(return_value='cw')  # cw
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
         create_actuator_client(motor=1, position='outside')
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
@@ -346,7 +346,7 @@ def test_time_constant_cw():
 def test_time_constant_ccw_el90():
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 90, 0)
-    wiregrid.run.hwp.get_direction = MagicMock(return_value='ccw')  # ccw
+    wiregrid.run.hwp._get_direction = MagicMock(return_value='ccw')  # ccw
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
         create_actuator_client(motor=1, position='outside')
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
@@ -395,7 +395,7 @@ def test_time_constant_ccw_el90():
 def test_time_constant_repeats():
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
-    wiregrid.run.hwp.get_direction = MagicMock(return_value='cw')  # cw
+    wiregrid.run.hwp._get_direction = MagicMock(return_value='cw')  # cw
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
         create_actuator_client(motor=1, position='outside')
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
