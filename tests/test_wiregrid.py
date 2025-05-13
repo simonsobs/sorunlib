@@ -1,6 +1,7 @@
 import os
 import time
 os.environ["OCS_CONFIG_DIR"] = "./test_util/"
+os.environ["SORUNLIB_CONFIG"] = "./data/example_config.yaml"
 
 import pytest
 
@@ -459,6 +460,24 @@ def test_time_constant_wiregrid_position_failed():
     wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
     wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
     wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
+
+    with pytest.raises(RuntimeError):
+        wiregrid.time_constant(num_repeats=1)
+
+
+@patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
+@patch('sorunlib.wiregrid.time.sleep', MagicMock())
+def test_time_constant_hwp_direction_failed():
+    wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 50, 0)
+    wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
+        create_actuator_client(motor=1, position='outside')
+    wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
+    wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
+    wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
+
+    # Set up expected raise from invalid direction
+    wiregrid.run.hwp._get_direction = MagicMock(return_value=None)
+    wiregrid.run.hwp._get_direction.side_effect = RuntimeError("The HWP direction is unknown. Aborting...")
 
     with pytest.raises(RuntimeError):
         wiregrid.time_constant(num_repeats=1)
