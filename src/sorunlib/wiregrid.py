@@ -402,7 +402,7 @@ def time_constant(num_repeats=1):
                          el_tag
             run.smurf.stream('on', tag=stream_tag, subtype='cal')
             # Run stepwise rotation
-            rotate(False)
+            rotate(continuous=False)
         finally:
             run.smurf.stream('off')
 
@@ -439,7 +439,7 @@ def time_constant(num_repeats=1):
                      el_tag
         run.smurf.stream('on', tag=stream_tag, subtype='cal')
         # Run stepwise rotation
-        rotate(False)
+        rotate(continuous=False)
     finally:
         run.smurf.stream('off')
 
