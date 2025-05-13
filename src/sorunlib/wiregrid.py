@@ -8,9 +8,8 @@ BORESIGHT_DIFF_THRESHOLD = 0.5  # deg
 AGENT_TIMEDIFF_THRESHOLD = 5  # sec
 OP_TIMEOUT = 60
 
+
 # Internal Helper Functions
-
-
 def _check_process_data(process, last_timestamp):
     """Check the latest timestamp from a process' session.data is recent enough.
 
@@ -359,11 +358,10 @@ def time_constant(num_repeats=1):
 
     # Check the current HWP direction
     try:
-        # return 'ccw' or 'cw'
-        current_hwp_direction = run.hwp._get_direction()
+        current_hwp_direction = run.hwp._get_direction()  # 'cw' or 'ccw'
     except RuntimeError as e:
-        error = "Wiregrid time constant measurment was failed " + \
-                "due to the failure in getting hwp direction. " + str(e)
+        error = "Wiregrid time constant measurment has failed " + \
+                "due to a failure in getting the HWP direction.\n" + str(e)
         raise RuntimeError(error)
 
     # Rotate to get encoder reference before insertion
@@ -375,17 +373,14 @@ def time_constant(num_repeats=1):
     run.smurf.bias_step(tag=bs_tag, concurrent=True)
     time.sleep(5)
 
-    # Insert the wiregrid with streaming
+    # Insert the wiregrid while streaming
     try:
-        # Enable SMuRF streams
         stream_tag = 'wiregrid, wg_time_constant, wg_inserting, ' + \
                      f'hwp_{current_hwp_direction}' + el_tag
         run.smurf.stream('on', tag=stream_tag, subtype='cal')
-        # Insert the wiregrid
         insert()
         time.sleep(5)
     finally:
-        # Stop SMuRF streams
         run.smurf.stream('off')
 
     for i in range(num_repeats):
@@ -395,14 +390,13 @@ def time_constant(num_repeats=1):
             target_hwp_direction = 'ccw'
 
         # Bias step (the wire grid is on the window)
-        # before stopping the HWP
+        # Before stopping the HWP
         bs_tag = 'wiregrid, wg_time_constant, wg_inserted, ' + \
                  f'hwp_{current_hwp_direction}' + el_tag
         run.smurf.bias_step(tag=bs_tag, concurrent=True)
 
         # Run stepwise rotation before stopping the HWP
         try:
-            # Enable SMuRF streams
             stream_tag = 'wiregrid, wg_time_constant, ' + \
                          f'wg_stepwise, hwp_{current_hwp_direction}' + \
                          el_tag
@@ -410,40 +404,36 @@ def time_constant(num_repeats=1):
             # Run stepwise rotation
             rotate(False)
         finally:
-            # Stop SMuRF streams
             run.smurf.stream('off')
 
-        # Stop the HWP with streaming
+        # Stop the HWP while streaming
         try:
-            # Enable SMuRF streams
             stream_tag = 'wiregrid, wg_time_constant, ' + \
                          f'hwp_change_{current_hwp_direction}_to_stop' + el_tag
             run.smurf.stream('on', tag=stream_tag, subtype='cal')
-            # Stop the HWP
             run.hwp.stop(active=True)
         finally:
-            # Stop SMuRF streams
             run.smurf.stream('off')
 
-        # Spin up the HWP reversely with streaming
+        # Reverse the HWP while streaming
         try:
-            # Enable SMuRF streams
             stream_tag = 'wiregrid, wg_time_constant, ' + \
                          f'hwp_change_stop_to_{target_hwp_direction}' + el_tag
             run.smurf.stream('on', tag=stream_tag, subtype='cal')
-            # Spin up the HWP reversely
+            # Note: This is hardcoding the correspondance between direction and
+            # the sign of the frequency, which is subject to change depending
+            # on the hardware/agent configuration. This should be removed in
+            # the future, if possible.
             if target_hwp_direction == 'ccw':
                 run.hwp.set_freq(freq=2.0)
             elif target_hwp_direction == 'cw':
                 run.hwp.set_freq(freq=-2.0)
             current_hwp_direction = target_hwp_direction
         finally:
-            # Stop SMuRF streams
             run.smurf.stream('off')
 
     # Run stepwise rotation after changing the HWP rotation
     try:
-        # Enable SMuRF streams
         stream_tag = 'wiregrid, wg_time_constant, ' + \
                      f'wg_stepwise, hwp_{current_hwp_direction}' + \
                      el_tag
@@ -451,27 +441,23 @@ def time_constant(num_repeats=1):
         # Run stepwise rotation
         rotate(False)
     finally:
-        # Stop SMuRF streams
         run.smurf.stream('off')
 
     # Bias step (the wire grid is on the window)
-    # after changing the HWP rotation
+    # After changing the HWP rotation
     bs_tag = 'wiregrid, wg_time_constant, wg_inserted, ' + \
              f'hwp_{current_hwp_direction}' + el_tag
     run.smurf.bias_step(tag=bs_tag, concurrent=True)
     time.sleep(5)
 
-    # Eject the wiregrid with streaming
+    # Eject the wiregrid while streaming
     try:
-        # Enable SMuRF streams
         stream_tag = 'wiregrid, wg_time_constant, wg_ejecting, ' + \
                      f'hwp_{current_hwp_direction}' + el_tag
         run.smurf.stream('on', tag=stream_tag, subtype='cal')
-        # Eject the wiregrid
         eject()
         time.sleep(5)
     finally:
-        # Stop SMuRF streams
         run.smurf.stream('off')
 
     # Bias step (the wire grid is off the window)
