@@ -198,6 +198,24 @@ def _check_temperature_sensors():
     _verify_temp_response(resp, 'AIN2C', 0)
 
 
+def _check_wiregrid_position():
+    """Check the wiregrid position.
+
+    Returns:
+        str: The wiregrid position, either 'inside' or 'outside'.
+
+    Raises:
+        RuntimeError: When the wiregrid position is unknown.
+
+    """
+    actuator = run.CLIENTS['wiregrid']['actuator']
+    resp = actuator.acq.status()
+    position = resp.session['data']['fields']['position']
+    if position not in ['inside', 'outside']:
+        raise RuntimeError("The wiregrid position is unknown. Aborting...")
+    return position
+
+
 # Public API
 def insert():
     """Insert the wiregrid."""
@@ -305,3 +323,144 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
     finally:
         # Stop SMuRF streams
         run.smurf.stream('off')
+
+
+def time_constant(num_repeats=1):
+    """
+    Run a wiregrid time constant measurement.
+
+    Args:
+        num_repeats (int): Number of repeats. Default is 1.
+            If this is odd, the HWP direction will be changed to the opposite
+            of the initial direction. If this is even, the HWP direction will be
+            the same as the initial direction.
+
+    """
+    # Check the number of repeats
+    if num_repeats < 1 or not isinstance(num_repeats, int):
+        error = "The ``num_repeats`` should be int and larger than 0."
+        raise RuntimeError(error)
+
+    _check_agents_online()
+    _check_motor_on()
+    _check_telescope_position(elevation_check=True, boresight_check=False)
+    _check_wiregrid_position()
+    if _check_wiregrid_position() == 'inside':
+        error = "The wiregrid is already inserted before the wiregrid time " + \
+                "constant measurement. Please inspect wiregrid and HWP " + \
+                "before continuing observations."
+        raise RuntimeError(error)
+
+    if _check_zenith():
+        el_tag = ', wg_el90'
+    else:
+        el_tag = ''
+
+    # Check the current HWP direction
+    try:
+        current_hwp_direction = run.hwp._get_direction()  # 'cw' or 'ccw'
+    except RuntimeError as e:
+        error = "Wiregrid time constant measurment has failed " + \
+                "due to a failure in getting the HWP direction.\n" + str(e)
+        raise RuntimeError(error)
+
+    # Rotate to get encoder reference before insertion
+    rotate(continuous=True, duration=10)
+
+    # Bias step (the wire grid is off the window)
+    bs_tag = 'wiregrid, wg_time_constant, wg_ejected, ' + \
+             f'hwp_{current_hwp_direction}' + el_tag
+    run.smurf.bias_step(tag=bs_tag, concurrent=True)
+    time.sleep(5)
+
+    # Insert the wiregrid while streaming
+    try:
+        stream_tag = 'wiregrid, wg_time_constant, wg_inserting, ' + \
+                     f'hwp_{current_hwp_direction}' + el_tag
+        run.smurf.stream('on', tag=stream_tag, subtype='cal')
+        insert()
+        time.sleep(5)
+    finally:
+        run.smurf.stream('off')
+
+    for i in range(num_repeats):
+        if current_hwp_direction == 'ccw':
+            target_hwp_direction = 'cw'
+        elif current_hwp_direction == 'cw':
+            target_hwp_direction = 'ccw'
+
+        # Bias step (the wire grid is on the window)
+        # Before stopping the HWP
+        bs_tag = 'wiregrid, wg_time_constant, wg_inserted, ' + \
+                 f'hwp_{current_hwp_direction}' + el_tag
+        run.smurf.bias_step(tag=bs_tag, concurrent=True)
+
+        # Run stepwise rotation before stopping the HWP
+        try:
+            stream_tag = 'wiregrid, wg_time_constant, ' + \
+                         f'wg_stepwise, hwp_{current_hwp_direction}' + \
+                         el_tag
+            run.smurf.stream('on', tag=stream_tag, subtype='cal')
+            # Run stepwise rotation
+            rotate(continuous=False)
+        finally:
+            run.smurf.stream('off')
+
+        # Stop the HWP while streaming
+        try:
+            stream_tag = 'wiregrid, wg_time_constant, ' + \
+                         f'hwp_change_{current_hwp_direction}_to_stop' + el_tag
+            run.smurf.stream('on', tag=stream_tag, subtype='cal')
+            run.hwp.stop(active=True)
+        finally:
+            run.smurf.stream('off')
+
+        # Reverse the HWP while streaming
+        try:
+            stream_tag = 'wiregrid, wg_time_constant, ' + \
+                         f'hwp_change_stop_to_{target_hwp_direction}' + el_tag
+            run.smurf.stream('on', tag=stream_tag, subtype='cal')
+            # Note: This is hardcoding the correspondance between direction and
+            # the sign of the frequency, which is subject to change depending
+            # on the hardware/agent configuration. This should be removed in
+            # the future, if possible.
+            if target_hwp_direction == 'ccw':
+                run.hwp.set_freq(freq=2.0)
+            elif target_hwp_direction == 'cw':
+                run.hwp.set_freq(freq=-2.0)
+            current_hwp_direction = target_hwp_direction
+        finally:
+            run.smurf.stream('off')
+
+    # Run stepwise rotation after changing the HWP rotation
+    try:
+        stream_tag = 'wiregrid, wg_time_constant, ' + \
+                     f'wg_stepwise, hwp_{current_hwp_direction}' + \
+                     el_tag
+        run.smurf.stream('on', tag=stream_tag, subtype='cal')
+        # Run stepwise rotation
+        rotate(continuous=False)
+    finally:
+        run.smurf.stream('off')
+
+    # Bias step (the wire grid is on the window)
+    # After changing the HWP rotation
+    bs_tag = 'wiregrid, wg_time_constant, wg_inserted, ' + \
+             f'hwp_{current_hwp_direction}' + el_tag
+    run.smurf.bias_step(tag=bs_tag, concurrent=True)
+    time.sleep(5)
+
+    # Eject the wiregrid while streaming
+    try:
+        stream_tag = 'wiregrid, wg_time_constant, wg_ejecting, ' + \
+                     f'hwp_{current_hwp_direction}' + el_tag
+        run.smurf.stream('on', tag=stream_tag, subtype='cal')
+        eject()
+        time.sleep(5)
+    finally:
+        run.smurf.stream('off')
+
+    # Bias step (the wire grid is off the window)
+    bs_tag = 'wiregrid, wg_time_constant, wg_ejected, ' + \
+             f'hwp_{current_hwp_direction}' + el_tag
+    run.smurf.bias_step(tag=bs_tag, concurrent=True)
