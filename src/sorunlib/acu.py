@@ -54,20 +54,10 @@ def set_boresight(target):
     Args:
         target (float): destination angle for boresight rotation
 
-    Raises:
-        RuntimeError: If boresight is passed to a non-satp platform.
-
     """
     acu = run.CLIENTS['acu']
-
-    # Check platform type
-    resp = acu.monitor.status()
-    platform = resp.session['data']['PlatformType']
-    if platform == "satp":
-        resp = acu.set_boresight(target=target)
-        check_response(acu, resp)
-    else:
-        raise RuntimeError(f"Platform type {platform} does not support boresight motion")
+    resp = acu.set_boresight(target=target)
+    check_response(acu, resp)
 
 
 def set_scan_params(az_speed, az_accel, reset=False):
