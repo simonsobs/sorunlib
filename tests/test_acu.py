@@ -54,8 +54,7 @@ def test_set_boresight(patch_clients_satp):
 
 
 def test_set_boresight_lat(patch_clients_lat):
-    with pytest.raises(RuntimeError):
-        acu.set_boresight(20)
+    acu.set_boresight(20)
 
 
 def test_set_scan_params(patch_clients_satp):
