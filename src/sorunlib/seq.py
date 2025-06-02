@@ -1,4 +1,5 @@
 import datetime as dt
+import time
 
 import sorunlib as run
 
@@ -9,15 +10,19 @@ from sorunlib._internal import check_response, check_started, monitor_process
 OP_TIMEOUT = 60
 
 
-def _stop_scan():
-    acu = run.CLIENTS['acu']
-
-    print("Stopping scan.")
+def _stop_smurfs():
     # Stop SMuRF streams
     try:
         run.smurf.stream('off')
     except RuntimeError as e:
         print(f"Caught error while shutting down SMuRF streams: {e}")
+
+
+def _stop_scan():
+    acu = run.CLIENTS['acu']
+
+    print("Stopping scan.")
+    _stop_smurfs()
 
     # Stop motion
     acu.generate_scan.stop()
@@ -85,3 +90,43 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None,
         monitor_process(acu, 'generate_scan', stop_time)
     finally:
         _stop_scan()
+
+
+def el_nod(el1, el2, num=5, pause=5):
+    """Perform a set of elevation nods.
+
+    Elevation nods will be peformed at the current azimuth, and will start from
+    and return to the current elevation. The nod first moves to ``el1``,
+    pauses, then moves to ``el2``, pauses, and then repeats for the
+    specified number of iterations.
+
+    Args:
+        el1 (float): First elevation to move to during the nod.
+        el2 (float): Second elevation to move to during the nod.
+        num (int): Number of nods to peform. Defaults to 5.
+        pause (float): Length of pause, in seconds, at each elevation. Defaults
+            to 5 seconds.
+
+    """
+    acu = run.CLIENTS['acu']
+
+    # Enable SMuRF streams
+    run.smurf.stream('on', subtype='cal', tag='el_nods')
+
+    try:
+        # Grab current telescope position
+        resp = acu.monitor.status()
+        init_az = resp.session['data']['StatusDetailed']['Azimuth current position']
+        init_el = resp.session['data']['StatusDetailed']['Elevation current position']
+
+        # Perform nods
+        for x in range(num):
+            run.acu.move_to(az=init_az, el=el1)
+            time.sleep(pause)
+            run.acu.move_to(az=init_az, el=el2)
+            time.sleep(pause)
+        else:
+            # Return to initial position
+            run.acu.move_to(az=init_az, el=init_el)
+    finally:
+        _stop_smurfs()
