@@ -7,9 +7,11 @@ import time
 
 import ocs
 from ocs.ocs_client import OCSReply
-from sorunlib import hwp
+from sorunlib import hwp, smurf
 
 from util import create_patch_clients, create_session
+
+os.environ["SORUNLIB_CONFIG"] = "./data/example_config.yaml"
 
 patch_clients_satp = create_patch_clients('satp')
 
@@ -73,3 +75,24 @@ def test_stop_brake_voltage(patch_clients_satp):
 def test_set_freq(patch_clients_satp):
     hwp.set_freq(freq=2.0)
     hwp.run.CLIENTS['hwp'].pid_to_freq.assert_called_with(target_freq=2.0)
+
+
+def test_spin_up(patch_clients_satp):
+    hwp.spin_up(freq=2.0)
+    for client in smurf.run.CLIENTS['smurf']:
+        client.stream.start.assert_called_once()
+    hwp.run.CLIENTS['hwp'].enable_driver_board.assert_called_once()
+    hwp.run.CLIENTS['hwp'].pid_to_freq.assert_called_with(target_freq=2.0)
+    for client in smurf.run.CLIENTS['smurf']:
+        client.stream.stop.assert_called_once()
+
+
+def test_spin_down(patch_clients_satp):
+    VOLTAGE = 5.0
+    hwp.spin_down(active=True, brake_voltage=VOLTAGE)
+    for client in smurf.run.CLIENTS['smurf']:
+        client.stream.start.assert_called_once()
+    hwp.run.CLIENTS['hwp'].disable_driver_board.assert_called_once()
+    hwp.run.CLIENTS['hwp'].brake.assert_called_with(brake_voltage=VOLTAGE)
+    for client in smurf.run.CLIENTS['smurf']:
+        client.stream.stop.assert_called_once()

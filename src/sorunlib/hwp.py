@@ -47,6 +47,52 @@ def set_freq(freq):
     check_response(hwp, resp)
 
 
+def spin_up(freq):
+    """Spin up the HWP while streaming data.
+
+    Args:
+        freq (float): Target frequency to rotate the HWP in Hz. This is a
+            *signed float*, the meaning of which depends on the OCS site
+            configuration. For details see the `documentation for the HWP
+            Supervisor Agent <docs_>`_.
+
+    .. _docs: https://socs.readthedocs.io/en/main/agents/hwp_supervisor_agent.html
+
+    """
+    hwp = run.CLIENTS['hwp']
+
+    try:
+        run.smurf.stream('on', subtype='cal', tag='hwp_spin_up')
+        resp = hwp.enable_driver_board()
+        check_response(hwp, resp)
+        run.hwp.set_freq(freq=freq)
+    finally:
+        run.smurf.stream('off')
+
+
+def spin_down(active=True, brake_voltage=None):
+    """Spin down the HWP while streaming data.
+
+    Args:
+        active (bool, optional): If True, actively try to stop the HWP by
+            applying the brake. If False, simply turn off the PMX power and wait
+            for it to spin down on its own. Defaults to True.
+        brake_voltage (float, optional): Voltage used when actively stopping
+            the HWP. Only considered when active is True.
+
+    """
+    hwp = run.CLIENTS['hwp']
+
+    try:
+        run.smurf.stream('on', subtype='cal', tag='hwp_spin_down')
+        run.hwp.stop(active=active,
+                     brake_voltage=brake_voltage)
+        resp = hwp.disable_driver_board()
+        check_response(hwp, resp)
+    finally:
+        run.smurf.stream('off')
+
+
 def stop(active=True, brake_voltage=None):
     """Stop the HWP.
 
