@@ -171,6 +171,20 @@ def test_stream(state):
 
 
 @pytest.mark.parametrize("state", [("on"), ("off")])
+def test_stream_w_kwargs(state):
+    smurf.stream(state=state, tag='test', subtype='test',
+                 downsample_factor=20, filter_disable=False)
+    for client in smurf.run.CLIENTS['smurf']:
+        if state == "on":
+            client.stream.start.assert_called_once_with(tag='test',
+                                                        subtype='test',
+                                                        kwargs={'downsample_factor': 20,
+                                                                'filter_disable': False})
+        else:
+            client.stream.stop.assert_called_once()
+
+
+@pytest.mark.parametrize("state", [("on"), ("off")])
 def test_stream_single_failure(state):
     # Create failure on smurf1
     mocked_response = OCSReply(
