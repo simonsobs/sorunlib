@@ -82,7 +82,7 @@ def test_spin_up(patch_clients_satp):
     for client in smurf.run.CLIENTS['smurf']:
         client.stream.start.assert_called_once()
     hwp.run.CLIENTS['hwp'].enable_driver_board.assert_called_once()
-    hwp.run.CLIENTS['hwp'].pid_to_freq.assert_called_with(target_freq=2.0)
+    hwp.run.CLIENTS['hwp'].pid_to_freq.start.assert_called_with(target_freq=2.0)
     for client in smurf.run.CLIENTS['smurf']:
         client.stream.stop.assert_called_once()
 

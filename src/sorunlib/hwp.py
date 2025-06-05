@@ -30,7 +30,7 @@ def _get_direction():
 
 
 # Public API
-def set_freq(freq):
+def set_freq(freq, timeout=None):
     """Set the rotational frequency of the HWP.
 
     Args:
@@ -38,12 +38,19 @@ def set_freq(freq):
             *signed float*, the meaning of which depends on the OCS site
             configuration. For details see the `documentation for the HWP
             Supervisor Agent <docs_>`_.
+        timeout (float, optional): Duration, in seconds, to wait for the
+            operation to complete. An exception will be raised if this timeout
+            is exceeded.
 
     .. _docs: https://socs.readthedocs.io/en/main/agents/hwp_supervisor_agent.html
 
     """
     hwp = run.CLIENTS['hwp']
-    resp = hwp.pid_to_freq(target_freq=freq)
+    if timeout is None:
+        resp = hwp.pid_to_freq(target_freq=freq)
+    else:
+        hwp.pid_to_freq.start(target_freq=freq)
+        resp = hwp.pid_to_freq.wait(timeout=timeout)
     check_response(hwp, resp)
 
 
@@ -65,7 +72,7 @@ def spin_up(freq):
         run.smurf.stream('on', subtype='cal', tag='hwp_spin_up')
         resp = hwp.enable_driver_board()
         check_response(hwp, resp)
-        run.hwp.set_freq(freq=freq)
+        run.hwp.set_freq(freq=freq, timeout=1800)
     finally:
         run.smurf.stream('off')
 
