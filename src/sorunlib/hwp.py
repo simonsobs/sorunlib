@@ -43,7 +43,8 @@ def set_freq(freq):
 
     """
     hwp = run.CLIENTS['hwp']
-    resp = hwp.pid_to_freq(target_freq=freq)
+    hwp.pid_to_freq.start(target_freq=freq)
+    resp = hwp.pid_to_freq.wait(timeout=1800)
     check_response(hwp, resp)
 
 
