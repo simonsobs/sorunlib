@@ -52,4 +52,3 @@ def test_calibrate_gain(patch_clients_lat, do_setup):
     # stop test
     stimulator.run.CLIENTS['stimulator']['blh'].stop_rotation.assert_called_with()
     stimulator.run.CLIENTS['stimulator']['ds378'].set_relay.assert_any_call(relay_number=1, on_off=0)
-    
