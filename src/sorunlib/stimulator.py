@@ -48,6 +48,7 @@ def _stop():
 def calibrate_tau(duration_step=10,
                   speeds_rpm=[225, 495, 945, 1395, 1845, 2205],
                   forward=True, do_setup=True, stop=True):
+    #             downsample_factor=8, filter_order=4, filter_cutoff=300):
     """Time constant calibration using the stimulator.
 
     Parameters
@@ -62,6 +63,12 @@ def calibrate_tau(duration_step=10,
         Do initial setup (i.e. open shutter, set acceleration, start rotation) if True. Defaults to True.
     stop : bool, optional
         Stop the rotation and close the shutter if True. Defaults to True.
+    downsample_factor : int, optional
+        Downsample factor for SMuRF. Defaults to 8.
+    filter_order : int, optional
+        Order of the downsample filter for SMuRF. Defaults to 4.
+    filter_cutoff : float, optional
+        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to 300.
     """
 
     blh = run.CLIENTS['stimulator']['blh']
@@ -69,6 +76,9 @@ def calibrate_tau(duration_step=10,
     try:
         run.smurf.stream('on', tag=f'stimulator, tau, {speeds_rpm}', subtype='cal',
                          downsample_factor=1, filter_disable=True)
+        # With updated `stream` function, replace the above function to the following:
+        # run.smurf.stream('on', tag=f'stimulator, tau, {speeds_rpm}', subtype='cal',
+        #                  filter_order=filter_order, filter_cutoff=filter_cutoff, downsample_factor=downsample_factor)
 
         if do_setup:
             _setup()
