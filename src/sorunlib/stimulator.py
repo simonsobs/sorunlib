@@ -17,7 +17,7 @@ def _open_shutter():
 def _close_shutter():
     """Close the shutter of the stimulator"""
     ds = run.CLIENTS['stimulator']['ds378']
-    resp = ds.set_relay(relay_number=ID_SHUTTER, on_off=1)
+    resp = ds.set_relay(relay_number=ID_SHUTTER, on_off=0)
     check_response(ds, resp)
 
     time.sleep(1)
