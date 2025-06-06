@@ -1,5 +1,6 @@
 import time
 import sorunlib as run
+from sorunlib._internal import check_response
 
 ID_SHUTTER = 1
 
@@ -7,33 +8,37 @@ ID_SHUTTER = 1
 def _open_shutter():
     """Open the shutter of the stimulator"""
     ds = run.CLIENTS['stimulator']['ds378']
-    ds.set_relay(relay_number=ID_SHUTTER, on_off=1)
+    resp = ds.set_relay(relay_number=ID_SHUTTER, on_off=1)
+    check_response(ds, resp)
+
     time.sleep(1)
 
 
 def _close_shutter():
     """Close the shutter of the stimulator"""
     ds = run.CLIENTS['stimulator']['ds378']
-    ds.set_relay(relay_number=ID_SHUTTER, on_off=0)
+    resp = ds.set_relay(relay_number=ID_SHUTTER, on_off=1)
+    check_response(ds, resp)
+
     time.sleep(1)
 
 
 def _setup():
     # Open shutter
     _open_shutter()
-    time.sleep(1)
 
     # Acceleration / Decceleration configuration
     blh = run.CLIENTS['stimulator']['blh']
-    blh.set_value(accl_time=10)
-    blh.set_value(decl_time=10)
+    resp = blh.set_value(accl_time=10, decl_time=10)
+    check_response(blh, resp)
 
 
 def _stop():
     blh = run.CLIENTS['stimulator']['blh']
 
     # Stop rotation
-    blh.stop_rotation()
+    resp = blh.stop_rotation()
+    check_response(blh, resp)
     time.sleep(10)
 
     # Close shutter
@@ -49,41 +54,49 @@ def calibrate_tau(duration_step=10,
     ----------
     duration_step : float, optional
         Duration of each step of time constant measurement in sec, default to 10 sec.
-    speeds_rpm : list of float, default [225, 495, 945, 1395, 1845, 2205].
-        List of chopper rotation speed in RPM for each step.
-    forward : bool, default True
-        Chopper rotation direction. True for clockwise rotation.
-    do_setup : bool, default True
-        Do initial setup (i.e. open shutter, set acceleration, start rotation) if True.
-    stop : bool, default True
-        Stop the rotation and close the shutter if True.
+    speeds_rpm : list of float, optional
+        List of chopper rotation speed in RPM for each step. Defaults to [225, 495, 945, 1395, 1845, 2205].
+    forward : bool, optional
+        Chopper rotation direction. True for clockwise rotation. Defaults to True.
+    do_setup : bool, optional
+        Do initial setup (i.e. open shutter, set acceleration, start rotation) if True. Defaults to True.
+    stop : bool, optional
+        Stop the rotation and close the shutter if True. Defaults to True.
     """
 
     blh = run.CLIENTS['stimulator']['blh']
 
-    # Replace to the following after the implementation of `downsample_factor` parameter
-    # run.smurf.stream('on', tag=f'stimulator, tau, {speeds_rpm}', subtype='cal',
-    #                  downsample_factor=1, filter_disable=True)
-    run.smurf.stream('on', tag=f'stimulator, tau, {speeds_rpm}', subtype='cal')
+    try:
+        run.smurf.stream('on', tag=f'stimulator, tau, {speeds_rpm}', subtype='cal',
+                         downsample_factor=1, filter_disable=True)
 
-    if do_setup:
-        _setup()
-        # Rotation setting
-        blh.set_value(speed=speeds_rpm[0])
-        blh.start_rotation(forward)
-        speeds_rpm = speeds_rpm[1:]
+        if do_setup:
+            _setup()
+            # Rotation setting
+            resp = blh.set_value(speed=speeds_rpm[0])
+            check_response(blh, resp)
 
-        # First data point
-        time.sleep(duration_step)
+            resp = blh.start_rotation(forward=forward)
+            check_response(blh, resp)
 
-    for speed_rpm in speeds_rpm:
-        blh.set_value(speed=speed_rpm)
-        time.sleep(duration_step)
+            speeds_rpm = speeds_rpm[1:]
 
-    if stop:
-        _stop()
+            # First data point
+            time.sleep(duration_step)
 
-    run.smurf.stream('off')
+        for speed_rpm in speeds_rpm:
+            resp = blh.set_value(speed=speed_rpm)
+            check_response(blh, resp)
+
+            time.sleep(duration_step)
+    finally:
+        try:
+            run.smurf.stream('off')
+        except RuntimeError as e:
+            print(f"Caught error while shutting down SMuRF streams: {e}")
+
+        if stop:
+            _stop()
 
 
 def calibrate_gain(duration=60, speed_rpm=90,
@@ -96,31 +109,39 @@ def calibrate_gain(duration=60, speed_rpm=90,
         Duration of the gain calibration in sec, default to 60 sec.
     speed_rpm : float, optional
         Rotation speed of the chopper wheel in RPM, default to 90 RPM.
-    forward : bool, default True
-        Chopper rotation direction. True for clockwise rotation.
-    do_setup : bool, default True
+    forward : bool, optional
+        Chopper rotation direction. If True, the chopper rotates clockwise
+        when viewed from the receiver toward the stimulator. Defaults to True.
+    do_setup : bool, optional
         Do initial setup (i.e. open shutter, set acceleration, start rotation) if True.
-    stop : bool, default True
-        Stop the rotation and close the shutter if True.
+        Defaults to True.
+    stop : bool, optional
+        Stop the rotation and close the shutter if True. Defaults to True.
     """
     blh = run.CLIENTS['stimulator']['blh']
 
-    run.smurf.stream('on', tag=f'stimulator, gain, {speed_rpm}', subtype='cal')
+    try:
+        resp = blh.set_value(speed=speed_rpm)
+        check_response(blh, resp)
 
-    blh.set_value(speed=speed_rpm)
+        if do_setup:
+            _setup()
+            # Rotation setting
+            resp = blh.start_rotation(forward=forward)
+            check_response(blh, resp)
 
-    if do_setup:
-        _setup()
-        # Rotation setting
-        blh.start_rotation(forward)
+        # Sleep for rotation stabilization
+        time.sleep(10)
 
-    # Sleep for rotation stabilization
-    time.sleep(10)
+        run.smurf.stream('on', tag=f'stimulator, gain, {speed_rpm}', subtype='cal')
 
-    # Data taking
-    time.sleep(duration)
+        # Data taking
+        time.sleep(duration)
+    finally:
+        try:
+            run.smurf.stream('off')
+        except RuntimeError as e:
+            print(f"Caught error while shutting down SMuRF streams: {e}")
 
-    if stop:
-        _stop()
-
-    run.smurf.stream('off')
+        if stop:
+            _stop()
