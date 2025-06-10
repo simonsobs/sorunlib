@@ -63,3 +63,9 @@ def test_set_scan_params(patch_clients_satp):
         az_speed=2,
         az_accel=2,
         reset=True)
+
+
+@pytest.mark.parametrize("action", [('open'), ('close')])
+def test_set_shutter(patch_clients_satp, action):
+    acu.set_shutter(action=action)
+    acu.run.CLIENTS['acu'].set_shutter.assert_called_with(action=action)
