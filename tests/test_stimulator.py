@@ -1,5 +1,6 @@
 import os
 os.environ["OCS_CONFIG_DIR"] = "./test_util/"
+os.environ["SORUNLIB_CONFIG"] = "./data/example_config.yaml"
 
 import pytest
 from unittest.mock import MagicMock, patch
