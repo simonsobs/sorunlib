@@ -58,7 +58,8 @@ def calibrate_tau(duration_step=10,
     speeds_rpm : list of float, optional
         List of chopper rotation speed in RPM for each step. Defaults to [225, 495, 945, 1395, 1845, 2205].
     forward : bool, optional
-        Chopper rotation direction. True for clockwise rotation. Defaults to True.
+        Chopper rotation direction. If True, the chopper rotates clockwise
+        when viewed from the receiver toward the stimulator. Defaults to True.
     do_setup : bool, optional
         Do initial setup (i.e. open shutter, set acceleration, start rotation) if True. Defaults to True.
     stop : bool, optional
