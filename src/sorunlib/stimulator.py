@@ -142,7 +142,7 @@ def calibrate_gain(duration=60, speed_rpm=90,
         # Sleep for rotation stabilization
         time.sleep(10)
 
-        run.smurf.stream('on', tag=f'stimulator, gain, {speed_rpm}', subtype='cal')
+        run.smurf.stream('on', tag='stimulator, gain', subtype='cal')
 
         # Data taking
         time.sleep(duration)
