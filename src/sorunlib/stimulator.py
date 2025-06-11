@@ -75,7 +75,7 @@ def calibrate_tau(duration_step=10,
     blh = run.CLIENTS['stimulator']['blh']
 
     try:
-        run.smurf.stream('on', tag=f'stimulator, tau, {speeds_rpm}', subtype='cal',
+        run.smurf.stream('on', tag='stimulator, time_constant', subtype='cal',
                          filter_order=filter_order, filter_cutoff=filter_cutoff, downsample_factor=downsample_factor)
 
         if do_setup:
