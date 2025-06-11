@@ -76,3 +76,15 @@ def set_scan_params(az_speed, az_accel, reset=False):
                                az_accel=az_accel,
                                reset=reset)
     check_response(acu, resp)
+
+
+def set_shutter(action):
+    """Control the LAT shutter.
+
+    Args:
+        action (str): Shutter action, either 'open' or 'close'.
+
+    """
+    acu = run.CLIENTS['acu']
+    resp = acu.set_shutter(action=action)
+    check_response(acu, resp)
