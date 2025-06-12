@@ -51,6 +51,14 @@ sorunlib.smurf
     :undoc-members:
     :show-inheritance:
 
+sorunlib.stimulator
+-------------------
+
+.. automodule:: sorunlib.stimulator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 sorunlib.util
 -------------
 

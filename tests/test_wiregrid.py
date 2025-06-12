@@ -262,9 +262,7 @@ def test_calibrate_stepwise(patch_clients, continuous, el, tag):
         client.stream.start.assert_called_with(
             tag=tag,
             subtype='cal',
-            kwargs={
-                "downsample_factor": None,
-                "filter_disable": False},
+            kwargs={},
         )
         client.stream.stop.assert_called()
 
@@ -317,10 +315,6 @@ def test_time_constant_cw():
         call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_ccw')
     ]
 
-    common_kwargs_of_streams = {
-        "downsample_factor": None,
-        "filter_disable": False
-    }
     expected_tags_of_streams = [
         'wiregrid, wg_time_constant, wg_inserting, hwp_cw',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_cw',
@@ -330,7 +324,7 @@ def test_time_constant_cw():
         'wiregrid, wg_time_constant, wg_ejecting, hwp_ccw'
     ]
     expected_calls_of_streams = [
-        call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
+        call(tag=stream_tag, subtype='cal', kwargs={})
         for stream_tag in expected_tags_of_streams
     ]
 
@@ -366,10 +360,6 @@ def test_time_constant_ccw_el90():
         call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw, wg_el90')
     ]
 
-    common_kwargs_of_streams = {
-        "downsample_factor": None,
-        "filter_disable": False
-    }
     expected_tags_of_streams = [
         'wiregrid, wg_time_constant, wg_inserting, hwp_ccw, wg_el90',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_ccw, wg_el90',
@@ -379,7 +369,7 @@ def test_time_constant_ccw_el90():
         'wiregrid, wg_time_constant, wg_ejecting, hwp_cw, wg_el90'
     ]
     expected_calls_of_streams = [
-        call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
+        call(tag=stream_tag, subtype='cal', kwargs={})
         for stream_tag in expected_tags_of_streams
     ]
 
@@ -416,10 +406,6 @@ def test_time_constant_repeats():
         call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw')
     ]
 
-    common_kwargs_of_streams = {
-        "downsample_factor": None,
-        "filter_disable": False
-    }
     expected_tags_of_streams = [
         'wiregrid, wg_time_constant, wg_inserting, hwp_cw',
         'wiregrid, wg_time_constant, wg_stepwise, hwp_cw',
@@ -432,7 +418,7 @@ def test_time_constant_repeats():
         'wiregrid, wg_time_constant, wg_ejecting, hwp_cw'
     ]
     expected_calls_of_streams = [
-        call(tag=stream_tag, subtype='cal', kwargs=common_kwargs_of_streams)
+        call(tag=stream_tag, subtype='cal', kwargs={})
         for stream_tag in expected_tags_of_streams
     ]
 
