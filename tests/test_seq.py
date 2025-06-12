@@ -5,7 +5,7 @@ import datetime as dt
 
 import ocs
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import call, MagicMock, patch
 from ocs.ocs_client import OCSReply
 
 import sorunlib
@@ -92,3 +92,18 @@ def test_scan_failed_smurfs_on_shutdown(patch_clients):
 
     seq._stop_scan()
     seq.run.CLIENTS['acu'].generate_scan.wait.assert_called()
+
+
+@patch('sorunlib.seq.time.sleep', MagicMock())
+def test_el_nod(patch_clients):
+    sorunlib.acu.move_to(az=180, el=50)
+    seq.el_nod(el1=40, el2=60)
+
+    # Calls will be repeated, but these three are representative of the el nod
+    calls = [call(az=180, el=50),
+             call(az=180, el=40),
+             call(az=180, el=60)]
+    seq.run.CLIENTS['acu'].go_to.assert_has_calls(calls, any_order=True)
+
+    # Move back to initial position
+    seq.run.CLIENTS['acu'].go_to.assert_called_with(az=180, el=50)
