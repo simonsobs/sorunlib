@@ -365,7 +365,7 @@ def _wait_for_stream_start(smurf, timeout):
     raise RuntimeError(f"Stream for {smurf} did not turn on within {timeout} seconds.")
 
 
-def stream(state, tag=None, subtype=None, **kwargs):
+def stream(state, tag=None, subtype=None, wait_for_stream=True, **kwargs):
     """Stream data on all SMuRF Controllers.
 
     Args:
@@ -373,6 +373,9 @@ def stream(state, tag=None, subtype=None, **kwargs):
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation.
         subtype (str, optional): Operation subtype used to tag the stream.
+        wait_for_stream (bool, optional): If True, block until the streams are
+            all enabled. If False, check that the client call goes through, but
+            do not wait. Defaults to True.
         **kwargs: Additional keyword arguments. Passed through to the SMuRF
             controller unmodified. See the `controller documentation
             <https://socs.readthedocs.io/en/main/agents/pysmurf-controller.html#socs.agents.pysmurf_controller.agent.PysmurfController.stream>`_.
@@ -388,7 +391,8 @@ def stream(state, tag=None, subtype=None, **kwargs):
             resp = smurf.stream.status()
             try:
                 check_started(smurf, resp, timeout=120)
-                _wait_for_stream_start(smurf, timeout=60)
+                if wait_for_stream:
+                    _wait_for_stream_start(smurf, timeout=60)
             except RuntimeError as e:
                 print(f"Failed to start stream on {smurf}, removing from targets list.")
                 print(e)
