@@ -346,6 +346,25 @@ def shutdown(concurrent=True, settling_time=0):
             settling_time=settling_time)
 
 
+def _wait_for_stream_start(smurf, timeout):
+    """Wait for, at most, timeout seconds until the stream for the specified
+    smurf client is enabled.
+
+    Args:
+        smurf (ocs.ocs_client.OCSClient): pysmurf-controller client.
+        timeout (int): Timeout for the check in seconds.
+
+    """
+    for i in range(int(timeout)):
+        resp = smurf.stream.status()
+        stream_on = resp.session['data']['stream_on']
+        if stream_on:
+            return
+        time.sleep(1)
+
+    raise RuntimeError(f"Stream for {smurf} did not turn on within {timeout} seconds.")
+
+
 def stream(state, tag=None, subtype=None, **kwargs):
     """Stream data on all SMuRF Controllers.
 
@@ -369,6 +388,7 @@ def stream(state, tag=None, subtype=None, **kwargs):
             resp = smurf.stream.status()
             try:
                 check_started(smurf, resp, timeout=120)
+                _wait_for_stream_start(smurf, timeout=60)
             except RuntimeError as e:
                 print(f"Failed to start stream on {smurf}, removing from targets list.")
                 print(e)
