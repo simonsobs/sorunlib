@@ -390,7 +390,7 @@ def stream(state, tag=None, subtype=None, wait_for_stream=True, **kwargs):
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.stream.status()
             try:
-                check_started(smurf, resp, timeout=120)
+                check_started(smurf, resp, timeout=60)
                 if wait_for_stream:
                     _wait_for_stream_start(smurf, timeout=60)
             except RuntimeError as e:
