@@ -392,7 +392,7 @@ def stream(state, tag=None, subtype=None, wait_for_stream=True, **kwargs):
             try:
                 check_started(smurf, resp, timeout=60)
                 if wait_for_stream:
-                    _wait_for_stream_start(smurf, timeout=60)
+                    _wait_for_stream_start(smurf, timeout=120)
             except RuntimeError as e:
                 print(f"Failed to start stream on {smurf}, removing from targets list.")
                 print(e)
