@@ -17,12 +17,15 @@ jobs:
   test:
     name: pytest with coverage
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
 
     steps:
-    - name: Set up Python 3.8
+    - name: Set up Python ${{ matrix.python }}
       uses: actions/setup-python@v5
       with:
-        python-version: 3.8
+        python-version: ${{ matrix.python }}
 
     - name: clone sorunlib
       uses: actions/checkout@v4
