@@ -116,15 +116,14 @@ def check_started(client, response, timeout=60):
         # Wait at most ~timeout seconds while checking the status
         for i in range(timeout):
             response = _operation.status()
+            _check_error(client, response)
             op_code = response.session.get('op_code')
-            if op_code == 3:
+            if op_code == 3:  # RUNNING
                 # Tricky to change state during testing w/little reward
                 return  # pragma: no cover
             time.sleep(1)
 
-        error = f"Check timed out. Operation {op} in Agent {instance} stuck in " + \
-            "'starting' state.\n" + str(response)
-        raise RuntimeError(error)
+        print("The operation is in an unexpected state after {timeout} seconds.")
 
     if op_code != 3:  # RUNNING
         error = f"Operation {op} in Agent {instance} is not 'running'.\n" + \
