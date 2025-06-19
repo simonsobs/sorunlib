@@ -43,6 +43,7 @@ def _mock_smurf_client(instance_id):
 
     # smurf.stream
     session = create_session('stream', status='running')
+    session.data = {'stream_on': True}  # Always assume stream turns on
     reply = OCSReply(ocs.OK, 'msg', session.encoded())
     smurf.stream.start = MagicMock(return_value=reply)
     smurf.stream.status = MagicMock(return_value=reply)
