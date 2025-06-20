@@ -21,9 +21,9 @@ Install and update using pip::
 
 Install optional dependencies with::
 
-    $ pip install -U sorunlib[tests]
+    $ pip install -U sorunlib[dev]
     $ pip install -U sorunlib[docs]
-    $ pip install -U sorunlib[tests,docs]
+    $ pip install -U sorunlib[dev,docs]
 
 Documentation
 -------------

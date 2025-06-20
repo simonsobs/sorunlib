@@ -46,7 +46,7 @@ jobs:
 
     - name: install wheel
       run: |
-        python3 -m pip install ${{ steps.find.outputs.wheel }}[tests]
+        python3 -m pip install ${{ steps.find.outputs.wheel }}[dev]
 
     - name: Run unit tests
       working-directory: ./tests
