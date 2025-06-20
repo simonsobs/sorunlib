@@ -1,3 +1,6 @@
+# dynamic package version
+src/sorunlib/_version.py
+
 # tmp files
 *.swp
 
