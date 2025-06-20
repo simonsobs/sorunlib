@@ -1,14 +1,11 @@
 from setuptools import setup, find_packages
 
-import versioneer
-
 with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
     name='sorunlib',
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version='v0.1.24',
     description='OCS Control Programs for running the observatory.',
     long_description=long_description,
     long_description_content_type="text/x-rst",
