@@ -10,5 +10,3 @@ ignore =
     F405,
     # line break before binary operator
     W503,
-exclude =
-    src/sorunlib/_version.py,
