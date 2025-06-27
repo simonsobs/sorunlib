@@ -40,7 +40,7 @@ jobs:
 
     - name: Install sorunlib
       run: |
-        pip3 install -e .[tests]
+        pip3 install -e .[dev]
 
     # Unit Tests
     - name: Run unit tests
