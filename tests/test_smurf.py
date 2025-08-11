@@ -5,12 +5,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+import ocs
 from ocs.client_http import ControlClientError
 from ocs.ocs_client import OCSReply
 
 import sorunlib as run
 from sorunlib import smurf
-from util import create_patch_clients
+from util import create_patch_clients, create_session
 
 os.environ["SORUNLIB_CONFIG"] = "./data/example_config.yaml"
 
@@ -200,6 +201,28 @@ def test_stream_single_failure(state):
             client.stream.start.assert_called_once()
         else:
             client.stream.stop.assert_called_once()
+
+
+@patch('sorunlib.smurf.time.sleep', MagicMock())
+def test_wait_for_stream_timeout():
+    # Make smurf1 stream not turn on
+    session = create_session('stream', status='running')
+    session.data = {'stream_on': False}
+    reply = OCSReply(ocs.OK, 'msg', session.encoded())
+    smurf.run.CLIENTS['smurf'][0].stream.start = MagicMock(return_value=reply)
+    smurf.run.CLIENTS['smurf'][0].stream.status = MagicMock(return_value=reply)
+
+    # Verify session.data modification
+    for client in smurf.run.CLIENTS['smurf']:
+        print(client.stream.status().session['data'])
+
+    # Turn on stream, which should drop smurf1
+    smurf.stream(state='on')
+    assert len(smurf.run.CLIENTS['smurf']) == 2
+
+    # Remaining streams should turn on
+    for client in smurf.run.CLIENTS['smurf']:
+        client.stream.start.assert_called_once()
 
 
 def test_stream_agent_unavailable_on_stop():

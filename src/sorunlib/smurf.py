@@ -346,7 +346,26 @@ def shutdown(concurrent=True, settling_time=0):
             settling_time=settling_time)
 
 
-def stream(state, tag=None, subtype=None, **kwargs):
+def _wait_for_stream_start(smurf, timeout):
+    """Wait for, at most, timeout seconds until the stream for the specified
+    smurf client is enabled.
+
+    Args:
+        smurf (ocs.ocs_client.OCSClient): pysmurf-controller client.
+        timeout (int): Timeout for the check in seconds.
+
+    """
+    for i in range(int(timeout)):
+        resp = smurf.stream.status()
+        stream_on = resp.session['data']['stream_on']
+        if stream_on:
+            return
+        time.sleep(1)
+
+    raise RuntimeError(f"Stream for {smurf} did not turn on within {timeout} seconds.")
+
+
+def stream(state, tag=None, subtype=None, wait_for_stream=True, **kwargs):
     """Stream data on all SMuRF Controllers.
 
     Args:
@@ -354,6 +373,9 @@ def stream(state, tag=None, subtype=None, **kwargs):
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation.
         subtype (str, optional): Operation subtype used to tag the stream.
+        wait_for_stream (bool, optional): If True, block until the streams are
+            all enabled. If False, check that the client call goes through, but
+            do not wait. Defaults to True.
         **kwargs: Additional keyword arguments. Passed through to the SMuRF
             controller unmodified. See the `controller documentation
             <https://socs.readthedocs.io/en/main/agents/pysmurf-controller.html#socs.agents.pysmurf_controller.agent.PysmurfController.stream>`_.
@@ -368,7 +390,9 @@ def stream(state, tag=None, subtype=None, **kwargs):
         for smurf in run.CLIENTS['smurf']:
             resp = smurf.stream.status()
             try:
-                check_started(smurf, resp, timeout=120)
+                check_started(smurf, resp, timeout=60)
+                if wait_for_stream:
+                    _wait_for_stream_start(smurf, timeout=120)
             except RuntimeError as e:
                 print(f"Failed to start stream on {smurf}, removing from targets list.")
                 print(e)
