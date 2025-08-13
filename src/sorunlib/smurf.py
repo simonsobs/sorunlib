@@ -357,7 +357,7 @@ def _wait_for_stream_start(smurf, timeout):
     """
     for i in range(int(timeout)):
         resp = smurf.stream.status()
-        stream_on = resp.session['data']['stream_on']
+        stream_on = resp.session['data'].get('stream_on', True)
         if stream_on:
             return
         time.sleep(1)
