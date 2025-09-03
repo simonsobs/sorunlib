@@ -66,10 +66,10 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None,
 
     acu = run.CLIENTS['acu']
 
-    # Enable SMuRF streams
-    run.smurf.stream('on', subtype=subtype, tag=tag)
-
     try:
+        # Enable SMuRF streams
+        run.smurf.stream('on', subtype=subtype, tag=tag)
+
         # Grab current telescope position
         resp = acu.monitor.status()
         az = resp.session['data']['StatusDetailed']['Azimuth current position']
@@ -110,10 +110,10 @@ def el_nod(el1, el2, num=5, pause=5):
     """
     acu = run.CLIENTS['acu']
 
-    # Enable SMuRF streams
-    run.smurf.stream('on', subtype='cal', tag='el_nods')
-
     try:
+        # Enable SMuRF streams
+        run.smurf.stream('on', subtype='cal', tag='el_nods')
+
         # Grab current telescope position
         resp = acu.monitor.status()
         init_az = resp.session['data']['StatusDetailed']['Azimuth current position']
