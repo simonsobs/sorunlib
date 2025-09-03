@@ -27,6 +27,15 @@ def test_move_to_failed(patch_clients_satp):
         acu.move_to(180, 90)
 
 
+def test_move_to_timedout(patch_clients_satp):
+    # the '1' here corresponds to a TIMEOUT response
+    mocked_response = OCSReply(
+        1, 'msg', {'success': None, 'op_name': 'go_to'})
+    acu.run.CLIENTS['acu'].go_to.wait.side_effect = [mocked_response]
+    with pytest.raises(RuntimeError):
+        acu.move_to(180, 90)
+
+
 def test_move_to_target_before_start(patch_clients_satp):
     start = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=10)
     end = start + dt.timedelta(seconds=3600)
