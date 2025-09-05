@@ -16,7 +16,7 @@ import time
 from ocs.client_http import ControlClientError
 
 import sorunlib as run
-from sorunlib._internal import check_response, check_started
+from sorunlib._internal import check_response, check_running, check_started
 
 # Timing between commanding separate SMuRF Controllers
 # Yet to be determined in the field. Eventually might need this to be unique
@@ -89,6 +89,33 @@ def _run_op(operation, concurrent, settling_time, **kwargs):
                 print(f"Failed to perform {operation} on {smurf}, removing from targets list.")
                 print(e)
                 clients_to_remove.append(smurf)
+
+    # Check stream operation state
+    streams_to_stop = []
+    for smurf in run.CLIENTS['smurf']:
+        try:
+            resp = smurf.stream.status()
+        except ControlClientError:
+            raise RuntimeError(f"Failed to get status of stream for {smurf}. Aborting. Streams may still be running.")
+
+        try:
+            check_running(smurf, resp)
+        except RuntimeError:
+            continue  # stream isn't running, which is what we want
+
+        try:
+            print(f"{smurf.instance_id} is unexpectedly streaming. Attempting to stop.")
+            smurf.stream.stop()
+            streams_to_stop.append(smurf)
+        except ControlClientError:
+            raise RuntimeError(f"Failed to stop stream for {smurf}. Aborting. Streams may still be running.")
+
+    for smurf in streams_to_stop:
+        try:
+            resp = smurf.stream.wait(timeout=120)
+            check_response(smurf, resp)  # will raise RuntimeError on timeout, i.e. if stream is still running
+        except ControlClientError:
+            raise RuntimeError(f"Failed to stop stream for {smurf}. Aborting. Streams may still be running.")
 
     # Remove failed SMuRF clients
     for client in clients_to_remove:
