@@ -4,12 +4,13 @@ import time
 import sorunlib as run
 
 from sorunlib.commands import _timestamp_to_utc_datetime
-from sorunlib._internal import check_response, check_started, monitor_process, stop_smurfs
+from sorunlib._internal import check_response, check_started, monitor_process, protect_shutdown, stop_smurfs
 
 
 OP_TIMEOUT = 60
 
 
+@protect_shutdown
 def _stop_scan():
     acu = run.CLIENTS['acu']
 
