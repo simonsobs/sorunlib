@@ -8,6 +8,7 @@ import datetime as dt
 import time
 
 import ocs
+import sorunlib as run
 
 from sorunlib.commands import _timestamp_to_utc_datetime
 
@@ -180,3 +181,14 @@ def monitor_process(client, operation, stop_time, check_interval=10):
 
         # Recompute diff
         diff = _seconds_until_target(stop_time)
+
+
+def stop_smurfs():
+    """Simple wrapper to shutdown all SMuRF systems and handle any errors that
+    occur.
+
+    """
+    try:
+        run.smurf.stream('off')
+    except RuntimeError as e:
+        print(f"Caught error while shutting down SMuRF streams: {e}")

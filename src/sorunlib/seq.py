@@ -4,25 +4,17 @@ import time
 import sorunlib as run
 
 from sorunlib.commands import _timestamp_to_utc_datetime
-from sorunlib._internal import check_response, check_started, monitor_process
+from sorunlib._internal import check_response, check_started, monitor_process, stop_smurfs
 
 
 OP_TIMEOUT = 60
-
-
-def _stop_smurfs():
-    # Stop SMuRF streams
-    try:
-        run.smurf.stream('off')
-    except RuntimeError as e:
-        print(f"Caught error while shutting down SMuRF streams: {e}")
 
 
 def _stop_scan():
     acu = run.CLIENTS['acu']
 
     print("Stopping scan.")
-    _stop_smurfs()
+    stop_smurfs()
 
     # Stop motion
     acu.generate_scan.stop()
@@ -130,4 +122,4 @@ def el_nod(el1, el2, num=5, pause=5):
             # Return to initial position
             run.acu.move_to(az=init_az, el=init_el)
     finally:
-        _stop_smurfs()
+        stop_smurfs()
