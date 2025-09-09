@@ -1,3 +1,5 @@
+import signal
+
 from . import acu, hwp, seq, smurf, stimulator, wiregrid
 
 from .commands import wait_until
@@ -26,6 +28,15 @@ __all__ = ["acu",
            "wiregrid",
            "wait_until",
            "initialize"]
+
+
+# Treat SIGTERM like SIGINT and raise an exception
+def term_handler(sig, frame):
+    raise KeyboardInterrupt
+
+
+signal.signal(signal.SIGTERM, term_handler)
+
 
 # Define the variable '__version__':
 # This has the closest behavior to versioneer that I could find
