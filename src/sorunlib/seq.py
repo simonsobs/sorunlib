@@ -26,6 +26,7 @@ def _stop_scan():
 
     # Stop motion
     acu.generate_scan.stop()
+    print("Waiting for telescope motion to stop.")
     resp = acu.generate_scan.wait(timeout=OP_TIMEOUT)
     check_response(acu, resp)
     print("Scan finished.")
