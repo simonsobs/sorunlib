@@ -16,13 +16,22 @@ patch_clients_lat = create_patch_clients('ccat')
 
 def test_move_to(patch_clients_satp):
     acu.move_to(180, 60)
-    acu.run.CLIENTS['acu'].go_to.assert_called_with(az=180, el=60)
+    acu.run.CLIENTS['acu'].go_to.start.assert_called_with(az=180, el=60)
 
 
 def test_move_to_failed(patch_clients_satp):
     mocked_response = OCSReply(
         0, 'msg', {'success': False, 'op_name': 'go_to'})
-    acu.run.CLIENTS['acu'].go_to.side_effect = [mocked_response]
+    acu.run.CLIENTS['acu'].go_to.wait.side_effect = [mocked_response]
+    with pytest.raises(RuntimeError):
+        acu.move_to(180, 90)
+
+
+def test_move_to_timedout(patch_clients_satp):
+    # the '1' here corresponds to a TIMEOUT response
+    mocked_response = OCSReply(
+        1, 'msg', {'success': None, 'op_name': 'go_to'})
+    acu.run.CLIENTS['acu'].go_to.wait.side_effect = [mocked_response]
     with pytest.raises(RuntimeError):
         acu.move_to(180, 90)
 
@@ -31,14 +40,14 @@ def test_move_to_target_before_start(patch_clients_satp):
     start = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=10)
     end = start + dt.timedelta(seconds=3600)
     acu.move_to_target(300, 50, start.isoformat(), end.isoformat(), -0.005)
-    acu.run.CLIENTS['acu'].go_to.assert_called_with(az=300, el=50)
+    acu.run.CLIENTS['acu'].go_to.start.assert_called_with(az=300, el=50)
 
 
 def test_move_to_target_within_range(patch_clients_satp):
     start = dt.datetime.now(dt.timezone.utc)
     end = start + dt.timedelta(seconds=3600)
     acu.move_to_target(300, 50, start.isoformat(), end.isoformat(), -0.005)
-    acu.run.CLIENTS['acu'].go_to.assert_called_once()
+    acu.run.CLIENTS['acu'].go_to.start.assert_called_once()
 
 
 def test_move_to_target_after_stop(patch_clients_satp):

@@ -111,7 +111,7 @@ def test_el_nod(patch_clients):
     calls = [call(az=180, el=50),
              call(az=180, el=40),
              call(az=180, el=60)]
-    seq.run.CLIENTS['acu'].go_to.assert_has_calls(calls, any_order=True)
+    seq.run.CLIENTS['acu'].go_to.start.assert_has_calls(calls, any_order=True)
 
     # Move back to initial position
-    seq.run.CLIENTS['acu'].go_to.assert_called_with(az=180, el=50)
+    seq.run.CLIENTS['acu'].go_to.start.assert_called_with(az=180, el=50)

@@ -5,9 +5,13 @@ The usual caveats apply, these interfaces might change without notice.
 """
 
 import datetime as dt
+import signal
 import time
 
+from functools import wraps
+
 import ocs
+import sorunlib as run
 
 from sorunlib.commands import _timestamp_to_utc_datetime
 
@@ -180,3 +184,39 @@ def monitor_process(client, operation, stop_time, check_interval=10):
 
         # Recompute diff
         diff = _seconds_until_target(stop_time)
+
+
+def protect_shutdown(f):
+    """Decorator to install temporary signal handlers while operations required
+    to safely shutdown are handled.
+
+    This will catch and print the caught signals to ``stdout`` while shutdown
+    is happening. Currently handles only ``SIGINT`` and ``SIGTERM``.
+
+    """
+    @wraps(f)
+    def wrapper(*args, **kwds):
+        def handler(sig, frame):
+            print(f'Caught {signal.Signals(sig).name} during shutdown.')
+
+        int_handler = signal.signal(signal.SIGINT, handler)
+        term_handler = signal.signal(signal.SIGTERM, handler)
+
+        result = f(*args, **kwds)
+
+        signal.signal(signal.SIGINT, int_handler)
+        signal.signal(signal.SIGTERM, term_handler)
+        return result
+    return wrapper
+
+
+@protect_shutdown
+def stop_smurfs():
+    """Simple wrapper to shutdown all SMuRF systems and handle any errors that
+    occur.
+
+    """
+    try:
+        run.smurf.stream('off')
+    except RuntimeError as e:
+        print(f"Caught error while shutting down SMuRF streams: {e}")

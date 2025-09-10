@@ -15,7 +15,8 @@ def move_to(az, el):
 
     """
     acu = run.CLIENTS['acu']
-    resp = acu.go_to(az=az, el=el)
+    acu.go_to.start(az=az, el=el)
+    resp = acu.go_to.wait(timeout=600)
     check_response(acu, resp)
 
 

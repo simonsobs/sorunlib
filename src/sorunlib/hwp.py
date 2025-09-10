@@ -1,5 +1,5 @@
 import sorunlib as run
-from sorunlib._internal import check_response
+from sorunlib._internal import check_response, stop_smurfs
 
 
 def _get_direction():
@@ -74,7 +74,7 @@ def spin_up(freq):
         check_response(hwp, resp)
         run.hwp.set_freq(freq=freq, timeout=1800)
     finally:
-        run.smurf.stream('off')
+        stop_smurfs()
 
 
 def spin_down(active=True, brake_voltage=None):
@@ -97,7 +97,7 @@ def spin_down(active=True, brake_voltage=None):
         resp = hwp.disable_driver_board()
         check_response(hwp, resp)
     finally:
-        run.smurf.stream('off')
+        stop_smurfs()
 
 
 def stop(active=True, brake_voltage=None):
