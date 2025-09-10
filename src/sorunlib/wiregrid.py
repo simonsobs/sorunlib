@@ -1,7 +1,7 @@
 import time
 
 import sorunlib as run
-from sorunlib._internal import check_response, check_running
+from sorunlib._internal import check_response, check_running, stop_smurfs
 
 EL_DIFF_THRESHOLD = 0.5  # deg diff from target that its ok to run calibration
 BORESIGHT_DIFF_THRESHOLD = 0.5  # deg
@@ -322,7 +322,7 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
         eject()
     finally:
         # Stop SMuRF streams
-        run.smurf.stream('off')
+        stop_smurfs()
 
 
 def time_constant(num_repeats=1):
@@ -381,7 +381,7 @@ def time_constant(num_repeats=1):
         insert()
         time.sleep(5)
     finally:
-        run.smurf.stream('off')
+        stop_smurfs()
 
     for i in range(num_repeats):
         if current_hwp_direction == 'ccw':
@@ -404,7 +404,7 @@ def time_constant(num_repeats=1):
             # Run stepwise rotation
             rotate(continuous=False)
         finally:
-            run.smurf.stream('off')
+            stop_smurfs()
 
         # Stop the HWP while streaming
         try:
@@ -413,7 +413,7 @@ def time_constant(num_repeats=1):
             run.smurf.stream('on', tag=stream_tag, subtype='cal')
             run.hwp.stop(active=True)
         finally:
-            run.smurf.stream('off')
+            stop_smurfs()
 
         # Reverse the HWP while streaming
         try:
@@ -430,7 +430,7 @@ def time_constant(num_repeats=1):
                 run.hwp.set_freq(freq=-2.0)
             current_hwp_direction = target_hwp_direction
         finally:
-            run.smurf.stream('off')
+            stop_smurfs()
 
     # Run stepwise rotation after changing the HWP rotation
     try:
@@ -441,7 +441,7 @@ def time_constant(num_repeats=1):
         # Run stepwise rotation
         rotate(continuous=False)
     finally:
-        run.smurf.stream('off')
+        stop_smurfs()
 
     # Bias step (the wire grid is on the window)
     # After changing the HWP rotation
@@ -458,7 +458,7 @@ def time_constant(num_repeats=1):
         eject()
         time.sleep(5)
     finally:
-        run.smurf.stream('off')
+        stop_smurfs()
 
     # Bias step (the wire grid is off the window)
     bs_tag = 'wiregrid, wg_time_constant, wg_ejected, ' + \

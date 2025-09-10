@@ -1,6 +1,6 @@
 import time
 import sorunlib as run
-from sorunlib._internal import check_response
+from sorunlib._internal import check_response, stop_smurfs
 
 ID_SHUTTER = 1
 
@@ -99,10 +99,7 @@ def calibrate_tau(duration_step=10,
 
             time.sleep(duration_step)
     finally:
-        try:
-            run.smurf.stream('off')
-        except RuntimeError as e:
-            print(f"Caught error while shutting down SMuRF streams: {e}")
+        stop_smurfs()
 
         if stop:
             _stop()
@@ -147,10 +144,7 @@ def calibrate_gain(duration=60, speed_rpm=90,
         # Data taking
         time.sleep(duration)
     finally:
-        try:
-            run.smurf.stream('off')
-        except RuntimeError as e:
-            print(f"Caught error while shutting down SMuRF streams: {e}")
+        stop_smurfs()
 
         if stop:
             _stop()
