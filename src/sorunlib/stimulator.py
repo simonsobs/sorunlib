@@ -11,7 +11,7 @@ def _open_shutter():
     resp = ds.set_relay(relay_number=ID_SHUTTER, on_off=1)
     check_response(ds, resp)
 
-    time.sleep(1)
+    time.sleep(3)
 
 
 def _close_shutter():
@@ -20,7 +20,7 @@ def _close_shutter():
     resp = ds.set_relay(relay_number=ID_SHUTTER, on_off=0)
     check_response(ds, resp)
 
-    time.sleep(1)
+    time.sleep(3)
 
 
 def _setup():
@@ -29,7 +29,7 @@ def _setup():
 
     # Acceleration / Decceleration configuration
     blh = run.CLIENTS['stimulator']['blh']
-    resp = blh.set_value(accl_time=10, decl_time=10)
+    resp = blh.set_values(accl_time=10, decl_time=10)
     check_response(blh, resp)
 
 
@@ -45,10 +45,10 @@ def _stop():
     _close_shutter()
 
 
-def calibrate_tau(duration_step=10,
+def calibrate_tau(duration_step=20,
                   speeds_rpm=[225, 495, 945, 1395, 1845, 2205],
                   forward=True, do_setup=True, stop=True,
-                  downsample_factor=8, filter_order=4, filter_cutoff=300):
+                  downsample_factor=8, filter_disable=True, filter_order=4, filter_cutoff=1000):
     """Time constant calibration using the stimulator.
 
     Parameters
@@ -76,13 +76,13 @@ def calibrate_tau(duration_step=10,
 
     try:
         run.smurf.stream('on', tag='stimulator, time_constant', subtype='cal',
-                         filter_order=filter_order, filter_cutoff=filter_cutoff,
-                         downsample_factor=downsample_factor)
+                         downsample_factor=downsample_factor,
+                         filter_disable=filter_disable, filter_order=filter_order, filter_cutoff=filter_cutoff)
 
         if do_setup:
             _setup()
             # Rotation setting
-            resp = blh.set_value(speed=speeds_rpm[0])
+            resp = blh.set_values(speed=speeds_rpm[0])
             check_response(blh, resp)
 
             resp = blh.start_rotation(forward=forward)
@@ -94,7 +94,7 @@ def calibrate_tau(duration_step=10,
             time.sleep(duration_step)
 
         for speed_rpm in speeds_rpm:
-            resp = blh.set_value(speed=speed_rpm)
+            resp = blh.set_values(speed=speed_rpm)
             check_response(blh, resp)
 
             time.sleep(duration_step)
@@ -106,7 +106,8 @@ def calibrate_tau(duration_step=10,
 
 
 def calibrate_gain(duration=60, speed_rpm=90,
-                   forward=True, do_setup=True, stop=True):
+                   forward=True, do_setup=True, stop=True,
+                   downsample_factor=8, filter_disable=True, filter_order=4, filter_cutoff=1000):
     """Gain calibration with the stimulator
 
     Parameters
@@ -127,7 +128,7 @@ def calibrate_gain(duration=60, speed_rpm=90,
     blh = run.CLIENTS['stimulator']['blh']
 
     try:
-        resp = blh.set_value(speed=speed_rpm)
+        resp = blh.set_values(speed=speed_rpm)
         check_response(blh, resp)
 
         if do_setup:
@@ -139,7 +140,10 @@ def calibrate_gain(duration=60, speed_rpm=90,
         # Sleep for rotation stabilization
         time.sleep(10)
 
-        run.smurf.stream('on', tag='stimulator, gain', subtype='cal')
+        run.smurf.stream('on', tag='stimulator, gain', subtype='cal',
+                         downsample_factor=downsample_factor,
+                         filter_disable=filter_disable, filter_order=filter_order, filter_cutoff=filter_cutoff)
+
 
         # Data taking
         time.sleep(duration)
