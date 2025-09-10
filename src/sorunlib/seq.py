@@ -25,7 +25,7 @@ def _stop_scan():
     print("Scan finished.")
 
 
-def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None,
+def scan(description, stop_time, width, az_drift=0, type=1, tag=None, subtype=None,
          min_duration=None):
     """Run a constant elevation scan, collecting detector data.
 
@@ -37,6 +37,7 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None,
             current position and move in the positive azimuth direction.
         az_drift (float): Drift velocity in deg/s, causing scan extrema to move
             accordingly.
+        type (int): Scan type.  Possible values are 1, 2, or 3.
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation. Passed through to the smurf stream command.
         subtype (str, optional): Operation subtype used to tag the stream.
@@ -77,7 +78,8 @@ def scan(description, stop_time, width, az_drift=0, tag=None, subtype=None,
                                        el_endpoint1=el,
                                        el_endpoint2=el,
                                        el_speed=0,
-                                       az_drift=az_drift)
+                                       az_drift=az_drift,
+                                       type=type)
         check_started(acu, resp)
 
         # Wait until stop time
