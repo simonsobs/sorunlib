@@ -1,6 +1,6 @@
 import time
 import sorunlib as run
-from sorunlib._internal import check_response, stop_smurfs
+from sorunlib._internal import check_response, protect_shutdown, stop_smurfs
 
 ID_SHUTTER = 1
 
@@ -33,6 +33,7 @@ def _setup():
     check_response(blh, resp)
 
 
+@protect_shutdown
 def _stop():
     blh = run.CLIENTS['stimulator']['blh']
 
