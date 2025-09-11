@@ -144,7 +144,6 @@ def calibrate_gain(duration=60, speed_rpm=90,
                          downsample_factor=downsample_factor,
                          filter_disable=filter_disable, filter_order=filter_order, filter_cutoff=filter_cutoff)
 
-
         # Data taking
         time.sleep(duration)
     finally:
