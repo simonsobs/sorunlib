@@ -66,6 +66,8 @@ def calibrate_tau(duration_step=20,
         Stop the rotation and close the shutter if True. Defaults to True.
     downsample_factor : int, optional
         Downsample factor for SMuRF. Defaults to 8.
+    filter_disable : bool, optional
+        If True, will disable the downsample filter before streaming. Defaults to True.
     filter_order : int, optional
         Order of the downsample filter for SMuRF. Defaults to 4.
     filter_cutoff : float, optional
@@ -124,6 +126,14 @@ def calibrate_gain(duration=60, speed_rpm=90,
         Defaults to True.
     stop : bool, optional
         Stop the rotation and close the shutter if True. Defaults to True.
+    downsample_factor : int, optional
+        Downsample factor for SMuRF. Defaults to 8.
+    filter_disable : bool, optional
+        If True, will disable the downsample filter before streaming. Defaults to True.
+    filter_order : int, optional
+        Order of the downsample filter for SMuRF. Defaults to 4.
+    filter_cutoff : float, optional
+        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to 1000.
     """
     blh = run.CLIENTS['stimulator']['blh']
 
