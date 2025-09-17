@@ -54,7 +54,7 @@ def calibrate_tau(duration_step=20,
     Parameters
     ----------
     duration_step : float, optional
-        Duration of each step of time constant measurement in sec, default to 10 sec.
+        Duration of each step of time constant measurement in sec, default to 20 sec.
     speeds_rpm : list of float, optional
         List of chopper rotation speed in RPM for each step. Defaults to [225, 495, 945, 1395, 1845, 2205].
     forward : bool, optional
@@ -71,7 +71,7 @@ def calibrate_tau(duration_step=20,
     filter_order : int, optional
         Order of the downsample filter for SMuRF. Defaults to 4.
     filter_cutoff : float, optional
-        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to 300.
+        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to 1000.
     """
 
     blh = run.CLIENTS['stimulator']['blh']
