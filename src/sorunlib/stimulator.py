@@ -78,7 +78,13 @@ def calibrate_tau(duration_step=20,
     blh = run.CLIENTS['stimulator']['blh']
 
     try:
-        run.smurf.stream('on', tag='stimulator, time_constant', subtype='cal',
+        run.smurf.stream('on',
+                         tag='stimulator, time_constant,'\
+                         f' downsample_factor:{downsample_factor:.0f},'\
+                         f' filter_disable:{filter_disable},'\
+                         f' filter_order:{filter_order:.0f},'\
+                         f' filter_cutoff:{filter_cutoff:.0f}',
+                         subtype='cal',
                          downsample_factor=downsample_factor,
                          filter_disable=filter_disable,
                          filter_order=filter_order,
@@ -153,7 +159,13 @@ def calibrate_gain(duration=60, speed_rpm=90,
         # Sleep for rotation stabilization
         time.sleep(10)
 
-        run.smurf.stream('on', tag='stimulator, gain', subtype='cal',
+        run.smurf.stream('on',
+                         tag=f'stimulator, gain,'\
+                         f' downsample_factor:{downsample_factor:.0f},'\
+                         f' filter_disable:{filter_disable},'\
+                         f' filter_order:{filter_order:.0f},'\
+                         f' filter_cutoff:{filter_cutoff:.0f}',
+                         subtype='cal',
                          downsample_factor=downsample_factor,
                          filter_disable=filter_disable,
                          filter_order=filter_order,
