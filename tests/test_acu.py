@@ -67,10 +67,11 @@ def test_set_boresight_lat(patch_clients_lat):
 
 
 def test_set_scan_params(patch_clients_satp):
-    acu.set_scan_params(az_speed=2, az_accel=2, reset=True)
+    acu.set_scan_params(az_speed=2, az_accel=2, el_freq=0, reset=True)
     acu.run.CLIENTS['acu'].set_scan_params.assert_called_with(
         az_speed=2,
         az_accel=2,
+        el_freq=0,
         reset=True)
 
 
