@@ -49,7 +49,7 @@ def _stop():
 def calibrate_tau(duration_step=20,
                   speeds_rpm=[225, 495, 945, 1395, 1845, 2205],
                   forward=True, do_setup=True, stop=True,
-                  downsample_factor=8, filter_disable=False, filter_order=4, filter_cutoff=None):
+                  downsample_factor=8, filter_disable=False, filter_order=None, filter_cutoff=None):
     """Time constant calibration using the stimulator.
 
     Parameters
@@ -70,7 +70,7 @@ def calibrate_tau(duration_step=20,
     filter_disable : bool, optional
         If True, will disable the downsample filter before streaming. Defaults to True.
     filter_order : int, optional
-        Order of the downsample filter for SMuRF. Defaults to 4.
+        Order of the downsample filter for SMuRF. Defaults to None.
     filter_cutoff : float, optional
         The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to None.
         Will be (63/200)*sampling_rate if None.
@@ -88,7 +88,7 @@ def calibrate_tau(duration_step=20,
                 filter_cutoff = int(63/200 * 4000/downsample_factor)
             tag += f', filter_cutoff {filter_cutoff:.0f}',
 
-            if filter_order != 4:
+            if filter_order is not None and filter_order != 4:
                 tag += f', filter_order {filter_order:.0f}'
 
         run.smurf.stream('on',
@@ -127,7 +127,7 @@ def calibrate_tau(duration_step=20,
 
 def calibrate_gain(duration=60, speed_rpm=90,
                    forward=True, do_setup=True, stop=True,
-                   downsample_factor=8, filter_disable=False, filter_order=4, filter_cutoff=None):
+                   downsample_factor=8, filter_disable=False, filter_order=None, filter_cutoff=None):
     """Gain calibration with the stimulator
 
     Parameters
@@ -149,7 +149,7 @@ def calibrate_gain(duration=60, speed_rpm=90,
     filter_disable : bool, optional
         If True, will disable the downsample filter before streaming. Defaults to True.
     filter_order : int, optional
-        Order of the downsample filter for SMuRF. Defaults to 4.
+        Order of the downsample filter for SMuRF. Defaults to None.
     filter_cutoff : float, optional
         The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to None.
         Will be (63/200)*sampling_rate if None.
@@ -176,7 +176,7 @@ def calibrate_gain(duration=60, speed_rpm=90,
             tag += f', filter_disable {filter_disable}'
         else:
             tag += f', filter_cutoff {filter_cutoff:.0f}',
-            if filter_order != 4:
+            if filter_order is not None and filter_order != 4:
                 tag += f', filter_order {filter_order:.0f}'
 
         run.smurf.stream('on',
