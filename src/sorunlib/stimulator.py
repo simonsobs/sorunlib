@@ -79,12 +79,16 @@ def calibrate_tau(duration_step=20,
     blh = run.CLIENTS['stimulator']['blh']
 
     try:
+        tag = f'stimulator, time_constant, downsample_factor {downsample_factor:.0f}'
+        if filter_disable is True:
+            tag += f', filter_disable {filter_disable}'
+        else:
+            tag += f', filter_cutoff {filter_cutoff:.0f}',
+            if filter_order != 4:
+                tag += f', filter_order {filter_order:.0f}'
+
         run.smurf.stream('on',
-                         tag='stimulator, time_constant,'
-                         f' downsample_factor:{downsample_factor:.0f},'
-                         f' filter_disable:{filter_disable},'
-                         f' filter_order:{filter_order:.0f},'
-                         f' filter_cutoff:{filter_cutoff:.0f}',
+                         tag=tag,
                          subtype='cal',
                          downsample_factor=downsample_factor,
                          filter_disable=filter_disable,
@@ -161,12 +165,16 @@ def calibrate_gain(duration=60, speed_rpm=90,
         # Sleep for rotation stabilization
         time.sleep(10)
 
+        tag = f'stimulator, gain, downsample_factor {downsample_factor:.0f}'
+        if filter_disable is True:
+            tag += f', filter_disable {filter_disable}'
+        else:
+            tag += f', filter_cutoff {filter_cutoff:.0f}',
+            if filter_order != 4:
+                tag += f', filter_order {filter_order:.0f}'
+
         run.smurf.stream('on',
-                         tag=f'stimulator, gain,'
-                         f' downsample_factor:{downsample_factor:.0f},'
-                         f' filter_disable:{filter_disable},'
-                         f' filter_order:{filter_order:.0f},'
-                         f' filter_cutoff:{filter_cutoff:.0f}',
+                         tag=tag,
                          subtype='cal',
                          downsample_factor=downsample_factor,
                          filter_disable=filter_disable,
