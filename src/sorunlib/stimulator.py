@@ -49,7 +49,7 @@ def _stop():
 def calibrate_tau(duration_step=20,
                   speeds_rpm=[225, 495, 945, 1395, 1845, 2205],
                   forward=True, do_setup=True, stop=True,
-                  downsample_factor=8, filter_disable=True, filter_order=4, filter_cutoff=None):
+                  downsample_factor=8, filter_disable=False, filter_order=4, filter_cutoff=None):
     """Time constant calibration using the stimulator.
 
     Parameters
@@ -119,7 +119,7 @@ def calibrate_tau(duration_step=20,
 
 def calibrate_gain(duration=60, speed_rpm=90,
                    forward=True, do_setup=True, stop=True,
-                   downsample_factor=8, filter_disable=True, filter_order=4, filter_cutoff=None):
+                   downsample_factor=8, filter_disable=False, filter_order=4, filter_cutoff=None):
     """Gain calibration with the stimulator
 
     Parameters
