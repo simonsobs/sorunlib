@@ -77,13 +77,17 @@ def calibrate_tau(duration_step=20,
     """
 
     blh = run.CLIENTS['stimulator']['blh']
+    downsample_factor = int(downsample_factor)
 
     try:
         tag = f'stimulator, time_constant, downsample_factor {downsample_factor:.0f}'
         if filter_disable is True:
             tag += f', filter_disable {filter_disable}'
         else:
+            if filter_cutoff is None:
+                filter_cutoff = int(63/200 * 4000/downsample_factor)
             tag += f', filter_cutoff {filter_cutoff:.0f}',
+
             if filter_order != 4:
                 tag += f', filter_order {filter_order:.0f}'
 
@@ -150,7 +154,9 @@ def calibrate_gain(duration=60, speed_rpm=90,
         The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to None.
         Will be (63/200)*sampling_rate if None.
     """
+
     blh = run.CLIENTS['stimulator']['blh']
+    downsample_factor = int(downsample_factor)
 
     try:
         resp = blh.set_values(speed=speed_rpm)
