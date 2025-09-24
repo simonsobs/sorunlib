@@ -49,7 +49,7 @@ def _stop():
 def calibrate_tau(duration_step=20,
                   speeds_rpm=[225, 495, 945, 1395, 1845, 2205],
                   forward=True, do_setup=True, stop=True,
-                  downsample_factor=8, filter_disable=True, filter_order=4, filter_cutoff=1000):
+                  downsample_factor=8, filter_disable=True, filter_order=4, filter_cutoff=None):
     """Time constant calibration using the stimulator.
 
     Parameters
@@ -72,7 +72,8 @@ def calibrate_tau(duration_step=20,
     filter_order : int, optional
         Order of the downsample filter for SMuRF. Defaults to 4.
     filter_cutoff : float, optional
-        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to 1000.
+        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to None.
+        Will be (63/200)*sampling_rate if None.
     """
 
     blh = run.CLIENTS['stimulator']['blh']
@@ -118,7 +119,7 @@ def calibrate_tau(duration_step=20,
 
 def calibrate_gain(duration=60, speed_rpm=90,
                    forward=True, do_setup=True, stop=True,
-                   downsample_factor=8, filter_disable=True, filter_order=4, filter_cutoff=1000):
+                   downsample_factor=8, filter_disable=True, filter_order=4, filter_cutoff=None):
     """Gain calibration with the stimulator
 
     Parameters
@@ -142,7 +143,8 @@ def calibrate_gain(duration=60, speed_rpm=90,
     filter_order : int, optional
         Order of the downsample filter for SMuRF. Defaults to 4.
     filter_cutoff : float, optional
-        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to 1000.
+        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to None.
+        Will be (63/200)*sampling_rate if None.
     """
     blh = run.CLIENTS['stimulator']['blh']
 
