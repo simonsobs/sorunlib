@@ -82,7 +82,7 @@ def calibrate_tau(duration_step=20,
     try:
         tag = f'stimulator, time_constant, downsample_factor {downsample_factor:.0f}'
         if filter_disable is True:
-            tag += f', filter_disable {filter_disable}'
+            tag += ', filter_disabled'
         else:
             if filter_cutoff is None:
                 filter_cutoff = int(63/200 * 4000/downsample_factor)
@@ -173,7 +173,7 @@ def calibrate_gain(duration=60, speed_rpm=90,
 
         tag = f'stimulator, gain, downsample_factor {downsample_factor:.0f}'
         if filter_disable is True:
-            tag += f', filter_disable {filter_disable}'
+            tag += ', filter_disabled'
         else:
             if filter_cutoff is None:
                 filter_cutoff = int(63/200 * 4000/downsample_factor)
