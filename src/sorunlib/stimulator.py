@@ -74,7 +74,6 @@ def calibrate_tau(duration_step=20,
         If None is passed, the pysmurf default(normally 4) will be used.
     filter_cutoff : float, optional
         The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to None.
-        Will be (63/200)*sampling_rate if None.
         If None is passed, will be (63/200)*sampling_rate.
     """
 
