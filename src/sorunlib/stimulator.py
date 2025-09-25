@@ -251,7 +251,7 @@ def calibrate_gain_tau(duration_gain=60, duration_tau=10, duration_stabilization
         # Start data taking
         tag = f'stimulator,gain_and_timeconstant,downsample_factor_{downsample_factor:.0f}'
         if filter_disable is True:
-            tag += f',filter_disabled'
+            tag += ',filter_disabled'
         else:
             if filter_cutoff is None:
                 filter_cutoff = int(63 / 200 * 4000 / downsample_factor)
