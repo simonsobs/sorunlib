@@ -88,10 +88,10 @@ def calibrate_tau(duration_step=20,
         else:
             if filter_cutoff is None:
                 filter_cutoff = int(63/200 * 4000/downsample_factor)
-            tag += f', filter_cutoff {filter_cutoff:.0f}'
+            tag += f', filter_cutoff_{filter_cutoff:.0f}'
 
             if filter_order is not None and filter_order != 4:
-                tag += f', filter_order {filter_order:.0f}'
+                tag += f', filter_order_{filter_order:.0f}'
 
         run.smurf.stream('on',
                          tag=tag,
@@ -180,9 +180,9 @@ def calibrate_gain(duration=60, speed_rpm=90,
         else:
             if filter_cutoff is None:
                 filter_cutoff = int(63/200 * 4000/downsample_factor)
-            tag += f', filter_cutoff {filter_cutoff:.0f}'
+            tag += f', filter_cutoff_{filter_cutoff:.0f}'
             if filter_order is not None and filter_order != 4:
-                tag += f', filter_order {filter_order:.0f}'
+                tag += f', filter_order_{filter_order:.0f}'
 
         run.smurf.stream('on',
                          tag=tag,
