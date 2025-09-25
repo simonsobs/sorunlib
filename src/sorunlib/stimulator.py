@@ -202,7 +202,7 @@ def calibrate_gain_tau(duration_gain=60, duration_tau=10, duration_stabilization
                        speed_rpm_gain=90, speeds_rpm_tau=[225, 495, 945, 1395, 1845, 2205],
                        forward=True, do_setup=True,
                        downsample_factor=8, filter_disable=False, filter_order=None, filter_cutoff=None):
-    """Gain and time-constant calibration ath the same time
+    """Gain and time-constant calibration at the same time
 
     Parameters
     ----------
