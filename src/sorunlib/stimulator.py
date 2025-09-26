@@ -68,7 +68,7 @@ def calibrate_tau(duration_step=20,
     downsample_factor : int, optional
         Downsample factor for SMuRF. Defaults to 8.
     filter_disable : bool, optional
-        If True, will disable the downsample filter before streaming. Defaults to True.
+        If True, will disable the downsample filter before streaming. Defaults to False.
     filter_order : int, optional
         Order of the downsample filter for SMuRF. Defaults to None.
         If None is passed, the pysmurf default(normally 4) will be used.
@@ -148,7 +148,7 @@ def calibrate_gain(duration=60, speed_rpm=90,
     downsample_factor : int, optional
         Downsample factor for SMuRF. Defaults to 8.
     filter_disable : bool, optional
-        If True, will disable the downsample filter before streaming. Defaults to True.
+        If True, will disable the downsample filter before streaming. Defaults to False.
     filter_order : int, optional
         Order of the downsample filter for SMuRF. Defaults to None.
         If None is passed, the pysmurf default(normally 4) will be used.
