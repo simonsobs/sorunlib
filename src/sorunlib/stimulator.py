@@ -11,7 +11,7 @@ def _open_shutter():
     resp = ds.set_relay(relay_number=ID_SHUTTER, on_off=1)
     check_response(ds, resp)
 
-    time.sleep(1)
+    time.sleep(3)
 
 
 def _close_shutter():
@@ -20,7 +20,7 @@ def _close_shutter():
     resp = ds.set_relay(relay_number=ID_SHUTTER, on_off=0)
     check_response(ds, resp)
 
-    time.sleep(1)
+    time.sleep(3)
 
 
 def _setup():
@@ -29,7 +29,7 @@ def _setup():
 
     # Acceleration / Decceleration configuration
     blh = run.CLIENTS['stimulator']['blh']
-    resp = blh.set_value(accl_time=10, decl_time=10)
+    resp = blh.set_values(accl_time=10, decl_time=10)
     check_response(blh, resp)
 
 
@@ -46,16 +46,16 @@ def _stop():
     _close_shutter()
 
 
-def calibrate_tau(duration_step=10,
+def calibrate_tau(duration_step=20,
                   speeds_rpm=[225, 495, 945, 1395, 1845, 2205],
                   forward=True, do_setup=True, stop=True,
-                  downsample_factor=8, filter_order=4, filter_cutoff=300):
+                  downsample_factor=8, filter_disable=False, filter_order=None, filter_cutoff=None):
     """Time constant calibration using the stimulator.
 
     Parameters
     ----------
     duration_step : float, optional
-        Duration of each step of time constant measurement in sec, default to 10 sec.
+        Duration of each step of time constant measurement in sec, default to 20 sec.
     speeds_rpm : list of float, optional
         List of chopper rotation speed in RPM for each step. Defaults to [225, 495, 945, 1395, 1845, 2205].
     forward : bool, optional
@@ -67,23 +67,43 @@ def calibrate_tau(duration_step=10,
         Stop the rotation and close the shutter if True. Defaults to True.
     downsample_factor : int, optional
         Downsample factor for SMuRF. Defaults to 8.
+    filter_disable : bool, optional
+        If True, will disable the downsample filter before streaming. Defaults to False.
     filter_order : int, optional
-        Order of the downsample filter for SMuRF. Defaults to 4.
+        Order of the downsample filter for SMuRF. Defaults to None.
+        If None is passed, the pysmurf default(normally 4) will be used.
     filter_cutoff : float, optional
-        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to 300.
+        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to None.
+        If None is passed, will be (63/200)*sampling_rate.
     """
 
     blh = run.CLIENTS['stimulator']['blh']
+    downsample_factor = int(downsample_factor)
 
     try:
-        run.smurf.stream('on', tag='stimulator, time_constant', subtype='cal',
-                         filter_order=filter_order, filter_cutoff=filter_cutoff,
-                         downsample_factor=downsample_factor)
+        tag = f'stimulator,time_constant,downsample_factor_{downsample_factor:.0f}'
+        if filter_disable is True:
+            tag += ',filter_disabled'
+        else:
+            if filter_cutoff is None:
+                filter_cutoff = int(63 / 200 * 4000 / downsample_factor)
+            tag += f',filter_cutoff_{filter_cutoff:.0f}'
+
+            if filter_order is not None and filter_order != 4:
+                tag += f',filter_order_{filter_order:.0f}'
+
+        run.smurf.stream('on',
+                         tag=tag,
+                         subtype='cal',
+                         downsample_factor=downsample_factor,
+                         filter_disable=filter_disable,
+                         filter_order=filter_order,
+                         filter_cutoff=filter_cutoff)
 
         if do_setup:
             _setup()
             # Rotation setting
-            resp = blh.set_value(speed=speeds_rpm[0])
+            resp = blh.set_values(speed=speeds_rpm[0])
             check_response(blh, resp)
 
             resp = blh.start_rotation(forward=forward)
@@ -95,7 +115,7 @@ def calibrate_tau(duration_step=10,
             time.sleep(duration_step)
 
         for speed_rpm in speeds_rpm:
-            resp = blh.set_value(speed=speed_rpm)
+            resp = blh.set_values(speed=speed_rpm)
             check_response(blh, resp)
 
             time.sleep(duration_step)
@@ -107,7 +127,8 @@ def calibrate_tau(duration_step=10,
 
 
 def calibrate_gain(duration=60, speed_rpm=90,
-                   forward=True, do_setup=True, stop=True):
+                   forward=True, do_setup=True, stop=True,
+                   downsample_factor=8, filter_disable=False, filter_order=None, filter_cutoff=None):
     """Gain calibration with the stimulator
 
     Parameters
@@ -124,11 +145,23 @@ def calibrate_gain(duration=60, speed_rpm=90,
         Defaults to True.
     stop : bool, optional
         Stop the rotation and close the shutter if True. Defaults to True.
+    downsample_factor : int, optional
+        Downsample factor for SMuRF. Defaults to 8.
+    filter_disable : bool, optional
+        If True, will disable the downsample filter before streaming. Defaults to False.
+    filter_order : int, optional
+        Order of the downsample filter for SMuRF. Defaults to None.
+        If None is passed, the pysmurf default(normally 4) will be used.
+    filter_cutoff : float, optional
+        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to None.
+        If None is passed, will be (63/200)*sampling_rate.
     """
+
     blh = run.CLIENTS['stimulator']['blh']
+    downsample_factor = int(downsample_factor)
 
     try:
-        resp = blh.set_value(speed=speed_rpm)
+        resp = blh.set_values(speed=speed_rpm)
         check_response(blh, resp)
 
         if do_setup:
@@ -140,7 +173,23 @@ def calibrate_gain(duration=60, speed_rpm=90,
         # Sleep for rotation stabilization
         time.sleep(10)
 
-        run.smurf.stream('on', tag='stimulator, gain', subtype='cal')
+        tag = f'stimulator,gain,downsample_factor_{downsample_factor:.0f}'
+        if filter_disable is True:
+            tag += ',filter_disabled'
+        else:
+            if filter_cutoff is None:
+                filter_cutoff = int(63 / 200 * 4000 / downsample_factor)
+            tag += f',filter_cutoff_{filter_cutoff:.0f}'
+            if filter_order is not None and filter_order != 4:
+                tag += f',filter_order_{filter_order:.0f}'
+
+        run.smurf.stream('on',
+                         tag=tag,
+                         subtype='cal',
+                         downsample_factor=downsample_factor,
+                         filter_disable=filter_disable,
+                         filter_order=filter_order,
+                         filter_cutoff=filter_cutoff)
 
         # Data taking
         time.sleep(duration)
