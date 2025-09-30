@@ -68,14 +68,6 @@ def calibrate_tau(duration_step=20,
     downsample_factor : int, optional
         Downsample factor for SMuRF. Defaults to 8.
     filter_disable : bool, optional
-<<<<<<< HEAD
-        If True, will disable the downsample filter before streaming. Defaults to True.
-    filter_order : int, optional
-        Order of the downsample filter for SMuRF. Defaults to None.
-    filter_cutoff : float, optional
-        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to None.
-        Will be (63/200)*sampling_rate if None.
-=======
         If True, will disable the downsample filter before streaming. Defaults to False.
     filter_order : int, optional
         Order of the downsample filter for SMuRF. Defaults to None.
@@ -83,25 +75,12 @@ def calibrate_tau(duration_step=20,
     filter_cutoff : float, optional
         The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to None.
         If None is passed, will be (63/200)*sampling_rate.
->>>>>>> origin/main
     """
 
     blh = run.CLIENTS['stimulator']['blh']
     downsample_factor = int(downsample_factor)
 
     try:
-<<<<<<< HEAD
-        tag = f'stimulator, time_constant, downsample_factor {downsample_factor:.0f}'
-        if filter_disable is True:
-            tag += f', filter_disable {filter_disable}'
-        else:
-            if filter_cutoff is None:
-                filter_cutoff = int(63 / 200 * 4000 / downsample_factor)
-            tag += f', filter_cutoff {filter_cutoff:.0f}'
-
-            if filter_order is not None and filter_order != 4:
-                tag += f', filter_order {filter_order:.0f}'
-=======
         tag = f'stimulator,time_constant,downsample_factor_{downsample_factor:.0f}'
         if filter_disable is True:
             tag += ',filter_disabled'
@@ -112,7 +91,6 @@ def calibrate_tau(duration_step=20,
 
             if filter_order is not None and filter_order != 4:
                 tag += f',filter_order_{filter_order:.0f}'
->>>>>>> origin/main
 
         run.smurf.stream('on',
                          tag=tag,
@@ -170,14 +148,6 @@ def calibrate_gain(duration=60, speed_rpm=90,
     downsample_factor : int, optional
         Downsample factor for SMuRF. Defaults to 8.
     filter_disable : bool, optional
-<<<<<<< HEAD
-        If True, will disable the downsample filter before streaming. Defaults to True.
-    filter_order : int, optional
-        Order of the downsample filter for SMuRF. Defaults to None.
-    filter_cutoff : float, optional
-        The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to None.
-        Will be (63/200)*sampling_rate if None.
-=======
         If True, will disable the downsample filter before streaming. Defaults to False.
     filter_order : int, optional
         Order of the downsample filter for SMuRF. Defaults to None.
@@ -185,7 +155,6 @@ def calibrate_gain(duration=60, speed_rpm=90,
     filter_cutoff : float, optional
         The cutoff frequency in Hz for the downsample filter for SMuRF. Defaults to None.
         If None is passed, will be (63/200)*sampling_rate.
->>>>>>> origin/main
     """
 
     blh = run.CLIENTS['stimulator']['blh']
