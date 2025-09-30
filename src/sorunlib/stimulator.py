@@ -90,7 +90,9 @@ def calibrate_tau(duration_step=20,
     downsample_factor = int(downsample_factor)
 
     try:
-<<<<<<< HEAD
+
+
+<< << << < HEAD
         tag = f'stimulator, time_constant, downsample_factor {downsample_factor:.0f}'
         if filter_disable is True:
             tag += f', filter_disable {filter_disable}'
@@ -101,7 +103,7 @@ def calibrate_tau(duration_step=20,
 
             if filter_order is not None and filter_order != 4:
                 tag += f', filter_order {filter_order:.0f}'
-=======
+== == == =
         tag = f'stimulator,time_constant,downsample_factor_{downsample_factor:.0f}'
         if filter_disable is True:
             tag += ',filter_disabled'
@@ -112,7 +114,7 @@ def calibrate_tau(duration_step=20,
 
             if filter_order is not None and filter_order != 4:
                 tag += f',filter_order_{filter_order:.0f}'
->>>>>>> origin/main
+>>>>>> > origin / main
 
         run.smurf.stream('on',
                          tag=tag,
