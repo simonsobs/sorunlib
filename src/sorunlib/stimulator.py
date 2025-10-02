@@ -272,7 +272,7 @@ def calibrate_gain_tau(duration_gain=60, duration_tau=10, duration_stabilization
         time.sleep(duration_gain)
 
         for speed_rpm in speeds_rpm_tau:
-            resp = blh.set_values(speed=speeds_rpm_tau)
+            resp = blh.set_values(speed=speed_rpm)
             check_response(blh, resp)
 
             time.sleep(duration_stabilization)
