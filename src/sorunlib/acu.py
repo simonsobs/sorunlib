@@ -61,13 +61,15 @@ def set_boresight(target):
     check_response(acu, resp)
 
 
-def set_scan_params(az_speed, az_accel, reset=False):
+def set_scan_params(az_speed, az_accel, el_freq=None, reset=False):
     """Update the default scan parameters, used during :func:`sorunlib.seq.scan`.
 
     Args:
-        az_speed (float, optional): The azimuth scan speed.
-        az_accel (float, optional): The (average) azimuth acceleration at
+        az_speed (float): The azimuth scan speed.
+        az_accel (float): The (average) azimuth acceleration at
             turn-around.
+        el_freq (float, optional): The frequency of elevation nods in
+            type 3 scans.
         reset (bool, optional): If True, reset all params to default values
             before applying any updates passed explicitly here.
 
@@ -75,6 +77,7 @@ def set_scan_params(az_speed, az_accel, reset=False):
     acu = run.CLIENTS['acu']
     resp = acu.set_scan_params(az_speed=az_speed,
                                az_accel=az_accel,
+                               el_freq=el_freq,
                                reset=reset)
     check_response(acu, resp)
 
