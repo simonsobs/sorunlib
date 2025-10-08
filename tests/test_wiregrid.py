@@ -246,7 +246,7 @@ def test__check_agents_online():
                          [(True, 50, 'wiregrid, wg_continuous'),
                           (False, 90, 'wiregrid, wg_stepwise, wg_el90')])
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
-def test_calibrate_stepwise(patch_clients, continuous, el, tag):
+def test_calibrate_stepwise_no_biasstep(patch_clients, continuous, el, tag):
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, el, 0)
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
@@ -255,7 +255,7 @@ def test_calibrate_stepwise(patch_clients, continuous, el, tag):
     wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
     wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
 
-    wiregrid.calibrate(continuous=continuous)
+    wiregrid.calibrate(continuous=continuous, bias_step=False)
     # All other internal functions tested separately, just make sure smurf
     # stream is run
     for client in wiregrid.run.CLIENTS['smurf']:
@@ -265,6 +265,47 @@ def test_calibrate_stepwise(patch_clients, continuous, el, tag):
             kwargs={},
         )
         client.stream.stop.assert_called()
+
+
+@pytest.mark.parametrize('continuous, el, rotate_tag, el_tag',
+                         [(True, 50, 'wg_continuous', ''),
+                          (False, 90, 'wg_stepwise', ', wg_el90')])
+@patch('sorunlib.wiregrid.time.sleep', MagicMock())
+def test_calibrate_stepwise_with_biasstep(
+        patch_clients, continuous, el, rotate_tag, el_tag):
+    # Setup all mock clients
+    wiregrid.run.CLIENTS['acu'] = create_acu_client(180, el, 0)
+    wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
+        create_actuator_client(motor=1, position='inside')
+    wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
+    wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
+    wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
+
+    wiregrid.calibrate(continuous=continuous, bias_step=True)
+    # All other internal functions tested separately, just make sure smurf
+    # stream is run
+    expected_calls_of_bias_steps = [
+        call(tag=f'wiregrid, wg_before_insert{el_tag}'),
+        call(tag=f'wiregrid, wg_after_insert{el_tag}'),
+        call(tag=f'wiregrid, wg_before_eject{el_tag}'),
+        call(tag=f'wiregrid, wg_after_eject{el_tag}')
+    ]
+
+    expected_tags_of_streams = [
+        f'wiregrid, wg_inserting{el_tag}',
+        f'wiregrid, {rotate_tag}{el_tag}',
+        f'wiregrid, wg_ejecting{el_tag}'
+    ]
+
+    expected_calls_of_streams = [
+        call(tag=stream_tag, subtype='cal', kwargs={})
+        for stream_tag in expected_tags_of_streams
+    ]
+
+    for client in wiregrid.run.CLIENTS['smurf']:
+        assert client.take_bias_steps.start.call_args_list == expected_calls_of_bias_steps
+        assert client.stream.start.call_args_list == expected_calls_of_streams
+        assert client.stream.stop.call_count == 3
 
 
 def test__check_process_data_stale_data():

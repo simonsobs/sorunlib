@@ -275,7 +275,7 @@ def rotate(continuous, duration=30, num_laps=1, stopped_time=10.):
 
 
 def calibrate(continuous=False, elevation_check=True, boresight_check=True,
-              temperature_check=True):
+              temperature_check=True, bias_step=True):
     """Run a wiregrid calibration.
 
     Args:
@@ -288,41 +288,88 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
         temperature_check (bool): Check the temperature of various components
             are within operational limits before the calibration or not.
             Default is True.
+        bias_step (bool): Perform detector bias step or not.
 
     """
-    try:
-        _check_telescope_position(elevation_check=elevation_check,
-                                  boresight_check=boresight_check)
-        _check_agents_online()
-        if temperature_check:
-            _check_temperature_sensors()
-        _check_motor_on()
+    _check_telescope_position(elevation_check=elevation_check,
+                              boresight_check=boresight_check)
+    _check_agents_online()
+    if temperature_check:
+        _check_temperature_sensors()
+    _check_motor_on()
 
-        # Rotate for reference before insertion
-        rotate(continuous=True, duration=10)
+    # Rotate for reference before insertion
+    rotate(continuous=True, duration=10)
 
-        # Enable SMuRF streams
-        if continuous:
-            rotation = 'wg_continuous'
-        else:
-            rotation = 'wg_stepwise'
-        if _check_zenith():
-            el_tag = ', wg_el90'
-        else:
-            el_tag = ''
-        run.smurf.stream('on', tag=f'wiregrid, {rotation}{el_tag}', subtype='cal')
+    # Define tag
+    if continuous:
+        rotation = 'wg_continuous'
+    else:
+        rotation = 'wg_stepwise'
+    if _check_zenith():
+        el_tag = ', wg_el90'
+    else:
+        el_tag = ''
 
-        # Insert the wiregrid
-        insert()
+    if bias_step:
+        # Bias step (before insert)
+        run.smurf.bias_step(tag=f'wiregrid, wg_before_insert{el_tag}', concurrent=True)
+        time.sleep(5)
 
-        # Rotate the wiregrid
-        rotate(continuous)
+        try:
+            # Enable SMuRF streams
+            run.smurf.stream('on', tag=f'wiregrid, wg_inserting{el_tag}', subtype='cal')
+            # Insert the wiregrid
+            insert()
+        finally:
+            # Stop SMuRF streams
+            stop_smurfs()
 
-        # Eject the wiregrid
-        eject()
-    finally:
-        # Stop SMuRF streams
-        stop_smurfs()
+        # Bias step (after insert)
+        run.smurf.bias_step(tag=f'wiregrid, wg_after_insert{el_tag}', concurrent=True)
+        time.sleep(5)
+
+        try:
+            # Enable SMuRF streams
+            run.smurf.stream('on', tag=f'wiregrid, {rotation}{el_tag}', subtype='cal')
+            # Rotate the wiregrid
+            rotate(continuous)
+        finally:
+            # Stop SMuRF streams
+            stop_smurfs()
+
+        # Bias step (before eject)
+        run.smurf.bias_step(tag=f'wiregrid, wg_before_eject{el_tag}', concurrent=True)
+        time.sleep(5)
+
+        try:
+            # Enable SMuRF streams
+            run.smurf.stream('on', tag=f'wiregrid, wg_ejecting{el_tag}', subtype='cal')
+            # Eject the wiregrid
+            eject()
+        finally:
+            # Stop SMuRF streams
+            stop_smurfs()
+
+        # Bias step (after eject)
+        run.smurf.bias_step(tag=f'wiregrid, wg_after_eject{el_tag}', concurrent=True)
+        time.sleep(5)
+
+    else:
+        try:
+            # Enable SMuRF streams
+            run.smurf.stream('on', tag=f'wiregrid, {rotation}{el_tag}', subtype='cal')
+
+            # Insert the wiregrid
+            insert()
+            # Rotate the wiregrid
+            rotate(continuous)
+            # Eject the wiregrid
+            eject()
+
+        finally:
+            # Stop SMuRF streams
+            stop_smurfs()
 
 
 def time_constant(num_repeats=1):
