@@ -308,6 +308,20 @@ def test_calibrate_stepwise_with_biasstep(
         assert client.stream.stop.call_count == 3
 
 
+@pytest.mark.parametrize('bias_step', [True, False])
+@patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
+@patch('sorunlib.wiregrid.time.sleep', MagicMock())
+def test_calibrate_stepwise_with_failed_insert(bias_step):
+    # Setup failed insert mock client
+    wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
+        create_actuator_client(motor=1, position='inside')
+    mocked_response = OCSReply(
+        0, 'msg', {'success': False, 'op_name': 'insert'})
+    wiregrid.run.CLIENTS['wiregrid']['actuator'].insert.side_effect = [mocked_response]
+    with pytest.raises(RuntimeError):
+        wiregrid.calibrate(bias_step=bias_step)
+
+
 def test__check_process_data_stale_data():
     with pytest.raises(RuntimeError):
         stale_time = time.time() - wiregrid.AGENT_TIMEDIFF_THRESHOLD
