@@ -318,11 +318,9 @@ def test_calibrate_stepwise_with_failed_insert(bias_step):
     wiregrid.run.CLIENTS['wiregrid']['actuator'].insert.side_effect = [mocked_response]
 
     # Check if RuntimeError is occurred
-    # with pytest.raises(RuntimeError):
-    #    wiregrid.calibrate(bias_step=bias_step)
-
-    # Cover exception
-    wiregrid.calibrate(bias_step=bias_step)
+    with pytest.raises(RuntimeError) as e:
+        wiregrid.calibrate(bias_step=bias_step)
+    assert e.startswith("Wiregrid calibration has failed ")
 
 
 def test__check_process_data_stale_data():
