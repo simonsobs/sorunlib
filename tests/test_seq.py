@@ -26,10 +26,11 @@ def test_scan(patch_clients):
 
 @patch('sorunlib._internal.time.sleep', MagicMock())
 def test_scan_types(patch_clients):
-    for scan_type in [2, 3]:
+    for scan_type, el_amp in [(2, None), (3, 1.)]:
         # This affects test runtime duration keep it short
         target = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=0.01)
-        seq.scan(description='test', type=scan_type, stop_time=target.isoformat(), width=20.)
+        seq.scan(description='test', type=scan_type, el_amp=el_amp,
+                 stop_time=target.isoformat(), width=20.)
 
 
 @patch('sorunlib._internal.time.sleep', MagicMock())

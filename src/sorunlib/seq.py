@@ -25,8 +25,8 @@ def _stop_scan():
     print("Scan finished.")
 
 
-def scan(description, stop_time, width, az_drift=0, type=1, tag=None, subtype=None,
-         min_duration=None):
+def scan(description, stop_time, width, az_drift=0, type=1, el_amp=None,
+         tag=None, subtype=None, min_duration=None):
     """Run a constant elevation scan, collecting detector data.
 
     Args:
@@ -38,6 +38,9 @@ def scan(description, stop_time, width, az_drift=0, type=1, tag=None, subtype=No
         az_drift (float): Drift velocity in deg/s, causing scan extrema to move
             accordingly.
         type (int): Scan type.  Possible values are 1, 2, or 3.
+        el_amp (float): For type 3 scans, the amplitude (half
+            peak-to-peak) for the elevation oscillation, in degrees.
+            Must be specified if type=3 (but can be zero).
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation. Passed through to the smurf stream command.
         subtype (str, optional): Operation subtype used to tag the stream.
@@ -59,6 +62,9 @@ def scan(description, stop_time, width, az_drift=0, type=1, tag=None, subtype=No
         if now > start_by_time:
             return
 
+    # It is an error to not declare el_amp when you specify type 3 scan.
+    assert (type != 3 or el_amp is not None)
+
     acu = run.CLIENTS['acu']
 
     try:
@@ -70,13 +76,19 @@ def scan(description, stop_time, width, az_drift=0, type=1, tag=None, subtype=No
         az = resp.session['data']['StatusDetailed']['Azimuth current position']
         el = resp.session['data']['StatusDetailed']['Elevation current position']
 
+        if type == 3:
+            el1 = el - el_amp
+            el2 = el + el_amp
+        else:
+            el1 = el2 = el
+
         # Start telescope motion
         # az_speed and az_accel assumed from ACU defaults
         # Can be modified by acu.set_scan_params()
         resp = acu.generate_scan.start(az_endpoint1=az,
                                        az_endpoint2=az + width,
-                                       el_endpoint1=el,
-                                       el_endpoint2=el,
+                                       el_endpoint1=el1,
+                                       el_endpoint2=el2,
                                        el_speed=0,
                                        az_drift=az_drift,
                                        type=type)
