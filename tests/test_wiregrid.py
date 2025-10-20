@@ -497,7 +497,7 @@ def test_time_constant_num_repeats_failed():
 
 
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
-def test_time_constant_insert_failed(patch_clients, bias_step):
+def test_time_constant_insert_failed(patch_clients):
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 60, 0)
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
