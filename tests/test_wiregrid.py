@@ -506,10 +506,9 @@ def test_time_constant_insert_failed(patch_clients):
     wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
     wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
 
-    # Make insert raise and assert calibrate propagates the error
+    # Make insert raise and assert time_constant propagates the error
     with patch('sorunlib.wiregrid.insert', side_effect=RuntimeError("Wiregrid insertion failed...")):
         with pytest.raises(RuntimeError):
-            # pass both bias flags so the code path that calls insert is used
             wiregrid.time_constant()
 
 
