@@ -310,12 +310,20 @@ def test_calibrate_stepwise_with_biasstep(
 
 @pytest.mark.parametrize('bias_step', [True, False])
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
-def test_calibrate_stepwise_with_failed_insert(bias_step):
-    # Set up expected raise in insert
+def test_calibrate_stepwise_with_failed_insert(patch_clients, bias_step):
+    # Setup all mock clients
+    wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 60, 0)
+    wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
+        create_actuator_client(motor=1, position='inside')
+    wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
+    wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
+    wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
+
+    # Make insert raise and assert calibrate propagates the error
     with patch('sorunlib.wiregrid.insert', side_effect=RuntimeError("Wiregrid insertion failed...")):
-        # Check if RuntimeError is occurred
         with pytest.raises(RuntimeError):
-            wiregrid.calibrate(bias_step_wo_wg=bias_step)
+            # pass both bias flags so the code path that calls insert is used
+            wiregrid.calibrate(bias_step_wo_wg=bias_step, bias_step_wt_wg=bias_step)
 
 
 def test__check_process_data_stale_data():
