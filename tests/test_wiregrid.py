@@ -313,6 +313,7 @@ def test_calibrate_stepwise_with_biasstep(
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
 def test_calibrate_stepwise_with_failed_insert(bias_step):
     # Set up expected raise in insert
+    wiregrid.run.wiregrid.insert = MagicMock(return_value=None)
     wiregrid.run.wiregrid.insert.side_effect = RuntimeError("Wiregrid insertion failed...")
 
     # Check if RuntimeError is occurred
