@@ -496,6 +496,23 @@ def test_time_constant_num_repeats_failed():
         wiregrid.time_constant(num_repeats=-2)
 
 
+@patch('sorunlib.wiregrid.time.sleep', MagicMock())
+def test_time_constant_insert_failed(patch_clients, bias_step):
+    # Setup all mock clients
+    wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 60, 0)
+    wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
+        create_actuator_client(motor=1, position='inside')
+    wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
+    wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
+    wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
+
+    # Make insert raise and assert calibrate propagates the error
+    with patch('sorunlib.wiregrid.insert', side_effect=RuntimeError("Wiregrid insertion failed...")):
+        with pytest.raises(RuntimeError):
+            # pass both bias flags so the code path that calls insert is used
+            wiregrid.time_constant()
+
+
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
 def test_time_constant_wiregrid_position_failed():
