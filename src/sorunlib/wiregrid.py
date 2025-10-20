@@ -275,7 +275,7 @@ def rotate(continuous, duration=30, num_laps=1, stopped_time=10.):
 
 
 def calibrate(continuous=False, elevation_check=True, boresight_check=True,
-              temperature_check=True, bias_step=True):
+              temperature_check=True, bias_step_wo_wg=True, bias_step_wt_wg=False):
     """Run a wiregrid calibration.
 
     Args:
@@ -288,7 +288,8 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
         temperature_check (bool): Check the temperature of various components
             are within operational limits before the calibration or not.
             Default is True.
-        bias_step (bool): Perform detector bias step or not.
+        bias_step_wo_wg (bool): Perform detector bias step without wiregrid before insert & after eject or not.
+        bias_step_wt_wg (bool): Perform detector bias step with wiregrid before & after rotation or not.
 
     """
     _check_telescope_position(elevation_check=elevation_check,
@@ -311,10 +312,11 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
     else:
         el_tag = ''
 
-    if bias_step:
-        # Bias step (before insert)
-        run.smurf.bias_step(tag=f'wiregrid, wg_before_insert{el_tag}', concurrent=True)
-        time.sleep(5)
+    if bias_step_wo_wg or bias_step_wt_wg:
+        if bias_step_wo_wg:
+            # Bias step (before insert)
+            run.smurf.bias_step(tag=f'wiregrid, wg_before_insert{el_tag}', concurrent=True)
+            time.sleep(5)
 
         try:
             # Enable SMuRF streams
@@ -325,9 +327,6 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
         except RuntimeError as e:
             error = "Wiregrid calibration has failed " + \
                 "due to a failure in inserting the wiregrid.\n" + str(e)
-            time.sleep(5)
-            # Eject the wiregrid
-            eject()
             # Raise error and end the calibration
             raise RuntimeError(error)
 
@@ -335,9 +334,10 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
             # Stop SMuRF streams
             stop_smurfs()
 
-        # Bias step (after insert)
-        run.smurf.bias_step(tag=f'wiregrid, wg_after_insert{el_tag}', concurrent=True)
-        time.sleep(5)
+        if bias_step_wt_wg:
+            # Bias step (after insert)
+            run.smurf.bias_step(tag=f'wiregrid, wg_after_insert{el_tag}', concurrent=True)
+            time.sleep(5)
 
         try:
             # Enable SMuRF streams
@@ -348,9 +348,10 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
             # Stop SMuRF streams
             stop_smurfs()
 
-        # Bias step (before eject)
-        run.smurf.bias_step(tag=f'wiregrid, wg_before_eject{el_tag}', concurrent=True)
-        time.sleep(5)
+        if bias_step_wt_wg:
+            # Bias step (before eject)
+            run.smurf.bias_step(tag=f'wiregrid, wg_before_eject{el_tag}', concurrent=True)
+            time.sleep(5)
 
         try:
             # Enable SMuRF streams
@@ -361,9 +362,10 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
             # Stop SMuRF streams
             stop_smurfs()
 
-        # Bias step (after eject)
-        run.smurf.bias_step(tag=f'wiregrid, wg_after_eject{el_tag}', concurrent=True)
-        time.sleep(5)
+        if bias_step_wo_wg:
+            # Bias step (after eject)
+            run.smurf.bias_step(tag=f'wiregrid, wg_after_eject{el_tag}', concurrent=True)
+            time.sleep(5)
 
     else:
         try:
@@ -376,7 +378,6 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
 
         except RuntimeError as e:
             error = "Wiregrid calibration has failed.\n" + str(e)
-            time.sleep(5)
             raise RuntimeError(error)
 
         finally:
@@ -442,6 +443,11 @@ def time_constant(num_repeats=1):
         run.smurf.stream('on', tag=stream_tag, subtype='cal')
         insert()
         time.sleep(5)
+    except RuntimeError as e:
+        error = "Wiregrid time constant measurement has failed " + \
+            "due to a failure in inserting the wiregrid.\n" + str(e)
+        # Raise error and end the time constant measurement
+        raise RuntimeError(error)
     finally:
         stop_smurfs()
 

@@ -255,7 +255,7 @@ def test_calibrate_stepwise_no_biasstep(patch_clients, continuous, el, tag):
     wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
     wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
 
-    wiregrid.calibrate(continuous=continuous, bias_step=False)
+    wiregrid.calibrate(continuous=continuous, bias_step_wo_wg=False, bias_step_wt_wg=False)
     # All other internal functions tested separately, just make sure smurf
     # stream is run
     for client in wiregrid.run.CLIENTS['smurf']:
@@ -281,7 +281,7 @@ def test_calibrate_stepwise_with_biasstep(
     wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
     wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
 
-    wiregrid.calibrate(continuous=continuous, bias_step=True)
+    wiregrid.calibrate(continuous=continuous, bias_step_wo_wg=True, bias_step_wt_wg=True)
     # All other internal functions tested separately, just make sure smurf
     # stream is run
     expected_calls_of_bias_steps = [
@@ -313,13 +313,11 @@ def test_calibrate_stepwise_with_biasstep(
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
 def test_calibrate_stepwise_with_failed_insert(bias_step):
     # Set up expected raise in insert
-    mocked_response = OCSReply(
-        0, 'msg', {'success': False, 'op_name': 'insert'})
-    wiregrid.run.CLIENTS['wiregrid']['actuator'].insert.side_effect = [mocked_response]
+    wiregrid.run.wiregrid.insert.side_effect = RuntimeError("Wiregrid insertion failed...")
 
     # Check if RuntimeError is occurred
     with pytest.raises(RuntimeError):
-        wiregrid.calibrate(bias_step=bias_step)
+        wiregrid.calibrate(bias_step_wo_wg=bias_step)
 
 
 def test__check_process_data_stale_data():
