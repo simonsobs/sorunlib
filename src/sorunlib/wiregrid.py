@@ -275,7 +275,7 @@ def rotate(continuous, duration=30, num_laps=1, stopped_time=10.):
 
 
 def calibrate(continuous=False, elevation_check=True, boresight_check=True,
-              temperature_check=True, bias_step_wo_wg=True, bias_step_wt_wg=False):
+              temperature_check=True, bias_step_before=True, bias_step_after=False):
     """Run a wiregrid calibration.
 
     Args:
@@ -288,8 +288,8 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
         temperature_check (bool): Check the temperature of various components
             are within operational limits before the calibration or not.
             Default is True.
-        bias_step_wo_wg (bool): Perform detector bias step without wiregrid before insert & after eject or not.
-        bias_step_wt_wg (bool): Perform detector bias step with wiregrid before & after rotation or not.
+        bias_step_before (bool): Perform detector bias step with and without wiregrid before the calibration.
+        bias_step_after (bool): Perform detector bias step with and without wiregrid after the calibration.
 
     """
     _check_telescope_position(elevation_check=elevation_check,
@@ -304,18 +304,18 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
 
     # Define tag
     if continuous:
-        rotation = 'wg_continuous'
+        rotation_tag = 'wg_continuous'
     else:
-        rotation = 'wg_stepwise'
+        rotation_tag = 'wg_stepwise'
     if _check_zenith():
         el_tag = ', wg_el90'
     else:
         el_tag = ''
 
-    if bias_step_wo_wg or bias_step_wt_wg:
-        if bias_step_wo_wg:
-            # Bias step (before insert)
-            run.smurf.bias_step(tag=f'wiregrid, wg_before_insert{el_tag}', concurrent=True)
+    if bias_step_before or bias_step_after:
+        if bias_step_before:
+            # Bias step (before calibration without wiregrid)
+            run.smurf.bias_step(tag=f'wiregrid, wg_before_wo_wg{el_tag}', concurrent=True)
             time.sleep(5)
 
         try:
@@ -334,23 +334,23 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
             # Stop SMuRF streams
             stop_smurfs()
 
-        if bias_step_wt_wg:
-            # Bias step (after insert)
-            run.smurf.bias_step(tag=f'wiregrid, wg_after_insert{el_tag}', concurrent=True)
+        if bias_step_before:
+            # Bias step (before calibration with wiregrid)
+            run.smurf.bias_step(tag=f'wiregrid, wg_before_wt_wg{el_tag}', concurrent=True)
             time.sleep(5)
 
         try:
             # Enable SMuRF streams
-            run.smurf.stream('on', tag=f'wiregrid, {rotation}{el_tag}', subtype='cal')
+            run.smurf.stream('on', tag=f'wiregrid, {rotation_tag}{el_tag}', subtype='cal')
             # Rotate the wiregrid
             rotate(continuous)
         finally:
             # Stop SMuRF streams
             stop_smurfs()
 
-        if bias_step_wt_wg:
-            # Bias step (before eject)
-            run.smurf.bias_step(tag=f'wiregrid, wg_before_eject{el_tag}', concurrent=True)
+        if bias_step_after:
+            # Bias step (before calibration with wiregrid)
+            run.smurf.bias_step(tag=f'wiregrid, wg_after_wt_wg{el_tag}', concurrent=True)
             time.sleep(5)
 
         try:
@@ -362,15 +362,15 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
             # Stop SMuRF streams
             stop_smurfs()
 
-        if bias_step_wo_wg:
-            # Bias step (after eject)
-            run.smurf.bias_step(tag=f'wiregrid, wg_after_eject{el_tag}', concurrent=True)
+        if bias_step_after:
+            # Bias step (after calibration without wiregrid)
+            run.smurf.bias_step(tag=f'wiregrid, wg_after_wo_wg{el_tag}', concurrent=True)
             time.sleep(5)
 
     else:
         try:
             # Enable SMuRF streams
-            run.smurf.stream('on', tag=f'wiregrid, {rotation}{el_tag}', subtype='cal')
+            run.smurf.stream('on', tag=f'wiregrid, {rotation_tag}{el_tag}', subtype='cal')
             # Insert the wiregrid
             insert()
             # Rotate the wiregrid
@@ -383,9 +383,17 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
         finally:
             # Eject the wiregrid
             eject()
-
             # Stop SMuRF streams
             stop_smurfs()
+
+    # Take data without wiregrid for polarization eff. measurement
+    try:
+        # Enable SMuRF streams
+        run.smurf.stream('on', tag=f'wiregrid, wg_after_wo_wg{el_tag}', subtype='cal')
+        time.sleep(10)
+    finally:
+        # Stop SMuRF streams
+        stop_smurfs()
 
 
 def time_constant(num_repeats=1):
