@@ -375,14 +375,14 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
             insert()
             # Rotate the wiregrid
             rotate(continuous)
+            # Eject the wiregrid
+            eject()
 
         except RuntimeError as e:
             error = "Wiregrid calibration has failed.\n" + str(e)
             raise RuntimeError(error)
 
         finally:
-            # Eject the wiregrid
-            eject()
             # Stop SMuRF streams
             stop_smurfs()
 
