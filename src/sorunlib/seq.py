@@ -26,7 +26,7 @@ def _stop_scan():
 
 
 def scan(description, stop_time, width, az_drift=0, type=1, el_amp=None,
-         tag=None, subtype=None, min_duration=None):
+         tag=None, subtype=None, min_duration=None, **kwargs):
     """Run a constant elevation scan, collecting detector data.
 
     Args:
@@ -47,6 +47,8 @@ def scan(description, stop_time, width, az_drift=0, type=1, el_amp=None,
         min_duration (float, optional): Minimum duration required to scan,
             specified in seconds. If not enough time exists between now and the
             ``stop_time`` the scan is not executed. Defaults to None.
+
+    Any additional arguments are passed through to generate_scan.
 
     """
     now = dt.datetime.now(dt.timezone.utc)
@@ -91,7 +93,8 @@ def scan(description, stop_time, width, az_drift=0, type=1, el_amp=None,
                                        el_endpoint2=el2,
                                        el_speed=0,
                                        az_drift=az_drift,
-                                       type=type)
+                                       type=type,
+                                       **kwargs)
         check_started(acu, resp)
 
         # Wait until stop time

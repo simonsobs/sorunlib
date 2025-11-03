@@ -61,7 +61,8 @@ def set_boresight(target):
     check_response(acu, resp)
 
 
-def set_scan_params(az_speed, az_accel, el_freq=None, reset=False):
+def set_scan_params(az_speed, az_accel, el_freq=None, reset=False,
+                    **kwargs):
     """Update the default scan parameters, used during :func:`sorunlib.seq.scan`.
 
     Args:
@@ -73,12 +74,15 @@ def set_scan_params(az_speed, az_accel, el_freq=None, reset=False):
         reset (bool, optional): If True, reset all params to default values
             before applying any updates passed explicitly here.
 
+    Any additional arguments are passed through, as well.
+
     """
     acu = run.CLIENTS['acu']
     resp = acu.set_scan_params(az_speed=az_speed,
                                az_accel=az_accel,
                                el_freq=el_freq,
-                               reset=reset)
+                               reset=reset,
+                               **kwargs)
     check_response(acu, resp)
 
 
