@@ -323,13 +323,6 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
             run.smurf.stream('on', tag=f'wiregrid, wg_inserting{el_tag}', subtype='cal')
             # Insert the wiregrid
             insert()
-
-        except RuntimeError as e:
-            error = "Wiregrid calibration has failed " + \
-                "due to a failure in inserting the wiregrid.\n" + str(e)
-            # Raise error and end the calibration
-            raise RuntimeError(error)
-
         finally:
             # Stop SMuRF streams
             stop_smurfs()
