@@ -408,11 +408,6 @@ def time_constant(num_repeats=1):
         run.smurf.stream('on', tag=stream_tag, subtype='cal')
         insert()
         time.sleep(5)
-    except RuntimeError as e:
-        error = "Wiregrid time constant measurement has failed " + \
-            "due to a failure in inserting the wiregrid.\n" + str(e)
-        # Raise error and end the time constant measurement
-        raise RuntimeError(error)
     finally:
         stop_smurfs()
 
