@@ -303,6 +303,15 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
     rotate(continuous=True, duration=10)
 
     # Define tag
+    if continuous:
+        rotation_tag = 'wg_continuous'
+    else:
+        rotation_tag = 'wg_stepwise'
+    if _check_zenith():
+        el_tag = ', wg_el90'
+    else:
+        el_tag = ''
+
     try:
         # Bias step (before calibration without wiregrid) + Enable SMuRF streams
         if bias_step_before:
