@@ -328,7 +328,8 @@ def test_calibrate_stepwise_with_failed_insert(patch_clients, bias_step):
     wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
 
     # Make insert raise and assert calibrate propagates the error
-    with patch('sorunlib.wiregrid.insert', side_effect=RuntimeError("Wiregrid insertion failed...")):
+    with patch('sorunlib.wiregrid.insert',
+               side_effect=RuntimeError("Wiregrid insertion failed...")):
         # pass both bias flags so the code path that calls insert is used
         wiregrid.calibrate(bias_step_before=bias_step, bias_step_after=bias_step)
 
@@ -514,7 +515,8 @@ def test_time_constant_insert_failed(patch_clients):
     wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
 
     # Make insert raise and assert time_constant propagates the error
-    with patch('sorunlib.wiregrid.insert', side_effect=RuntimeError("Wiregrid insertion failed...")):
+    with patch('sorunlib.wiregrid.insert',
+               side_effect=RuntimeError("Wiregrid insertion failed...")):
         wiregrid.time_constant()
 
 
