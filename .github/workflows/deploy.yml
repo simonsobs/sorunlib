@@ -28,7 +28,7 @@ jobs:
         python-version: '3.10'
 
     - name: clone sorunlib
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: install build dependencies
       run: |
