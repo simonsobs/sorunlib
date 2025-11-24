@@ -242,11 +242,11 @@ def test__check_agents_online():
     wiregrid.run.CLIENTS['wiregrid']['labjack'].acq.status.assert_called_once()
 
 
-@pytest.mark.parametrize('continuous, el, tag',
-                         [(True, 50, 'wiregrid, wg_continuous'),
-                          (False, 90, 'wiregrid, wg_stepwise, wg_el90')])
+@pytest.mark.parametrize('continuous, el, rotation_tag, el_tag',
+                         [(True, 50, 'wg_continuous', ''),
+                          (False, 90, 'wg_stepwise', ', wg_el90')])
 @patch('sorunlib.wiregrid.time.sleep', MagicMock())
-def test_calibrate_stepwise(patch_clients, continuous, el, tag):
+def test_calibrate_stepwise_no_biasstep(patch_clients, continuous, el, rotation_tag, el_tag):
     # Setup all mock clients
     wiregrid.run.CLIENTS['acu'] = create_acu_client(180, el, 0)
     wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
@@ -255,16 +255,83 @@ def test_calibrate_stepwise(patch_clients, continuous, el, tag):
     wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
     wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
 
-    wiregrid.calibrate(continuous=continuous)
+    wiregrid.calibrate(continuous=continuous, bias_step_before=False, bias_step_after=False)
+
     # All other internal functions tested separately, just make sure smurf
     # stream is run
+    expected_tags_of_streams = [
+        f'wiregrid, {rotation_tag}{el_tag}',
+        f'wiregrid, wg_after_wo_wg{el_tag}'
+    ]
+
+    expected_calls_of_streams = [
+        call(tag=stream_tag, subtype='cal', kwargs={})
+        for stream_tag in expected_tags_of_streams
+    ]
+
     for client in wiregrid.run.CLIENTS['smurf']:
-        client.stream.start.assert_called_with(
-            tag=tag,
-            subtype='cal',
-            kwargs={},
-        )
-        client.stream.stop.assert_called()
+        assert client.stream.start.call_args_list == expected_calls_of_streams
+        assert client.stream.stop.call_count == len(expected_tags_of_streams)
+
+
+@pytest.mark.parametrize('continuous, el, rotate_tag, el_tag',
+                         [(True, 50, 'wg_continuous', ''),
+                          (False, 90, 'wg_stepwise', ', wg_el90')])
+@patch('sorunlib.wiregrid.time.sleep', MagicMock())
+def test_calibrate_stepwise_with_biasstep(
+        patch_clients, continuous, el, rotate_tag, el_tag):
+    # Setup all mock clients
+    wiregrid.run.CLIENTS['acu'] = create_acu_client(180, el, 0)
+    wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
+        create_actuator_client(motor=1, position='inside')
+    wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
+    wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
+    wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
+
+    wiregrid.calibrate(continuous=continuous, bias_step_before=True, bias_step_after=True)
+    # All other internal functions tested separately, just make sure smurf
+    # stream is run
+    expected_calls_of_bias_steps = [
+        call(tag=f'wiregrid, wg_before_wo_wg{el_tag}'),
+        call(tag=f'wiregrid, wg_before_wt_wg{el_tag}'),
+        call(tag=f'wiregrid, wg_after_wt_wg{el_tag}'),
+        call(tag=f'wiregrid, wg_after_wo_wg{el_tag}')
+    ]
+
+    expected_tags_of_streams = [
+        f'wiregrid, wg_inserting{el_tag}',
+        f'wiregrid, {rotate_tag}{el_tag}',
+        f'wiregrid, wg_ejecting{el_tag}',
+        f'wiregrid, wg_after_wo_wg{el_tag}'
+    ]
+
+    expected_calls_of_streams = [
+        call(tag=stream_tag, subtype='cal', kwargs={})
+        for stream_tag in expected_tags_of_streams
+    ]
+
+    for client in wiregrid.run.CLIENTS['smurf']:
+        assert client.take_bias_steps.start.call_args_list == expected_calls_of_bias_steps
+        assert client.stream.start.call_args_list == expected_calls_of_streams
+        assert client.stream.stop.call_count == len(expected_tags_of_streams)
+
+
+@pytest.mark.parametrize('bias_step', [True, False])
+@patch('sorunlib.wiregrid.time.sleep', MagicMock())
+def test_calibrate_stepwise_with_failed_insert(patch_clients, bias_step):
+    # Setup all mock clients
+    wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 60, 0)
+    wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
+        create_actuator_client(motor=1, position='inside')
+    wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
+    wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
+    wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
+
+    # Make insert raise and assert calibrate propagates the error
+    with patch('sorunlib.wiregrid.insert',
+               side_effect=RuntimeError("Wiregrid insertion failed...")):
+        with pytest.raises(RuntimeError):
+            wiregrid.calibrate(bias_step_before=bias_step, bias_step_after=bias_step)
 
 
 def test__check_process_data_stale_data():
@@ -435,6 +502,23 @@ def test_time_constant_repeats():
 def test_time_constant_num_repeats_failed():
     with pytest.raises(RuntimeError):
         wiregrid.time_constant(num_repeats=-2)
+
+
+@patch('sorunlib.wiregrid.time.sleep', MagicMock())
+def test_time_constant_insert_failed(patch_clients):
+    # Setup all mock clients
+    wiregrid.run.CLIENTS['acu'] = create_acu_client(180, 60, 0)
+    wiregrid.run.CLIENTS['wiregrid']['actuator'] = \
+        create_actuator_client(motor=1, position='inside')
+    wiregrid.run.CLIENTS['wiregrid']['kikusui'] = create_kikusui_client()
+    wiregrid.run.CLIENTS['wiregrid']['encoder'] = create_encoder_client()
+    wiregrid.run.CLIENTS['wiregrid']['labjack'] = create_labjack_client()
+
+    # Make insert raise and assert time_constant propagates the error
+    with patch('sorunlib.wiregrid.insert',
+               side_effect=RuntimeError("Wiregrid insertion failed...")):
+        with pytest.raises(RuntimeError):
+            wiregrid.time_constant()
 
 
 @patch('sorunlib.wiregrid.run.CLIENTS', mocked_clients())
