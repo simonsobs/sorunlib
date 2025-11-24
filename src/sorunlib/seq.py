@@ -25,8 +25,8 @@ def _stop_scan():
     print("Scan finished.")
 
 
-def scan(description, stop_time, width, az_drift=0, type=1, el_amp=None,
-         tag=None, subtype=None, min_duration=None):
+def scan(description, stop_time, width, az_drift=0, scan_type=1, el_amp=None,
+         tag=None, subtype=None, min_duration=None, **kwargs):
     """Run a constant elevation scan, collecting detector data.
 
     Args:
@@ -37,16 +37,18 @@ def scan(description, stop_time, width, az_drift=0, type=1, el_amp=None,
             current position and move in the positive azimuth direction.
         az_drift (float): Drift velocity in deg/s, causing scan extrema to move
             accordingly.
-        type (int): Scan type.  Possible values are 1, 2, or 3.
+        scan_type (int): Scan type.  Possible values are 1, 2, or 3.
         el_amp (float): For type 3 scans, the amplitude (half
             peak-to-peak) for the elevation oscillation, in degrees.
-            Must be specified if type=3 (but can be zero).
+            Must be specified if scan_type=3 (but can be zero).
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation. Passed through to the smurf stream command.
         subtype (str, optional): Operation subtype used to tag the stream.
         min_duration (float, optional): Minimum duration required to scan,
             specified in seconds. If not enough time exists between now and the
             ``stop_time`` the scan is not executed. Defaults to None.
+
+    Any additional arguments are passed through to generate_scan.
 
     """
     now = dt.datetime.now(dt.timezone.utc)
@@ -63,7 +65,7 @@ def scan(description, stop_time, width, az_drift=0, type=1, el_amp=None,
             return
 
     # It is an error to not declare el_amp when you specify type 3 scan.
-    assert (type != 3 or el_amp is not None)
+    assert (scan_type != 3 or el_amp is not None)
 
     acu = run.CLIENTS['acu']
 
@@ -76,7 +78,7 @@ def scan(description, stop_time, width, az_drift=0, type=1, el_amp=None,
         az = resp.session['data']['StatusDetailed']['Azimuth current position']
         el = resp.session['data']['StatusDetailed']['Elevation current position']
 
-        if type == 3:
+        if scan_type == 3:
             el1 = el - el_amp
             el2 = el + el_amp
         else:
@@ -91,7 +93,8 @@ def scan(description, stop_time, width, az_drift=0, type=1, el_amp=None,
                                        el_endpoint2=el2,
                                        el_speed=0,
                                        az_drift=az_drift,
-                                       type=type)
+                                       scan_type=scan_type,
+                                       **kwargs)
         check_started(acu, resp)
 
         # Wait until stop time
