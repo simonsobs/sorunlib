@@ -299,9 +299,6 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
         _check_temperature_sensors()
     _check_motor_on()
 
-    # Rotate for reference before insertion
-    rotate(continuous=True, duration=10)
-
     # Define tag
     if continuous:
         rotation_tag = 'wg_continuous'
@@ -323,6 +320,9 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
 
         # Insert the wiregrid
         insert()
+
+        # Rotate for reference before the calibration
+        rotate(continuous=True, duration=20)
 
         # Bias step (before calibration with wiregrid) + Enable SMuRF streams
         if bias_step_before:
@@ -401,9 +401,6 @@ def time_constant(num_repeats=1):
                 "due to a failure in getting the HWP direction.\n" + str(e)
         raise RuntimeError(error)
 
-    # Rotate to get encoder reference before insertion
-    rotate(continuous=True, duration=10)
-
     # Bias step (the wire grid is off the window)
     bs_tag = 'wiregrid, wg_time_constant, wg_ejected, ' + \
              f'hwp_{current_hwp_direction}' + el_tag
@@ -416,7 +413,9 @@ def time_constant(num_repeats=1):
                      f'hwp_{current_hwp_direction}' + el_tag
         run.smurf.stream('on', tag=stream_tag, subtype='cal')
         insert()
-        time.sleep(5)
+        # Rotate to get encoder reference
+        rotate(continuous=True, duration=20)
+        time.sleep(1)
     finally:
         stop_smurfs()
 
@@ -457,7 +456,7 @@ def time_constant(num_repeats=1):
             stream_tag = 'wiregrid, wg_time_constant, ' + \
                          f'hwp_change_stop_to_{target_hwp_direction}' + el_tag
             run.smurf.stream('on', tag=stream_tag, subtype='cal')
-            # Note: This is hardcoding the correspondance between direction and
+            # Note: This is hardcoding the correspondence between direction and
             # the sign of the frequency, which is subject to change depending
             # on the hardware/agent configuration. This should be removed in
             # the future, if possible.
