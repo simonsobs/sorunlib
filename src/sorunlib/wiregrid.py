@@ -320,7 +320,7 @@ def calibrate(continuous=False, elevation_check=True, boresight_check=True,
 
         # Insert the wiregrid
         insert()
- 
+
         # Rotate for reference before the calibration
         rotate(continuous=True, duration=20)
 
