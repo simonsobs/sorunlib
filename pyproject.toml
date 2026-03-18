@@ -22,7 +22,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Astronomy",
 ]
 dependencies = [
-    "ocs==0.11.3",
+    "ocs==0.12.0",
     "pyyaml",
 ]
 
