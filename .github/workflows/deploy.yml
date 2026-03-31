@@ -10,19 +10,17 @@ on:
 
 jobs:
   test:
+    name: Run tests
     uses: ./.github/workflows/pytest.yml
     secrets: inherit
 
   wheel:
-    name: build and deploy to PyPI
+    name: Build wheel
     needs: test
     runs-on: ubuntu-latest
-    env:
-      TWINE_USERNAME: __token__
-      TWINE_PASSWORD: ${{ secrets.TWINE_TOKEN }}
 
     steps:
-    - name: Set up Python 3.10
+    - name: set up Python 3.10
       uses: actions/setup-python@v6
       with:
         python-version: '3.10'
@@ -32,7 +30,7 @@ jobs:
 
     - name: install build dependencies
       run: |
-        python3 -m pip install --upgrade build twine
+        python3 -m pip install --upgrade build
 
     - name: build wheel
       run: |
@@ -48,11 +46,30 @@ jobs:
       run: |
         python3 -m pip install ${{ steps.find.outputs.wheel }}[dev]
 
-    - name: Run unit tests
+    - name: run unit tests
       working-directory: ./tests
       run: |
         python3 -m pytest
 
-    - name: upload to PyPI
-      run: |
-        python3 -m twine upload dist/*
+    - name: upload dist
+      uses: actions/upload-artifact@v6
+      with:
+        path: ./dist/
+
+  pypi-publish:
+    name: Upload release to PyPI
+    needs: wheel
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/sorunlib
+    permissions:
+      id-token: write  # required for trusted publishing
+    steps:
+    - name: download dist
+      uses: actions/download-artifact@v5
+      with:
+        path: dist
+
+    - name: publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
