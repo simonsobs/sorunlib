@@ -113,7 +113,7 @@ def _configure_power(continuous):
     cfg = run.config.load_config()
     voltage = cfg.get('wiregrid_motor_voltage', 12.0)
     current = cfg.get('wiregrid_motor_current', 3.0)
-    
+
     resp = kikusui.set_v(volt=voltage)
     check_response(kikusui, resp)
 
