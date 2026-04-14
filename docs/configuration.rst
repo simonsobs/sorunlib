@@ -22,6 +22,8 @@ A full configuration file example with comments is shown here:
     # minimum number of SMuRFs that must be working to continue operations
     smurf_failure_threshold: 3
 
+    # voltage in V to apply to the wiregrid motor during rotation
+    wiregrid_motor_voltage: 12.0
     # current in Amps to apply to the wiregrid motor during rotation
     wiregrid_motor_current: 3.0
 
