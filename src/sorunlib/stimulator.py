@@ -171,6 +171,40 @@ def set_heater_output(output, force=False):
     check_response(pcr, resp)
 
 
+def heater_recovery(volt, vstep=_VOLT_STEP):
+    """Recover the PCR500MA heater output to the target voltage after a power
+    outage or unexpected shutdown.
+
+    Retrieves the current voltage setpoint and output state, then brings the
+    output back to ``volt`` via the following procedure:
+
+    - Output ON  : ramp directly to ``volt``.
+    - Output OFF, setpoint > 0 : reset setpoint to 0 V with
+      :func:`set_to_0V_heater`, turn output on, then ramp to ``volt``.
+    - Output OFF, setpoint == 0 : turn output on, then ramp to ``volt``.
+
+    Parameters
+    ----------
+    volt : float
+        Target voltage in V.
+    vstep : float, optional
+        Voltage step for ramping. Defaults to 1 V.
+    """
+    pcr = run.CLIENTS['stimulator']['pcr500ma']
+
+    _, _, s_meas = pcr.get_volt_ac()
+    v_current = s_meas['data']['volt_set']
+    output = pcr.get_output().session['data']['output']
+
+    if output:
+        ramp_heater(volt, vstep=vstep)
+    else:
+        if v_current > 0:
+            set_to_0V_heater()
+        set_heater_output(True)
+        ramp_heater(volt, vstep=vstep)
+
+
 def calibrate_tau(duration_step=20,
                   speeds_rpm=[225, 495, 945, 1395, 1845, 2205],
                   forward=True, do_setup=True, stop=True,
