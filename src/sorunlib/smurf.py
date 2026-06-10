@@ -417,7 +417,7 @@ def stream(state, tag=None, subtype=None, wait_for_stream=True, **kwargs):
 
         for smurf in run.CLIENTS['smurf']:
             print(f'Waiting for stream from {smurf.instance_id} to stop.')
-            resp = smurf.stream.wait()
+            resp = smurf.stream.wait(timeout=120)
             try:
                 check_response(smurf, resp)
             except RuntimeError as e:

@@ -103,6 +103,33 @@ def test_scan_failed_smurfs_on_shutdown(patch_clients):
     seq.run.CLIENTS['acu'].generate_scan.wait.assert_called()
 
 
+@patch('sorunlib.commands.time.sleep', MagicMock())
+def test_scan_timeout_on_wait_to_stop_streams(patch_clients):
+    # Setup mock OCSReply with running status
+    hanging_session = create_session('generate_scan')
+    hanging_session.success = None
+    hanging_session.set_status('running')
+    hanging_session.add_message('The stop command is still running.')
+
+    # Make the first smurf client timeout
+    mock_reply = OCSReply(ocs.TIMEOUT, 'msg', hanging_session.encoded())
+    seq.run.CLIENTS['smurf'][0].stream.wait.side_effect = [mock_reply]
+
+    # Example of hanging reply this is trying to emulate.
+    # OCSReply: TIMEOUT : msg
+    #   test_op[session=1]; status=running for 0.001061 s
+    #   messages (3 of 3):
+    #     1780684660.615 Status is now "starting".
+    #     1780684660.615 Status is now "running".
+    #     1780684660.615 The stop command is still running.
+    #   other keys in .session: op_code, degraded, data
+    print(mock_reply)
+
+    seq._stop_scan()
+    # We dropped the one that timed out
+    assert len(seq.run.CLIENTS['smurf']) == 2
+
+
 @patch('sorunlib.seq.time.sleep', MagicMock())
 def test_el_nod(patch_clients):
     sorunlib.acu.move_to(az=180, el=50)
