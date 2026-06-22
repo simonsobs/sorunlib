@@ -28,7 +28,7 @@ jobs:
         python-version: ${{ matrix.python }}
 
     - name: clone sorunlib
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Lint with flake8
       run: |
