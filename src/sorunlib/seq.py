@@ -166,7 +166,8 @@ def sine_el_nod(el_depth, num_nods=None, **kwargs):
 
         # Start telescope motion
         resp = acu.generate_el_nod.start(el_depth=el_depth,
-                                         num_nods=num_nods)
+                                         num_nods=num_nods,
+                                         **kwargs)
 
         check_started(acu, resp)
     finally:
