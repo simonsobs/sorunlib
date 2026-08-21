@@ -11,16 +11,17 @@ OP_TIMEOUT = 60
 
 
 @protect_shutdown
-def _stop_scan():
+def _stop_scan(scan):
     acu = run.CLIENTS['acu']
 
     print("Stopping scan.")
     stop_smurfs()
 
-    # Stop motion
-    acu.generate_scan.stop()
+    scan.stop()
+
     print("Waiting for telescope motion to stop.")
-    resp = acu.generate_scan.wait(timeout=OP_TIMEOUT)
+    resp = scan.wait(timeout=OP_TIMEOUT)
+
     check_response(acu, resp)
     print("Scan finished.")
 
@@ -100,11 +101,11 @@ def scan(description, stop_time, width, az_drift=0, scan_type=1, el_amp=None,
         # Wait until stop time
         monitor_process(acu, 'generate_scan', stop_time)
     finally:
-        _stop_scan()
+        _stop_scan(acu.generate_scan)
 
 
-def el_nod(el1, el2, num=5, pause=5):
-    """Perform a set of elevation nods.
+def step_el_nod(el1, el2, num=5, pause=5):
+    """Perform a set of step-wise elevation nods.
 
     Elevation nods will be peformed at the current azimuth, and will start from
     and return to the current elevation. The nod first moves to ``el1``,
@@ -123,7 +124,7 @@ def el_nod(el1, el2, num=5, pause=5):
 
     try:
         # Enable SMuRF streams
-        run.smurf.stream('on', subtype='cal', tag='el_nods')
+        run.smurf.stream('on', subtype='cal', tag='step_el_nods')
 
         # Grab current telescope position
         resp = acu.monitor.status()
@@ -141,3 +142,32 @@ def el_nod(el1, el2, num=5, pause=5):
             run.acu.move_to(az=init_az, el=init_el)
     finally:
         stop_smurfs()
+
+
+def sine_el_nod(el_depth, num_nods=None, **kwargs):
+    """Perform a set of sinusoidal elevation nods.
+
+    Elevation nods will be peformed at the current azimuth, and will start from
+    and return to the current elevation.  The nod will move between the current
+    elevation and +/- el_depth depending on if el_depth is positive or negative.
+
+    Args:
+        el_depth (float): The number of degrees from the current el to nod to.
+            Can be negative.
+        num_nods (int or None): Number of nods to perform.  If not None, limits
+            the nods to the specified number of sinusoidal nods. The process will
+            exit without error once that has completed.
+    """
+    acu = run.CLIENTS['acu']
+
+    try:
+        # Enable SMuRF streams
+        run.smurf.stream('on', subtype='cal', tag='sine_el_nods')
+
+        # Start telescope motion
+        resp = acu.generate_el_nod.start(el_depth=el_depth,
+                                         num_nods=num_nods)
+
+        check_started(acu, resp)
+    finally:
+        _stop_scan(acu.generate_el_nod)

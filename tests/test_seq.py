@@ -99,7 +99,7 @@ def test_scan_failed_smurfs_on_shutdown(patch_clients):
     seq.run.CLIENTS['smurf'][1].stream.wait.side_effect = [mocked_response]
     seq.run.CLIENTS['smurf'][2].stream.wait.side_effect = [mocked_response]
 
-    seq._stop_scan()
+    seq._stop_scan(seq.run.CLIENTS['acu'].generate_scan)
     seq.run.CLIENTS['acu'].generate_scan.wait.assert_called()
 
 
@@ -125,15 +125,15 @@ def test_scan_timeout_on_wait_to_stop_streams(patch_clients):
     #   other keys in .session: op_code, degraded, data
     print(mock_reply)
 
-    seq._stop_scan()
+    seq._stop_scan(seq.run.CLIENTS['acu'].generate_scan)
     # We dropped the one that timed out
     assert len(seq.run.CLIENTS['smurf']) == 2
 
 
 @patch('sorunlib.seq.time.sleep', MagicMock())
-def test_el_nod(patch_clients):
+def test_step_el_nod(patch_clients):
     sorunlib.acu.move_to(az=180, el=50)
-    seq.el_nod(el1=40, el2=60)
+    seq.step_el_nod(el1=40, el2=60)
 
     # Calls will be repeated, but these three are representative of the el nod
     calls = [call(az=180, el=50),
@@ -143,3 +143,10 @@ def test_el_nod(patch_clients):
 
     # Move back to initial position
     seq.run.CLIENTS['acu'].go_to.start.assert_called_with(az=180, el=50)
+
+
+@patch('sorunlib._internal.time.sleep', MagicMock())
+def test_sine_el_nod(patch_clients):
+    for el_depth, num_nods in [(-0.5, None), (0.5, 1)]:
+        print(el_depth, num_nods)
+        seq.sine_el_nod(el_depth=el_depth, num_nods=num_nods)
