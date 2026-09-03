@@ -55,7 +55,7 @@ def test_set_targets():
 def test_bias_step(concurrent):
     smurf.bias_step(concurrent=concurrent, settling_time=10)
     for client in smurf.run.CLIENTS['smurf']:
-        client.take_bias_steps.start.assert_called_with(tag=None)
+        client.take_bias_steps.start.assert_called_with(tag=None, kwargs=None)
 
 
 @patch('sorunlib.smurf.time.sleep', MagicMock())
