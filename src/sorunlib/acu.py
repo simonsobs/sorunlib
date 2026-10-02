@@ -102,8 +102,7 @@ def set_hvac(targets, values):
     """Turn the hvac system for the LAT on or off.
 
     Args:
-        targets (list of str): Which subsystems to turn on or off,
-            which can be 'boosters' and/or 'fans'.
+        targets (list of str): Which subsystems to turn on or off.
         values (str or list of str): Value to set for each target.
             If str, broadcast to all targets.
 
