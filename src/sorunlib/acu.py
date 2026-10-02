@@ -102,9 +102,11 @@ def set_hvac(targets, values):
     """Turn the hvac system for the LAT on or off.
 
     Args:
-        targets (list of str): Which subsystems to turn on or off.
-        values (str or list of str): Value to set for each target.
-            If str, broadcast to all targets.
+        targets (list of str): List of devices to set.
+        values (int, float, str, or list): Values to set for each target.
+            If a value matches 'on' or 'off', it will turn the device on or off.
+            Otherwise, it will be interpreted as a 'setpoint' (i.e fan speed %).
+            If values is a scalar, broadcast to all targets.
 
     """
     acu = run.CLIENTS['acu']
