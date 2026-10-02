@@ -102,7 +102,9 @@ def set_hvac(targets, values):
     """Turn the hvac system for the LAT on or off.
 
     Args:
-        targets (list of str): List of devices to set.
+        targets (list of str): List of devices to set. Valid targets include
+            'fans', 'boosters', 'heaters' or specific devices out of these
+            categories, such as 'Booster Yoke Traverse M Servo Space'.
         values (int, float, str, or list): Values to set for each target.
             If a value matches 'on' or 'off', it will turn the device on or off.
             Otherwise, it will be interpreted as a 'setpoint' (i.e fan speed %).
