@@ -96,3 +96,18 @@ def set_shutter(action):
     acu = run.CLIENTS['acu']
     resp = acu.set_shutter(action=action)
     check_response(acu, resp)
+
+
+def set_hvac(targets, values):
+    """Turn the hvac system for the LAT on or off.
+
+    Args:
+        targets (list of str): Which subsystems to turn on or off,
+            which can be 'boosters' and/or 'fans'.
+        values (str or list of str): Value to set for each target.
+            If str, broadcast to all targets.
+
+    """
+    acu = run.CLIENTS['acu']
+    resp = acu.set_hvac(targets=targets, values=values)
+    check_response(acu, resp)
