@@ -83,7 +83,7 @@ def test_set_shutter(patch_clients_satp, action):
 
 @pytest.mark.parametrize("values", [('on'), ('off')])
 def test_set_hvac(patch_clients_lat, values):
-    targets=targets=["boosters", "fans"]
+    targets = ["boosters", "fans"]
     acu.set_hvac(targets=targets, values=values)
     acu.run.CLIENTS['acu'].set_hvac.assert_called_with(
         targets=targets, values=values)
