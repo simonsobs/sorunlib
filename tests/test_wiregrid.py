@@ -292,10 +292,10 @@ def test_calibrate_stepwise_with_biasstep(
     # All other internal functions tested separately, just make sure smurf
     # stream is run
     expected_calls_of_bias_steps = [
-        call(tag=f'wiregrid, wg_before_wo_wg{el_tag}'),
-        call(tag=f'wiregrid, wg_before_wt_wg{el_tag}'),
-        call(tag=f'wiregrid, wg_after_wt_wg{el_tag}'),
-        call(tag=f'wiregrid, wg_after_wo_wg{el_tag}')
+        call(tag=f'wiregrid, wg_before_wo_wg{el_tag}', kwargs=None),
+        call(tag=f'wiregrid, wg_before_wt_wg{el_tag}', kwargs=None),
+        call(tag=f'wiregrid, wg_after_wt_wg{el_tag}', kwargs=None),
+        call(tag=f'wiregrid, wg_after_wo_wg{el_tag}', kwargs=None)
     ]
 
     expected_tags_of_streams = [
@@ -376,10 +376,10 @@ def test_time_constant_cw():
     # just make sure bias_steps and streams because other functions are already
     # tested separately.
     expected_calls_of_bias_steps = [
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_ccw'),
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_ccw')
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw', kwargs=None),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw', kwargs=None),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_ccw', kwargs=None),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_ccw', kwargs=None)
     ]
 
     expected_tags_of_streams = [
@@ -421,10 +421,10 @@ def test_time_constant_ccw_el90():
     # just make sure bias_steps and streams because other functions are already
     # tested separately.
     expected_calls_of_bias_steps = [
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_ccw, wg_el90'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_ccw, wg_el90'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw, wg_el90'),
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw, wg_el90')
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_ccw, wg_el90', kwargs=None),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_ccw, wg_el90', kwargs=None),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw, wg_el90', kwargs=None),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw, wg_el90', kwargs=None)
     ]
 
     expected_tags_of_streams = [
@@ -466,11 +466,11 @@ def test_time_constant_repeats():
     # just make sure bias_steps and streams because other functions are already
     # tested separately.
     expected_calls_of_bias_steps = [
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_ccw'),
-        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw'),
-        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw')
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw', kwargs=None),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw', kwargs=None),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_ccw', kwargs=None),
+        call(tag='wiregrid, wg_time_constant, wg_inserted, hwp_cw', kwargs=None),
+        call(tag='wiregrid, wg_time_constant, wg_ejected, hwp_cw', kwargs=None)
     ]
 
     expected_tags_of_streams = [

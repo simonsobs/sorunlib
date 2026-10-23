@@ -118,12 +118,14 @@ def set_targets(targets):
     run.CLIENTS['smurf'] = _smurf_clients
 
 
-def bias_step(tag=None, concurrent=True, settling_time=None):
+def bias_step(tag=None, bias_step_kwargs=None, concurrent=True, settling_time=None):
     """Perform a bias step on all SMuRF Controllers.
 
     Args:
         tag (str, optional): Tag or comma-separated listed of tags to attach to
             the operation.
+        bias_step_kwargs (dict, optional): Additional keyword arguments to pass to
+            ``take_bias_steps``.
         concurrent (bool, optional): A bool which determines how the operation
             is run across the active SMuRF controllers. It runs in parallel if
             True, and in series if False.
@@ -137,7 +139,8 @@ def bias_step(tag=None, concurrent=True, settling_time=None):
     _run_op('take_bias_steps',
             concurrent=concurrent,
             settling_time=settling_time,
-            tag=tag)
+            tag=tag,
+            kwargs=bias_step_kwargs)
 
 
 def iv_curve(tag=None, iv_kwargs=None, concurrent=True, settling_time=None):
