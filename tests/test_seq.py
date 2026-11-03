@@ -145,8 +145,18 @@ def test_step_el_nod(patch_clients):
     seq.run.CLIENTS['acu'].go_to.start.assert_called_with(az=180, el=50)
 
 
-@patch('sorunlib._internal.time.sleep', MagicMock())
-def test_sine_el_nod(patch_clients):
-    for el_depth, num_nods in [(-0.5, None), (0.5, 1)]:
-        print(el_depth, num_nods)
-        seq.sine_el_nod(el_depth=el_depth, num_nods=num_nods)
+@pytest.mark.parametrize("el_depth, num_nods", [(-0.5, None), (0.5, 1), (0.5, None)])
+@patch("sorunlib._internal.time.sleep", MagicMock())
+def test_sine_el_nod(patch_clients, el_depth, num_nods):
+    # This affects test runtime duration keep it short
+    target = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=0.01)
+    seq.sine_el_nod(stop_time=target.isoformat(), el_depth=el_depth, num_nods=num_nods)
+    seq.run.CLIENTS['acu'].generate_el_nod.start.assert_called_with(el_depth=el_depth, num_nods=num_nods)
+
+@pytest.mark.parametrize("el_depth, el_freq, num_nods", [(-0.5, 0.1, 1.0)])
+@patch("sorunlib._internal.time.sleep", MagicMock())
+def test_sine_el_nod_freq_passed(patch_clients, el_depth, el_freq, num_nods):
+    # This affects test runtime duration keep it short
+    target = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=0.01)
+    seq.sine_el_nod(stop_time=target.isoformat(), el_depth=el_depth, el_freq=el_freq, num_nods=num_nods)
+    seq.run.CLIENTS['acu'].generate_el_nod.start.assert_called_with(el_depth=el_depth, el_freq=el_freq, num_nods=num_nods)

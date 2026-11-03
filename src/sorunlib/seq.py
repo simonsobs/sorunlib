@@ -124,7 +124,7 @@ def step_el_nod(el1, el2, num=5, pause=5):
 
     try:
         # Enable SMuRF streams
-        run.smurf.stream('on', subtype='cal', tag='step_el_nods')
+        run.smurf.stream('on', subtype='cal', tag='el_nods,step_nod')
 
         # Grab current telescope position
         resp = acu.monitor.status()
@@ -144,7 +144,7 @@ def step_el_nod(el1, el2, num=5, pause=5):
         stop_smurfs()
 
 
-def sine_el_nod(el_depth, num_nods=None, **kwargs):
+def sine_el_nod(stop_time, el_depth, num_nods=None, **kwargs):
     """Perform a set of sinusoidal elevation nods.
 
     Elevation nods will be peformed at the current azimuth, and will start from
@@ -152,17 +152,27 @@ def sine_el_nod(el_depth, num_nods=None, **kwargs):
     elevation and +/- el_depth depending on if el_depth is positive or negative.
 
     Args:
+        stop_time (str): If num_nods is None, run sine el nod until this time.
+            Should be in ISO format, i.e. "2022-06-21T15:58:00"
         el_depth (float): The number of degrees from the current el to nod to.
             Can be negative.
         num_nods (int or None): Number of nods to perform.  If not None, limits
             the nods to the specified number of sinusoidal nods. The process will
             exit without error once that has completed.
     """
+    if num_nods is None:
+        now = dt.datetime.now(dt.timezone.utc)
+        scan_stop = _timestamp_to_utc_datetime(stop_time)
+
+        # Check stop time has not already passed
+        if now > scan_stop:
+            return
+
     acu = run.CLIENTS['acu']
 
     try:
         # Enable SMuRF streams
-        run.smurf.stream('on', subtype='cal', tag='sine_el_nods')
+        run.smurf.stream('on', subtype='cal', tag='el_nods,sine_nods')
 
         # Start telescope motion
         resp = acu.generate_el_nod.start(el_depth=el_depth,
@@ -170,5 +180,11 @@ def sine_el_nod(el_depth, num_nods=None, **kwargs):
                                          **kwargs)
 
         check_started(acu, resp)
+
+        if num_nods is None:
+            monitor_process(acu, 'generate_el_nod', stop_time)
+        else:
+            acu.generate_el_nod.wait()
+
     finally:
         _stop_scan(acu.generate_el_nod)

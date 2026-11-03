@@ -69,9 +69,11 @@ def _mock_acu_client(platform_type, az=180, el=50, boresight=0):
     acu.generate_scan.start = MagicMock(return_value=reply)
     acu.generate_scan.status = MagicMock(return_value=reply)
     # el nod
+    session_el_nod = create_session('generate_el_nod', status='running')
+    reply_el_nod = OCSReply(ocs.OK, 'msg', session_el_nod.encoded())
     acu.generate_el_nod = MagicMock()
-    acu.generate_el_nod.start = MagicMock(return_value=reply)
-    acu.generate_el_nod.status = MagicMock(return_value=reply)
+    acu.generate_el_nod.start = MagicMock(return_value=reply_el_nod)
+    acu.generate_el_nod.status = MagicMock(return_value=reply_el_nod)
 
     return acu
 
