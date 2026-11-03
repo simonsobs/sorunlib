@@ -153,6 +153,7 @@ def test_sine_el_nod(patch_clients, el_depth, num_nods):
     seq.sine_el_nod(stop_time=target.isoformat(), el_depth=el_depth, num_nods=num_nods)
     seq.run.CLIENTS['acu'].generate_el_nod.start.assert_called_with(el_depth=el_depth, num_nods=num_nods)
 
+
 @pytest.mark.parametrize("el_depth, el_freq, num_nods", [(-0.5, 0.1, 1.0)])
 @patch("sorunlib._internal.time.sleep", MagicMock())
 def test_sine_el_nod_freq_passed(patch_clients, el_depth, el_freq, num_nods):
