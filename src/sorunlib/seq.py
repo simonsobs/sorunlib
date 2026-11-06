@@ -124,7 +124,7 @@ def step_el_nod(el1, el2, num=5, pause=5):
 
     try:
         # Enable SMuRF streams
-        run.smurf.stream('on', subtype='cal', tag='el_nods,step_nod')
+        run.smurf.stream('on', subtype='cal', tag='el_nods,step_nods')
 
         # Grab current telescope position
         resp = acu.monitor.status()
@@ -184,7 +184,7 @@ def sine_el_nod(stop_time, el_depth, num_nods=None, **kwargs):
         if num_nods is None:
             monitor_process(acu, 'generate_el_nod', stop_time)
         else:
-            acu.generate_el_nod.wait()
+            acu.generate_el_nod.wait(timeout=1200)
 
     finally:
         _stop_scan(acu.generate_el_nod)
